@@ -60,11 +60,7 @@ func generateMethod(name string, hasParams bool, g tgparser.Group) string {
 	}
 
 	return fmt.Sprintf(`// %s %s
-func (c *API) %s(%s) (x %s,err error) {
-	resp, err := c.doHTTP("%s", %s)
-	if err != nil {
-		return x, err
-	}
-	return unmarshal[%s](resp.Body)
-}`, name, g.Description, name, params, returnType, g.Name, paramsParam, returnType)
+func (c *API) %s(%s) (data %s,err error) {
+	return doHTTP[%s](c.client, c.url, "%s", %s)
+}`, name, g.Description, name, params, returnType, returnType, g.Name, paramsParam)
 }
