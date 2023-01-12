@@ -13,15 +13,20 @@ import (
 const TelegramHost = "https://api.telegram.org"
 
 type API struct {
-	token string
-	host  string
-	http  *http.Client
+	url    string
+	client *http.Client
 }
 
 // API Implements pure bot-api methods
-func NewAPI(token string) *API {
-	return &API{token: token, host: TelegramHost, http: &http.Client{}}
+func NewAPI(token, host string, client *http.Client) *API {
+	if host == "" {
+		host = TelegramHost
+	}
+
+	return &API{url: host + "/bot" + token + "/", client: client}
 }
+
+type MultipartForm interface{ HasUploadable() bool }
 
 type httpResponse[T any] struct {
 	OK     bool `json:"ok"`
@@ -37,27 +42,16 @@ type Error struct {
 
 func (e Error) Error() string { return e.Description }
 
-// ToDo: Better error handling
-func unmarshal[T any](body io.ReadCloser) (x T, err error) {
-	defer body.Close()
+func doHTTP[T any](client *http.Client, baseURL, method string, rawData any) (data T, err error) {
+	var url = baseURL + method
 
-	data := &httpResponse[T]{}
-	if err := json.NewDecoder(body).Decode(data); err != nil {
-		return x, err
-	} else if !data.OK {
-		return x, data.Error
-	}
-	return data.Result, nil
-}
+	var resp *http.Response
 
-type MultipartForm interface{ HasUploadable() bool }
-
-func (c *API) doHTTP(method string, raw any) (*http.Response, error) {
-	url := c.host + "/bot" + c.token + "/" + method
-
-	if raw == nil {
-		return c.http.Get(url)
-	} else if data, ok := raw.(MultipartForm); ok && data.HasUploadable() {
+	if rawData == nil {
+		if resp, err = client.Get(url); err != nil {
+			return
+		}
+	} else if body, ok := rawData.(MultipartForm); ok && body.HasUploadable() {
 		r, w := io.Pipe()
 		defer r.Close()
 
@@ -67,7 +61,7 @@ func (c *API) doHTTP(method string, raw any) (*http.Response, error) {
 			defer w.Close()
 			defer m.Close()
 
-			params, files := getParamsAndFiles(data)
+			params, files := getParamsAndFiles(body)
 			for key, val := range params {
 				m.WriteField(key, val)
 			}
@@ -84,14 +78,30 @@ func (c *API) doHTTP(method string, raw any) (*http.Response, error) {
 			}
 		}()
 
-		return c.http.Post(url, m.FormDataContentType(), r)
+		if resp, err = client.Post(url, m.FormDataContentType(), r); err != nil {
+			return
+		}
+	} else {
+		body := bytes.NewBuffer(nil)
+		if err = json.NewEncoder(body).Encode(rawData); err != nil {
+			return
+		}
+
+		if resp, err = client.Post(url, "application/json", body); err != nil {
+			return
+		}
 	}
 
-	data := bytes.NewBuffer(nil)
-	if err := json.NewEncoder(data).Encode(raw); err != nil {
-		return nil, err
+	defer resp.Body.Close()
+
+	response := &httpResponse[T]{}
+	if err = json.NewDecoder(resp.Body).Decode(response); err != nil {
+		return
+	} else if !response.OK {
+		err = response.Error
+		return
 	}
-	return c.http.Post(url, "application/json", data)
+	return response.Result, nil
 }
 
 func getParamsAndFiles(d any) (params Params, files map[string]*InputFileWithUpload) {
