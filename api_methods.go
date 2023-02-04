@@ -525,10 +525,11 @@ func (c *API) UnbanChatMember(params UnbanChatMemberParams) (data bool, err erro
 
 // RestrictChatMemberParams contains the method's parameters
 type RestrictChatMemberParams struct {
-	ChatId      ChatID           `json:"chat_id"`              // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
-	UserId      int64            `json:"user_id"`              // Unique identifier of the target user
-	Permissions *ChatPermissions `json:"permissions"`          // A JSON-serialized object for new user permissions
-	UntilDate   int64            `json:"until_date,omitempty"` // Optional. Date when restrictions will be lifted for the user, unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever
+	ChatId                        ChatID           `json:"chat_id"`                                    // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+	UserId                        int64            `json:"user_id"`                                    // Unique identifier of the target user
+	Permissions                   *ChatPermissions `json:"permissions"`                                // A JSON-serialized object for new user permissions
+	UseIndependentChatPermissions bool             `json:"use_independent_chat_permissions,omitempty"` // Optional. Pass True if chat permissions are set independently. Otherwise, the can_send_other_messages and can_add_web_page_previews permissions will imply the can_send_messages, can_send_audios, can_send_documents, can_send_photos, can_send_videos, can_send_video_notes, and can_send_voice_notes permissions; the can_send_polls permission will imply the can_send_messages permission.
+	UntilDate                     int64            `json:"until_date,omitempty"`                       // Optional. Date when restrictions will be lifted for the user, unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever
 }
 
 // RestrictChatMember Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights. Pass True for all permissions to lift restrictions from a user. Returns True on success.
@@ -595,8 +596,9 @@ func (c *API) UnbanChatSenderChat(params UnbanChatSenderChatParams) (data bool, 
 
 // SetChatPermissionsParams contains the method's parameters
 type SetChatPermissionsParams struct {
-	ChatId      ChatID           `json:"chat_id"`     // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
-	Permissions *ChatPermissions `json:"permissions"` // A JSON-serialized object for new default chat permissions
+	ChatId                        ChatID           `json:"chat_id"`                                    // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+	Permissions                   *ChatPermissions `json:"permissions"`                                // A JSON-serialized object for new default chat permissions
+	UseIndependentChatPermissions bool             `json:"use_independent_chat_permissions,omitempty"` // Optional. Pass True if chat permissions are set independently. Otherwise, the can_send_other_messages and can_add_web_page_previews permissions will imply the can_send_messages, can_send_audios, can_send_documents, can_send_photos, can_send_videos, can_send_video_notes, and can_send_voice_notes permissions; the can_send_polls permission will imply the can_send_messages permission.
 }
 
 // SetChatPermissions Use this method to set default chat permissions for all members. The bot must be an administrator in the group or a supergroup for this to work and must have the can_restrict_members administrator rights. Returns True on success.
@@ -802,7 +804,7 @@ type GetChatMemberParams struct {
 	UserId int64  `json:"user_id"` // Unique identifier of the target user
 }
 
-// GetChatMember Use this method to get information about a member of a chat. The method is guaranteed to work for other users, only if the bot is an administrator in the chat. Returns a ChatMember object on success.
+// GetChatMember Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success.
 func (c *API) GetChatMember(params GetChatMemberParams) (data *ChatMember, err error) {
 	return doHTTP[*ChatMember](c.client, c.url, "getChatMember", params)
 }
