@@ -1,4 +1,4 @@
-package tgo
+package botapi
 
 import (
 	"bytes"
@@ -8,7 +8,10 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+	"time"
 )
+
+//go:generate go run ../internal/codegen
 
 const TelegramHost = "https://api.telegram.org"
 
@@ -22,8 +25,17 @@ func NewAPI(token, host string, client *http.Client) *API {
 	if host == "" {
 		host = TelegramHost
 	}
+	if client == nil {
+		client = &http.Client{Timeout: 30 * time.Second}
+	}
 
-	return &API{url: host + "/bot" + token + "/", client: client}
+	return &API{url: CreateApiURL(host, token), client: client}
+}
+
+func (api *API) GetHTTPTimeout() int64 { return int64(api.client.Timeout.Seconds()) }
+
+func CreateApiURL(host, token string) string {
+	return host + "/bot" + token + "/"
 }
 
 type MultipartForm interface{ HasUploadable() bool }
