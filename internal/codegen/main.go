@@ -60,7 +60,7 @@ func main() {
 }
 
 func formatAndSave(path string, data []string) error {
-	formattedCode, err := format.Source([]byte("package tgo\n\n" + strings.Join(data, "\n\n")))
+	formattedCode, err := format.Source([]byte("package botapi\n\n" + strings.Join(data, "\n\n")))
 	if err != nil {
 		return err
 	}
