@@ -1,24 +1,19 @@
 package tgo
 
-import "io"
+import (
+	"io"
 
-type InputFile interface{ NeedsUpload() bool }
+	"github.com/haashemi/tgo/botapi"
+)
 
-type InputFileNoUpload string
-
-func (InputFileNoUpload) NeedsUpload() bool { return false }
-
-func FileFromID(fileID string) InputFile { return InputFileNoUpload(fileID) }
-
-func FileFromURL(url string) InputFile { return InputFileNoUpload(url) }
-
-type InputFileWithUpload struct {
-	Name   string
-	Reader io.Reader
+func FileFromID(fileID string) botapi.InputFile {
+	return botapi.FileFromID(fileID)
 }
 
-func (InputFileWithUpload) NeedsUpload() bool { return true }
+func FileFromURL(url string) botapi.InputFile {
+	return botapi.FileFromURL(url)
+}
 
-func FileFromReader(name string, reader io.Reader) InputFile {
-	return &InputFileWithUpload{Name: name, Reader: reader}
+func FileFromReader(name string, reader io.Reader) botapi.InputFile {
+	return botapi.FileFromReader(name, reader)
 }
