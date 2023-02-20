@@ -9,14 +9,14 @@ type Party struct {
 
 type Filter func(update *Update) bool
 
-type Handler func(ctx Context)
+type Handler func(ctx *Context)
 
 type handlerData struct {
 	filter   Filter
 	handlers []Handler
 }
 
-func (p *Party) handleUpdate(ctx Context) {
+func (p *Party) handleUpdate(ctx *Context) {
 	// 1- Filter validation
 	if p.filter != nil && !p.filter(ctx.RawUpdate()) {
 		return
@@ -37,7 +37,7 @@ func (p *Party) handleUpdate(ctx Context) {
 		}
 		newCtx := ctx.clone()
 
-		go func(hs []Handler, ctx Context) {
+		go func(hs []Handler, ctx *Context) {
 			for _, h := range hs {
 				h(newCtx)
 				if newCtx.isStopped() {

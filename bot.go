@@ -1,6 +1,7 @@
 package tgo
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 )
@@ -8,8 +9,11 @@ import (
 type Bot struct {
 	*Party
 
-	me  *User
 	api *API
+	me  *User
+
+	askMut sync.RWMutex
+	asks   map[string]chan<- *Context
 
 	sessionsMut sync.Mutex
 	sessions    map[int64]*Session
@@ -32,6 +36,7 @@ func NewBot(token string, opts Options) (*Bot, error) {
 		Party:    &Party{},
 		api:      api,
 		me:       me,
+		asks:     make(map[string]chan<- *Context),
 		sessions: make(map[int64]*Session),
 	}
 
@@ -57,7 +62,23 @@ func (bot *Bot) StartPolling() error {
 		for _, update := range data {
 			offset = update.UpdateId + 1
 
-			go bot.handleUpdate(newContext(bot, update))
+			ctx := newContext(bot, update)
+
+			go func(update *Update) {
+				if update.Message != nil {
+					uid := fmt.Sprintf("%d-%d", ctx.ChatID(), ctx.SenderChatID())
+
+					bot.askMut.RLock()
+					if receiver, ok := bot.asks[uid]; ok {
+						receiver <- ctx
+					}
+					bot.askMut.RUnlock()
+
+					return
+				}
+
+				bot.handleUpdate(ctx)
+			}(update)
 		}
 	}
 }
