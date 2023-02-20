@@ -82,6 +82,11 @@ func (ctx *Context) Send(sendable SendableMessage) (*Message, error) {
 		Send(ctx.bot.api)
 }
 
+// ToDo: get the message id in a better way
+func (ctx *Context) Reply(sendable SendableMessage) (*Message, error) {
+	return ctx.Send(sendable.SetReplyToMessageID(ctx.data.Message.MessageId))
+}
+
 func (ctx *Context) Ask(sendable SendableMessage, timeout time.Duration) (question *Message, answer *Context, err error) {
 	question, err = ctx.Send(sendable)
 	if err != nil {
