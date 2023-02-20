@@ -1,4 +1,4 @@
-package botapi
+package tgo
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-//go:generate go run ../internal/codegen
+//go:generate go run ./internal/codegen
 
 const TelegramHost = "https://api.telegram.org"
 

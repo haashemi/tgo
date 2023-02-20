@@ -1,23 +1,21 @@
 package tgo
 
-import "github.com/haashemi/tgo/botapi"
-
 type Context = *context
 
 type context struct {
 	bot     *Bot
-	data    *botapi.Update
+	data    *Update
 	stopped bool
 }
 
-func newContext(bot *Bot, update *botapi.Update) *context {
+func newContext(bot *Bot, update *Update) *context {
 	return &context{
 		bot:  bot,
 		data: update,
 	}
 }
 
-func (ctx *context) API() *botapi.API {
+func (ctx *context) API() *API {
 	return ctx.bot.api
 }
 
@@ -66,14 +64,14 @@ func (ctx *context) ThreadID() int64 {
 	return 0
 }
 
-func (ctx *context) Send(sendable SendableMessage) (*botapi.Message, error) {
+func (ctx *context) Send(sendable SendableMessage) (*Message, error) {
 	return sendable.SetChatID(NewChatID(ctx.ChatID())).
 		SetThreadID(ctx.ThreadID()).
 		Send(ctx.bot.api)
 }
 
 // RawUpdate returns the update came from telegram directly.
-func (ctx *context) RawUpdate() *botapi.Update {
+func (ctx *context) RawUpdate() *Update {
 	return ctx.data
 }
 

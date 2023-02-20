@@ -1,7 +1,5 @@
 package tgo
 
-import "github.com/haashemi/tgo/botapi"
-
 type Party struct {
 	filter      Filter
 	middlewares []Handler
@@ -9,7 +7,7 @@ type Party struct {
 	parties     []*Party
 }
 
-type Filter func(update *botapi.Update) bool
+type Filter func(update *Update) bool
 
 type Handler func(ctx Context)
 

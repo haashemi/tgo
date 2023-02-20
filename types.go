@@ -1,16 +1,27 @@
 package tgo
 
-import (
-	"github.com/haashemi/tgo/botapi"
-)
+import "fmt"
 
-func NewChatID(id any) botapi.ChatID { return botapi.NewChatID(id) }
+type ChatID string
 
-type ParseMode = botapi.ParseMode
+func NewChatID(id any) ChatID {
+	if val, ok := id.(string); ok {
+		return ChatID(val)
+	}
+
+	return ChatID(fmt.Sprint(id))
+}
+
+type ParseMode string
 
 const (
-	ParseModeNone       ParseMode = botapi.ParseModeNone
-	ParseModeMarkdown   ParseMode = botapi.ParseModeMarkdown
-	ParseModeMarkdownV2 ParseMode = botapi.ParseModeMarkdownV2
-	ParseModeHTML       ParseMode = botapi.ParseModeHTML
+	ParseModeNone       ParseMode = ""
+	ParseModeMarkdown   ParseMode = "Markdown"
+	ParseModeMarkdownV2 ParseMode = "MarkdownV2"
+	ParseModeHTML       ParseMode = "HTML"
 )
+
+type ReplyMarkup interface {
+	// IsReplyMarkup does nothing and is only used to enforce type-safety
+	IsReplyMarkup()
+}

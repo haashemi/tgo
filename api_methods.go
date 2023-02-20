@@ -1,4 +1,4 @@
-package botapi
+package tgo
 
 // GetUpdatesParams contains the method's parameters
 type GetUpdatesParams struct {
