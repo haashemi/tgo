@@ -66,7 +66,7 @@ func typeOf(key, s string) string {
 	case "InputMediaAudio, InputMediaDocument, InputMediaPhoto and InputMediaVideo":
 		return "InputMedia"
 	case "InlineKeyboardMarkup or ReplyKeyboardMarkup or ReplyKeyboardRemove or ForceReply":
-		return "InlineKeyboard"
+		return "ReplyMarkup"
 
 	// Other types, it should be a struct.
 	default:

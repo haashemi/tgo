@@ -6,27 +6,25 @@ type InputFile interface {
 	NeedsUpload() bool
 }
 
-type InputFileNoUpload string
-
-func (InputFileNoUpload) NeedsUpload() bool {
-	return false
-}
-
-func FileFromID(fileID string) InputFile {
-	return InputFileNoUpload(fileID)
-}
-
-func FileFromURL(url string) InputFile {
-	return InputFileNoUpload(url)
-}
-
-type InputFileWithUpload struct {
+type InputFileUploadable struct {
 	Name   string
 	Reader io.Reader
 }
 
-func (InputFileWithUpload) NeedsUpload() bool { return true }
+type InputFileNotUploadable string
+
+func (InputFileUploadable) NeedsUpload() bool { return true }
+
+func (InputFileNotUploadable) NeedsUpload() bool { return false }
+
+func FileFromID(fileID string) InputFile {
+	return InputFileNotUploadable(fileID)
+}
+
+func FileFromURL(url string) InputFile {
+	return InputFileNotUploadable(url)
+}
 
 func FileFromReader(name string, reader io.Reader) InputFile {
-	return &InputFileWithUpload{Name: name, Reader: reader}
+	return &InputFileUploadable{Name: name, Reader: reader}
 }

@@ -75,7 +75,7 @@ type SendMessageParams struct {
 	ProtectContent           bool             `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
 	ReplyToMessageId         int64            `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
 	AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard   `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup              ReplyMarkup      `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 // SendMessage Use this method to send text messages. On success, the sent Message is returned.
@@ -111,7 +111,7 @@ type CopyMessageParams struct {
 	ProtectContent           bool             `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
 	ReplyToMessageId         int64            `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
 	AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard   `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup              ReplyMarkup      `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 // CopyMessage Use this method to copy messages of any kind. Service messages and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
@@ -132,7 +132,7 @@ type SendPhotoParams struct {
 	ProtectContent           bool             `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
 	ReplyToMessageId         int64            `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
 	AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard   `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup              ReplyMarkup      `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 func (d SendPhotoParams) HasUploadable() bool {
@@ -160,7 +160,7 @@ type SendAudioParams struct {
 	ProtectContent           bool             `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
 	ReplyToMessageId         int64            `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
 	AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard   `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup              ReplyMarkup      `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 func (d SendAudioParams) HasUploadable() bool {
@@ -186,7 +186,7 @@ type SendDocumentParams struct {
 	ProtectContent              bool             `json:"protect_content,omitempty"`                // Optional. Protects the contents of the sent message from forwarding and saving
 	ReplyToMessageId            int64            `json:"reply_to_message_id,omitempty"`            // Optional. If the message is a reply, ID of the original message
 	AllowSendingWithoutReply    bool             `json:"allow_sending_without_reply,omitempty"`    // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup                 InlineKeyboard   `json:"reply_markup,omitempty"`                   // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup                 ReplyMarkup      `json:"reply_markup,omitempty"`                   // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 func (d SendDocumentParams) HasUploadable() bool {
@@ -216,7 +216,7 @@ type SendVideoParams struct {
 	ProtectContent           bool             `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
 	ReplyToMessageId         int64            `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
 	AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard   `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup              ReplyMarkup      `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 func (d SendVideoParams) HasUploadable() bool {
@@ -245,7 +245,7 @@ type SendAnimationParams struct {
 	ProtectContent           bool             `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
 	ReplyToMessageId         int64            `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
 	AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard   `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup              ReplyMarkup      `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 func (d SendAnimationParams) HasUploadable() bool {
@@ -270,7 +270,7 @@ type SendVoiceParams struct {
 	ProtectContent           bool             `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
 	ReplyToMessageId         int64            `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
 	AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard   `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup              ReplyMarkup      `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 func (d SendVoiceParams) HasUploadable() bool {
@@ -284,17 +284,17 @@ func (c *API) SendVoice(params SendVoiceParams) (data *Message, err error) {
 
 // SendVideoNoteParams contains the method's parameters
 type SendVideoNoteParams struct {
-	ChatId                   ChatID         `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId          int64          `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	VideoNote                InputFile      `json:"video_note"`                            // Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files ». Sending video notes by a URL is currently unsupported
-	Duration                 int64          `json:"duration,omitempty"`                    // Optional. Duration of sent video in seconds
-	Length                   int64          `json:"length,omitempty"`                      // Optional. Video width and height, i.e. diameter of the video message
-	Thumb                    InputFile      `json:"thumb,omitempty"`                       // Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-	DisableNotification      bool           `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent           bool           `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
-	ReplyToMessageId         int64          `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
-	AllowSendingWithoutReply bool           `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ChatId                   ChatID      `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId          int64       `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	VideoNote                InputFile   `json:"video_note"`                            // Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files ». Sending video notes by a URL is currently unsupported
+	Duration                 int64       `json:"duration,omitempty"`                    // Optional. Duration of sent video in seconds
+	Length                   int64       `json:"length,omitempty"`                      // Optional. Video width and height, i.e. diameter of the video message
+	Thumb                    InputFile   `json:"thumb,omitempty"`                       // Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	DisableNotification      bool        `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent           bool        `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
+	ReplyToMessageId         int64       `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
+	AllowSendingWithoutReply bool        `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
+	ReplyMarkup              ReplyMarkup `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 func (d SendVideoNoteParams) HasUploadable() bool {
@@ -324,19 +324,19 @@ func (c *API) SendMediaGroup(params SendMediaGroupParams) (data []*Message, err 
 
 // SendLocationParams contains the method's parameters
 type SendLocationParams struct {
-	ChatId                   ChatID         `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId          int64          `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Latitude                 float64        `json:"latitude"`                              // Latitude of the location
-	Longitude                float64        `json:"longitude"`                             // Longitude of the location
-	HorizontalAccuracy       float64        `json:"horizontal_accuracy,omitempty"`         // Optional. The radius of uncertainty for the location, measured in meters; 0-1500
-	LivePeriod               int64          `json:"live_period,omitempty"`                 // Optional. Period in seconds for which the location will be updated (see Live Locations, should be between 60 and 86400.
-	Heading                  int64          `json:"heading,omitempty"`                     // Optional. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
-	ProximityAlertRadius     int64          `json:"proximity_alert_radius,omitempty"`      // Optional. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
-	DisableNotification      bool           `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent           bool           `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
-	ReplyToMessageId         int64          `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
-	AllowSendingWithoutReply bool           `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ChatId                   ChatID      `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId          int64       `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Latitude                 float64     `json:"latitude"`                              // Latitude of the location
+	Longitude                float64     `json:"longitude"`                             // Longitude of the location
+	HorizontalAccuracy       float64     `json:"horizontal_accuracy,omitempty"`         // Optional. The radius of uncertainty for the location, measured in meters; 0-1500
+	LivePeriod               int64       `json:"live_period,omitempty"`                 // Optional. Period in seconds for which the location will be updated (see Live Locations, should be between 60 and 86400.
+	Heading                  int64       `json:"heading,omitempty"`                     // Optional. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
+	ProximityAlertRadius     int64       `json:"proximity_alert_radius,omitempty"`      // Optional. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
+	DisableNotification      bool        `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent           bool        `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
+	ReplyToMessageId         int64       `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
+	AllowSendingWithoutReply bool        `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
+	ReplyMarkup              ReplyMarkup `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 // SendLocation Use this method to send point on the map. On success, the sent Message is returned.
@@ -377,21 +377,21 @@ func (c *API) StopMessageLiveLocation(params StopMessageLiveLocationParams) (dat
 
 // SendVenueParams contains the method's parameters
 type SendVenueParams struct {
-	ChatId                   ChatID         `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId          int64          `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Latitude                 float64        `json:"latitude"`                              // Latitude of the venue
-	Longitude                float64        `json:"longitude"`                             // Longitude of the venue
-	Title                    string         `json:"title"`                                 // Name of the venue
-	Address                  string         `json:"address"`                               // Address of the venue
-	FoursquareId             string         `json:"foursquare_id,omitempty"`               // Optional. Foursquare identifier of the venue
-	FoursquareType           string         `json:"foursquare_type,omitempty"`             // Optional. Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
-	GooglePlaceId            string         `json:"google_place_id,omitempty"`             // Optional. Google Places identifier of the venue
-	GooglePlaceType          string         `json:"google_place_type,omitempty"`           // Optional. Google Places type of the venue. (See supported types.)
-	DisableNotification      bool           `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent           bool           `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
-	ReplyToMessageId         int64          `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
-	AllowSendingWithoutReply bool           `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ChatId                   ChatID      `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId          int64       `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Latitude                 float64     `json:"latitude"`                              // Latitude of the venue
+	Longitude                float64     `json:"longitude"`                             // Longitude of the venue
+	Title                    string      `json:"title"`                                 // Name of the venue
+	Address                  string      `json:"address"`                               // Address of the venue
+	FoursquareId             string      `json:"foursquare_id,omitempty"`               // Optional. Foursquare identifier of the venue
+	FoursquareType           string      `json:"foursquare_type,omitempty"`             // Optional. Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
+	GooglePlaceId            string      `json:"google_place_id,omitempty"`             // Optional. Google Places identifier of the venue
+	GooglePlaceType          string      `json:"google_place_type,omitempty"`           // Optional. Google Places type of the venue. (See supported types.)
+	DisableNotification      bool        `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent           bool        `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
+	ReplyToMessageId         int64       `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
+	AllowSendingWithoutReply bool        `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
+	ReplyMarkup              ReplyMarkup `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 // SendVenue Use this method to send information about a venue. On success, the sent Message is returned.
@@ -401,17 +401,17 @@ func (c *API) SendVenue(params SendVenueParams) (data *Message, err error) {
 
 // SendContactParams contains the method's parameters
 type SendContactParams struct {
-	ChatId                   ChatID         `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId          int64          `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	PhoneNumber              string         `json:"phone_number"`                          // Contact's phone number
-	FirstName                string         `json:"first_name"`                            // Contact's first name
-	LastName                 string         `json:"last_name,omitempty"`                   // Optional. Contact's last name
-	Vcard                    string         `json:"vcard,omitempty"`                       // Optional. Additional data about the contact in the form of a vCard, 0-2048 bytes
-	DisableNotification      bool           `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent           bool           `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
-	ReplyToMessageId         int64          `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
-	AllowSendingWithoutReply bool           `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ChatId                   ChatID      `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId          int64       `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	PhoneNumber              string      `json:"phone_number"`                          // Contact's phone number
+	FirstName                string      `json:"first_name"`                            // Contact's first name
+	LastName                 string      `json:"last_name,omitempty"`                   // Optional. Contact's last name
+	Vcard                    string      `json:"vcard,omitempty"`                       // Optional. Additional data about the contact in the form of a vCard, 0-2048 bytes
+	DisableNotification      bool        `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent           bool        `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
+	ReplyToMessageId         int64       `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
+	AllowSendingWithoutReply bool        `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
+	ReplyMarkup              ReplyMarkup `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 // SendContact Use this method to send phone contacts. On success, the sent Message is returned.
@@ -439,7 +439,7 @@ type SendPollParams struct {
 	ProtectContent           bool             `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
 	ReplyToMessageId         int64            `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
 	AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard   `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup              ReplyMarkup      `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 // SendPoll Use this method to send a native poll. On success, the sent Message is returned.
@@ -449,14 +449,14 @@ func (c *API) SendPoll(params SendPollParams) (data *Message, err error) {
 
 // SendDiceParams contains the method's parameters
 type SendDiceParams struct {
-	ChatId                   ChatID         `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId          int64          `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Emoji                    string         `json:"emoji,omitempty"`                       // Optional. Emoji on which the dice throw animation is based. Currently, must be one of “”, “”, “”, “”, “”, or “”. Dice can have values 1-6 for “”, “” and “”, values 1-5 for “” and “”, and values 1-64 for “”. Defaults to “”
-	DisableNotification      bool           `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent           bool           `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding
-	ReplyToMessageId         int64          `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
-	AllowSendingWithoutReply bool           `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ChatId                   ChatID      `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId          int64       `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Emoji                    string      `json:"emoji,omitempty"`                       // Optional. Emoji on which the dice throw animation is based. Currently, must be one of “”, “”, “”, “”, “”, or “”. Dice can have values 1-6 for “”, “” and “”, values 1-5 for “” and “”, and values 1-64 for “”. Defaults to “”
+	DisableNotification      bool        `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent           bool        `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding
+	ReplyToMessageId         int64       `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
+	AllowSendingWithoutReply bool        `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
+	ReplyMarkup              ReplyMarkup `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 // SendDice Use this method to send an animated emoji that will display a random value. On success, the sent Message is returned.
@@ -1131,14 +1131,14 @@ func (c *API) DeleteMessage(params DeleteMessageParams) (data bool, err error) {
 
 // SendStickerParams contains the method's parameters
 type SendStickerParams struct {
-	ChatId                   ChatID         `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId          int64          `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Sticker                  InputFile      `json:"sticker"`                               // Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »
-	DisableNotification      bool           `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent           bool           `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
-	ReplyToMessageId         int64          `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
-	AllowSendingWithoutReply bool           `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              InlineKeyboard `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ChatId                   ChatID      `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId          int64       `json:"message_thread_id,omitempty"`           // Optional. Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Sticker                  InputFile   `json:"sticker"`                               // Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »
+	DisableNotification      bool        `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent           bool        `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
+	ReplyToMessageId         int64       `json:"reply_to_message_id,omitempty"`         // Optional. If the message is a reply, ID of the original message
+	AllowSendingWithoutReply bool        `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
+	ReplyMarkup              ReplyMarkup `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 func (d SendStickerParams) HasUploadable() bool {

@@ -3,6 +3,7 @@ package botapi
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -32,13 +33,15 @@ func NewAPI(token, host string, client *http.Client) *API {
 	return &API{url: CreateApiURL(host, token), client: client}
 }
 
-func (api *API) GetHTTPTimeout() int64 { return int64(api.client.Timeout.Seconds()) }
+func (api *API) GetHTTPTimeout() int64 {
+	return int64(api.client.Timeout.Seconds())
+}
 
 func CreateApiURL(host, token string) string {
 	return host + "/bot" + token + "/"
 }
 
-type MultipartForm interface{ HasUploadable() bool }
+type multipartForm interface{ HasUploadable() bool }
 
 type httpResponse[T any] struct {
 	OK     bool `json:"ok"`
@@ -63,7 +66,7 @@ func doHTTP[T any](client *http.Client, baseURL, method string, rawData any) (da
 		if resp, err = client.Get(url); err != nil {
 			return
 		}
-	} else if body, ok := rawData.(MultipartForm); ok && body.HasUploadable() {
+	} else if body, ok := rawData.(multipartForm); ok && body.HasUploadable() {
 		r, w := io.Pipe()
 		defer r.Close()
 
@@ -116,9 +119,9 @@ func doHTTP[T any](client *http.Client, baseURL, method string, rawData any) (da
 	return response.Result, nil
 }
 
-func getParamsAndFiles(d any) (params Params, files map[string]*InputFileWithUpload) {
-	params = NewParams()
-	files = make(map[string]*InputFileWithUpload)
+func getParamsAndFiles(d any) (params map[string]string, files map[string]*InputFileUploadable) {
+	params = make(map[string]string)
+	files = make(map[string]*InputFileUploadable)
 
 	v := reflect.ValueOf(d)
 	vType := reflect.TypeOf(d)
@@ -135,14 +138,15 @@ func getParamsAndFiles(d any) (params Params, files map[string]*InputFileWithUpl
 
 		if xx, ok := data.(InputFile); ok {
 			if xx.NeedsUpload() {
-				files[tag] = xx.(*InputFileWithUpload)
+				files[tag] = xx.(*InputFileUploadable)
 			} else {
-				params.Add(tag, xx.(InputFileNoUpload))
+				params[tag] = string(xx.(InputFileNotUploadable))
 			}
 		} else if field.Type().Kind() == reflect.Struct {
-			params.AddOptionalJSON(tag, data)
+			raw, _ := json.Marshal(data)
+			params[tag] = string(raw)
 		} else {
-			params.Add(tag, data)
+			params[tag] = fmt.Sprint(data)
 		}
 	}
 

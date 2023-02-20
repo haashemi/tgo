@@ -18,7 +18,7 @@ type TextOptions struct {
 	DisableNotification      bool                    `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent           bool                    `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
 	AllowSendingWithoutReply bool                    `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              botapi.InlineKeyboard   `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup              botapi.ReplyMarkup      `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 func NewText(text string, parseMode ...ParseMode) *SendableText {
