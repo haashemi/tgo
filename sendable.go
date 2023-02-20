@@ -11,12 +11,12 @@ type SendableMessage interface {
 type SendableText struct{ params SendMessageParams }
 
 type TextOptions struct {
-	Entities                 []*MessageEntity `json:"entities,omitempty"`                    // Optional. A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode
-	DisableWebPagePreview    bool             `json:"disable_web_page_preview,omitempty"`    // Optional. Disables link previews for links in this message
-	DisableNotification      bool             `json:"disable_notification,omitempty"`        // Optional. Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent           bool             `json:"protect_content,omitempty"`             // Optional. Protects the contents of the sent message from forwarding and saving
-	AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified replied-to message is not found
-	ReplyMarkup              ReplyMarkup      `json:"reply_markup,omitempty"`                // Optional. Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	Entities                 []*MessageEntity // List of special entities that appear in message text, which can be specified instead of parse_mode
+	DisableWebPagePreview    bool             // Disables link previews for links in this message
+	DisableNotification      bool             // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent           bool             // Protects the contents of the sent message from forwarding and saving
+	AllowSendingWithoutReply bool             // Pass True if the message should be sent even if the specified replied-to message is not found
+	ReplyMarkup              ReplyMarkup      // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
 }
 
 func NewText(text string, parseMode ...ParseMode) *SendableText {

@@ -20,8 +20,3 @@ const (
 	ParseModeMarkdownV2 ParseMode = "MarkdownV2"
 	ParseModeHTML       ParseMode = "HTML"
 )
-
-type ReplyMarkup interface {
-	// IsReplyMarkup does nothing and is only used to enforce type-safety
-	IsReplyMarkup()
-}
