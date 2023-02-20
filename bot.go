@@ -69,12 +69,13 @@ func (bot *Bot) StartPolling() error {
 					uid := fmt.Sprintf("%d-%d", ctx.ChatID(), ctx.SenderChatID())
 
 					bot.askMut.RLock()
-					if receiver, ok := bot.asks[uid]; ok {
-						receiver <- ctx
-					}
+					receiver, ok := bot.asks[uid]
 					bot.askMut.RUnlock()
 
-					return
+					if ok {
+						receiver <- ctx
+						return
+					}
 				}
 
 				bot.handleUpdate(ctx)

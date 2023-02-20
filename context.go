@@ -45,7 +45,8 @@ func (ctx *Context) SenderChatID() int64 {
 	if ctx.data.CallbackQuery != nil {
 		return ctx.data.CallbackQuery.From.Id
 	} else if ctx.data.Message != nil {
-		return ctx.data.Message.SenderChat.Id
+		return ctx.data.Message.From.Id
+		// return ctx.data.Message.SenderChat.Id
 	} else if ctx.data.ChannelPost != nil {
 		return ctx.data.ChannelPost.SenderChat.Id
 	} else if ctx.data.EditedMessage != nil {
@@ -53,6 +54,13 @@ func (ctx *Context) SenderChatID() int64 {
 	}
 
 	return -1
+}
+
+// Caption returns the sent message's text or media caption
+//
+// TODO: Support all media types on different updates
+func (ctx *Context) Caption() string {
+	return ctx.data.Message.Text
 }
 
 // ThreadID returns id of the topic where the update came from, if any.
@@ -105,7 +113,6 @@ func (ctx *Context) Ask(sendable SendableMessage, timeout time.Duration) (questi
 	case <-aCtx.Done():
 		err = aCtx.Err()
 		return
-
 	}
 }
 
