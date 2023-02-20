@@ -1,6 +1,7 @@
-package tgparser
+package main
 
 import (
+	"io"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -11,6 +12,43 @@ type Field struct {
 	Type        string
 	Description string
 	IsOptional  bool
+}
+
+type Group struct {
+	Name        string
+	Description string
+	Fields      []Field
+}
+
+func ParseGroups(data io.Reader) ([]Group, error) {
+	doc, err := goquery.NewDocumentFromReader(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return extractGroups(doc.Find("#dev_page_content h4")), nil
+}
+
+func (g Group) IsMethod() bool {
+	return strings.ToLower(g.Name)[0] == g.Name[0]
+}
+
+func extractGroups(s *goquery.Selection) (groups []Group) {
+	s.Each(func(i int, s *goquery.Selection) {
+		if strings.Contains(s.Text(), " ") {
+			return
+		}
+
+		group := Group{
+			Name:        s.Text(),
+			Description: strings.ReplaceAll(s.NextFiltered("p").Text(), "\n", " "),
+		}
+		extractFieldsTo(&group, s)
+
+		groups = append(groups, group)
+	})
+
+	return groups
 }
 
 func extractFieldsTo(g *Group, s *goquery.Selection) {

@@ -1,4 +1,4 @@
-package tggen
+package main
 
 import (
 	"regexp"

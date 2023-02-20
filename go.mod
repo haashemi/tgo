@@ -3,7 +3,6 @@ module github.com/haashemi/tgo
 go 1.19
 
 require (
-	github.com/LlamaNite/llamalog v0.2.1
 	github.com/PuerkitoBio/goquery v1.8.1
 	golang.org/x/text v0.7.0
 )

@@ -1,20 +1,18 @@
-package tggen
+package main
 
 import (
 	"fmt"
 	"strings"
-
-	"github.com/haashemi/tgo/internal/tgparser"
 )
 
-func GenerateMethod(g tgparser.Group) (codes []string) {
+func GenerateMethod(g Group) (codes []string) {
 	name := upperFirstLetter(g.Name)
 	hasParams := len(g.Fields) != 0
 
 	if hasParams {
 		paramsName := name + "Params"
 
-		codes = append(codes, GenerateType(tgparser.Group{
+		codes = append(codes, GenerateType(Group{
 			Name:        paramsName,
 			Description: "contains the method's parameters",
 			Fields:      g.Fields,
@@ -31,7 +29,7 @@ func GenerateMethod(g tgparser.Group) (codes []string) {
 	return codes
 }
 
-func generateHasUploadable(name string, fields []tgparser.Field) (text string, generated bool) {
+func generateHasUploadable(name string, fields []Field) (text string, generated bool) {
 	var inputFileFields []string
 	for _, f := range fields {
 		if typeOf(f.Name, f.Type) == "InputFile" {
@@ -46,7 +44,7 @@ func generateHasUploadable(name string, fields []tgparser.Field) (text string, g
 	return
 }
 
-func generateMethod(name string, hasParams bool, g tgparser.Group) string {
+func generateMethod(name string, hasParams bool, g Group) string {
 	var params string
 	paramsParam := "nil"
 	if hasParams {

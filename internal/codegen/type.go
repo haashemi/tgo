@@ -1,13 +1,11 @@
-package tggen
+package main
 
 import (
 	"fmt"
 	"strings"
-
-	"github.com/haashemi/tgo/internal/tgparser"
 )
 
-func GenerateType(g tgparser.Group) string {
+func GenerateType(g Group) string {
 	var fields string
 	for _, f := range g.Fields {
 		tag := f.Name
