@@ -8,9 +8,9 @@ import (
 
 type Bot struct {
 	*Party
+	*botSession
 
-	api      *botapi.API
-	sessions *botSession
+	api *botapi.API
 
 	me *botapi.User
 }
@@ -21,17 +21,19 @@ type Options struct {
 }
 
 func NewBot(token string, opts Options) (*Bot, error) {
-	bot := &Bot{
-		Party:    &Party{},
-		api:      botapi.NewAPI(token, opts.Host, opts.Client),
-		sessions: newBotSession(),
-	}
+	api := botapi.NewAPI(token, opts.Host, opts.Client)
 
-	me, err := bot.api.GetMe()
+	me, err := api.GetMe()
 	if err != nil {
 		return nil, err
 	}
-	bot.me = me
+
+	bot := &Bot{
+		Party:      &Party{},
+		botSession: newBotSession(),
+		api:        api,
+		me:         me,
+	}
 
 	return bot, nil
 }

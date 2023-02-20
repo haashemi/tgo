@@ -25,11 +25,32 @@ func (ctx *context) Bot() *Bot {
 	return ctx.bot
 }
 
+func (ctx *context) Session() *Session {
+	return ctx.bot.GetSession(ctx.SenderChatID())
+}
+
 // ChatID returns the chat id of where the update sent from
 //
 // TODO: Handle other type of updates like Callback
 func (ctx *context) ChatID() int64 {
 	return ctx.data.Message.Chat.Id
+}
+
+// ChatID returns the chat id of who send the update
+//
+// TODO: Handle other type of updates and manage optional fields
+func (ctx *context) SenderChatID() int64 {
+	if ctx.data.CallbackQuery != nil {
+		return ctx.data.CallbackQuery.From.Id
+	} else if ctx.data.Message != nil {
+		return ctx.data.Message.SenderChat.Id
+	} else if ctx.data.ChannelPost != nil {
+		return ctx.data.ChannelPost.SenderChat.Id
+	} else if ctx.data.EditedMessage != nil {
+		return ctx.data.EditedMessage.SenderChat.Id
+	}
+
+	return -1
 }
 
 // ThreadID returns id of the topic where the update came from, if any.
