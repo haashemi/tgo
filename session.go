@@ -2,33 +2,24 @@ package tgo
 
 import "sync"
 
-type botSession struct {
-	mut      sync.Mutex
-	sessions map[int64]*Session
-}
-
-func newBotSession() *botSession {
-	return &botSession{sessions: make(map[int64]*Session)}
+type Session struct {
+	mut  sync.RWMutex
+	data map[string]any
 }
 
 // GetSession returns the stored session.
 // if creates a new session if session id didn't exists.
-func (bs *botSession) GetSession(sessionID int64) *Session {
-	bs.mut.Lock()
-	defer bs.mut.Unlock()
+func (bot *Bot) GetSession(sessionID int64) *Session {
+	bot.sessionsMut.Lock()
+	defer bot.sessionsMut.Unlock()
 
-	if s, ok := bs.sessions[sessionID]; ok {
+	if s, ok := bot.sessions[sessionID]; ok {
 		return s
 	}
 
 	s := &Session{data: make(map[string]any)}
-	bs.sessions[sessionID] = s
+	bot.sessions[sessionID] = s
 	return s
-}
-
-type Session struct {
-	mut  sync.RWMutex
-	data map[string]any
 }
 
 func (s *Session) Set(key string, value any) {

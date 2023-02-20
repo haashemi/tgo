@@ -2,17 +2,19 @@ package tgo
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/haashemi/tgo/botapi"
 )
 
 type Bot struct {
 	*Party
-	*botSession
 
+	me  *botapi.User
 	api *botapi.API
 
-	me *botapi.User
+	sessionsMut sync.Mutex
+	sessions    map[int64]*Session
 }
 
 type Options struct {
@@ -29,10 +31,10 @@ func NewBot(token string, opts Options) (*Bot, error) {
 	}
 
 	bot := &Bot{
-		Party:      &Party{},
-		botSession: newBotSession(),
-		api:        api,
-		me:         me,
+		Party:    &Party{},
+		api:      api,
+		me:       me,
+		sessions: make(map[int64]*Session),
 	}
 
 	return bot, nil
