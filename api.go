@@ -123,18 +123,32 @@ func getParamsAndFiles(d any) (params map[string]string, files map[string]*Input
 	params = make(map[string]string)
 	files = make(map[string]*InputFileUploadable)
 
-	v := reflect.ValueOf(d)
-	vType := reflect.TypeOf(d)
+	v := reflect.ValueOf(d).Elem()
+	vType := reflect.TypeOf(d).Elem()
 
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
+		fType := vType.Field(i)
 
 		if field.IsZero() {
 			continue
 		}
 
 		data := field.Interface()
-		tag := strings.TrimSuffix(vType.Field(i).Tag.Get("json"), ",omitempty")
+		tag := strings.TrimSuffix(fType.Tag.Get("json"), ",omitempty")
+
+		if tag == "" && fType.Anonymous {
+			newParams, newFiles := getParamsAndFiles(data)
+
+			for k, v := range newParams {
+				params[k] = v
+			}
+			for k, v := range newFiles {
+				files[k] = v
+			}
+
+			continue
+		}
 
 		if xx, ok := data.(InputFile); ok {
 			if xx.NeedsUpload() {
@@ -142,7 +156,7 @@ func getParamsAndFiles(d any) (params map[string]string, files map[string]*Input
 			} else {
 				params[tag] = string(xx.(InputFileNotUploadable))
 			}
-		} else if field.Type().Kind() == reflect.Struct {
+		} else if kind := field.Type().Kind(); kind == reflect.Struct || kind == reflect.Interface {
 			raw, _ := json.Marshal(data)
 			params[tag] = string(raw)
 		} else {

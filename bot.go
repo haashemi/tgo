@@ -7,10 +7,9 @@ import (
 )
 
 type Bot struct {
+	*API
+	*User
 	*Party
-
-	api *API
-	me  *User
 
 	askMut sync.RWMutex
 	asks   map[string]chan<- *Context
@@ -33,9 +32,9 @@ func NewBot(token string, opts Options) (*Bot, error) {
 	}
 
 	bot := &Bot{
+		API:      api,
+		User:     me,
 		Party:    &Party{},
-		api:      api,
-		me:       me,
 		asks:     make(map[string]chan<- *Context),
 		sessions: make(map[int64]*Session),
 	}
@@ -43,17 +42,13 @@ func NewBot(token string, opts Options) (*Bot, error) {
 	return bot, nil
 }
 
-func (bot *Bot) Me() *User {
-	return bot.me
-}
-
 func (bot *Bot) StartPolling() error {
 	var offset int64
 
 	for {
-		data, err := bot.api.GetUpdates(GetUpdatesParams{
+		data, err := bot.GetUpdates(&GetUpdatesOptions{
 			Offset:  offset,
-			Timeout: bot.api.GetHTTPTimeout() - 1,
+			Timeout: bot.GetHTTPTimeout() - 1,
 		})
 		if err != nil {
 			return err
