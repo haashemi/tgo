@@ -1,4 +1,4 @@
-package filter
+package filters
 
 import "github.com/haashemi/tgo"
 
