@@ -1,6 +1,7 @@
 package tgo
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -23,13 +24,28 @@ func NewAPI(token, host string, client *http.Client) *API {
 		client = &http.Client{Timeout: 30 * time.Second}
 	}
 
-	return &API{url: CreateApiURL(host, token), client: client}
+	return &API{url: host + "/bot" + token + "/", client: client}
 }
 
-func (api *API) GetHTTPTimeout() int64 {
+func (api *API) TimeoutSeconds() int64 {
 	return int64(api.client.Timeout.Seconds())
 }
 
-func CreateApiURL(host, token string) string {
-	return host + "/bot" + token + "/"
+type ChatID string
+
+func NewChatID(id any) ChatID {
+	if val, ok := id.(string); ok {
+		return ChatID(val)
+	}
+
+	return ChatID(fmt.Sprint(id))
 }
+
+type ParseMode string
+
+const (
+	ParseModeNone       ParseMode = ""
+	ParseModeMarkdown   ParseMode = "Markdown"
+	ParseModeMarkdownV2 ParseMode = "MarkdownV2"
+	ParseModeHTML       ParseMode = "HTML"
+)
