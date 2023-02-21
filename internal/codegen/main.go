@@ -18,21 +18,18 @@ func main() {
 		log.Fatalf("Failed to fetch telegram doc > %s", err.Error())
 	}
 	defer resp.Body.Close()
-	log.Println("Documentation fetched")
 
 	groups, err := ParseGroups(resp.Body)
 	if err != nil {
 		log.Fatalf("Failed to parse the data >> %s", err.Error())
 	}
-	log.Println("Groups parsed")
 
 	var methods []string
 	var types []string
 
 	for _, g := range groups {
 		if g.IsMethod() {
-			methods = append(methods, GenerateMethod(g)...)
-			log.Printf("Generated Method %s", g.Name)
+			methods = append(methods, GenerateMethod(g))
 			continue
 		}
 
@@ -40,7 +37,6 @@ func main() {
 			continue
 		}
 		types = append(types, GenerateType(g))
-		log.Printf("Generated type %s", g.Name)
 	}
 
 	if err = formatAndSave("api_methods.go", methods); err != nil {

@@ -1,74 +1,90 @@
 package main
 
 import (
-	"io"
+	"fmt"
 	"strings"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
-type Field struct {
-	Name        string
-	Type        string
-	Description string
-	IsOptional  bool
-}
+type StructField struct{ Name, LoweredName, Type, JsonTag, Description string }
 
-type Group struct {
-	Name        string
-	Description string
-	Fields      []Field
-}
-
-func ParseGroups(data io.Reader) ([]Group, error) {
-	doc, err := goquery.NewDocumentFromReader(data)
-	if err != nil {
-		return nil, err
+func parseStructField(field Field) StructField {
+	tag := field.Name
+	if field.IsOptional {
+		tag += ",omitempty"
 	}
 
-	return extractGroups(doc.Find("#dev_page_content h4")), nil
+	desc := strings.ReplaceAll(field.Description, "\n", " ")
+	if field.IsOptional && !strings.HasPrefix(desc, "Optional.") {
+		desc = "Optional. " + desc
+	}
+
+	return StructField{
+		Name:        snakeToPascal(field.Name),
+		LoweredName: lowerFirstLetter(snakeToPascal(field.Name)),
+		Type:        typeOf(field.Name, field.Type),
+		JsonTag:     fmt.Sprintf("`json:\"%s\"`", tag),
+		Description: desc,
+	}
 }
 
-func (g Group) IsMethod() bool {
-	return strings.ToLower(g.Name)[0] == g.Name[0]
+type Struct struct {
+	Name, Description string
+	EmbedTypes        []string
+	Fields            []StructField
 }
 
-func extractGroups(s *goquery.Selection) (groups []Group) {
-	s.Each(func(i int, s *goquery.Selection) {
-		if strings.Contains(s.Text(), " ") {
-			return
-		}
+func parseStruct(g Group) (data Struct) {
+	data.Name = g.Name
+	data.Description = g.Description
 
-		group := Group{
-			Name:        s.Text(),
-			Description: strings.ReplaceAll(s.NextFiltered("p").Text(), "\n", " "),
-		}
-		extractFieldsTo(&group, s)
+	for _, field := range g.Fields {
+		data.Fields = append(data.Fields, parseStructField(field))
+	}
 
-		groups = append(groups, group)
-	})
-
-	return groups
+	return data
 }
 
-func extractFieldsTo(g *Group, s *goquery.Selection) {
-	s.NextUntil("h4").Find("table tbody tr").Each(func(i int, s *goquery.Selection) {
-		field := s.Find("td").Map(func(i int, s *goquery.Selection) string { return s.Text() })
+type Method struct {
+	Name, RawName, Description, Params, ReturnType string
+	EssentialParams, OptionalParams                []StructField
+	UploadableParamsCheckCode                      string
+}
 
-		if g.IsMethod() {
-			g.Fields = append(g.Fields, Field{
-				Name:        field[0],
-				Type:        field[1],
-				Description: field[3],
-				IsOptional:  field[2] == "Optional",
-			})
+func parseMethod(g Group) (data Method) {
+	data.Name = upperFirstLetter(g.Name)
+	data.RawName = g.Name
+	data.Description = g.Description
+	data.ReturnType = "json.RawMessage"
+	if types := extractReturnType(g.Description); len(types) == 1 {
+		data.ReturnType = typeOf(g.Name, types[0])
+	}
+
+	var uploadableParams []string
+	for _, field := range g.Fields {
+		structData := parseStructField(field)
+
+		if field.IsOptional {
+			data.OptionalParams = append(data.OptionalParams, structData)
 		} else {
-			g.Fields = append(g.Fields, Field{
-				Name:        field[0],
-				Type:        field[1],
-				Description: field[2],
-				IsOptional:  strings.HasPrefix(field[2], "Optional."),
-			})
+			data.EssentialParams = append(data.EssentialParams, structData)
 		}
-	})
+
+		if structData.Type == "InputFile" {
+			uploadableParams = append(uploadableParams, "params."+structData.Name+".NeedsUpload()")
+		}
+	}
+
+	var params []string
+	for _, param := range data.EssentialParams {
+		params = append(params, param.LoweredName+" "+param.Type)
+	}
+
+	if data.OptionalParams != nil {
+		params = append(params, "optionalParams *"+data.Name+"Options")
+	}
+
+	data.Params = strings.Join(params, ", ")
+	data.UploadableParamsCheckCode = strings.Join(uploadableParams, " || ")
+
+	return data
 }

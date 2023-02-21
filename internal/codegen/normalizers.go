@@ -31,6 +31,10 @@ func upperFirstLetter(s string) string {
 	return strings.ToUpper(string(s[0])) + s[1:]
 }
 
+func lowerFirstLetter(s string) string {
+	return strings.ToLower(string(s[0])) + s[1:]
+}
+
 func snakeToPascal(s string) string {
 	return strings.ReplaceAll(tCase.String(strings.ReplaceAll(s, "_", "  ")), " ", "")
 }
