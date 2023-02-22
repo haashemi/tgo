@@ -266,3 +266,9 @@ func (ctx *Context) Ask(text string, optionalParams *SendMessageOptions, timeout
 // ToDo: AskWithSticker
 // ToDo: AskWithInvoice
 // ToDo: AskWithGame
+
+// Delete deletes the message of that context
+func (ctx *Context) Delete() error {
+	_, err := ctx.bot.DeleteMessage(NewChatID(ctx.ChatID()), ctx.MessageID())
+	return err
+}
