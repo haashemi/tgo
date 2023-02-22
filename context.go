@@ -15,6 +15,7 @@ type Context interface {
 	Contextable
 
 	Stop()
+	ResetStopped()
 	IsStopped() bool
 	UpdateType() string
 
@@ -103,6 +104,8 @@ func newContext(bot *Bot, update *Update) Context {
 // Stop stops the context.
 // It will only be used for middlewares and NOT the main handlers.
 func (ctx *baseContext) Stop() { ctx.stopped = true }
+
+func (ctx *baseContext) ResetStopped() { ctx.stopped = false }
 
 func (ctx *baseContext) IsStopped() bool { return ctx.stopped }
 

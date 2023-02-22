@@ -11,7 +11,7 @@ import (
 type Bot struct {
 	*API
 	*User
-	*MessageParty
+	*party
 
 	askMut sync.RWMutex
 	asks   map[string]chan<- MessageContext
@@ -34,11 +34,11 @@ func NewBot(token string, opts Options) (*Bot, error) {
 	}
 
 	bot := &Bot{
-		API:          api,
-		User:         me,
-		MessageParty: &MessageParty{onMessage: make(map[Filter][]MessageHandler)},
-		asks:         make(map[string]chan<- MessageContext),
-		sessions:     make(map[int64]*Session),
+		API:      api,
+		User:     me,
+		party:    &party{},
+		asks:     make(map[string]chan<- MessageContext),
+		sessions: make(map[int64]*Session),
 	}
 
 	return bot, nil
