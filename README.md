@@ -11,44 +11,31 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"time"
 
 	"github.com/haashemi/tgo"
-	"github.com/haashemi/tgo/filter"
+	"github.com/haashemi/tgo/filters"
 )
 
+const ImageURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTK2nG24AYDm6FOEC7jIfgubO96GbRso2Xshu1f8abSYQ&s"
+
 func main() {
-	bot, err := tgo.NewBot("my-bot-token", tgo.Options{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	bot, _ := tgo.NewBot("bot:token", tgo.Options{})
 
-	bot.Handle(filter.Text("hi"), HiHandler)
+	bot.OnMessage(filters.Text("hi"), func(ctx tgo.MessageContext) {
+		ctx.Reply("hi!", nil)
 
-	fmt.Println("Bot is running as", bot.Me().Username)
+		ctx.SendPhoto(tgo.FileFromURL(ImageURL), &tgo.SendPhotoOptions{
+			Caption: "A random cute image",
 
-	log.Fatal(bot.StartPolling())
+			ReplyMarkup: tgo.NewReplyKeyboardMarkup(
+				tgo.NewReplyKeyboardRow(tgo.NewKeyboardButton("hi")),
+			).
+				WithResizeKeyboard().
+				WithInputFieldPlaceholder("Say hi again..."),
+		})
+	})
+
+	fmt.Println("Bot is running as", bot.Username)
+	bot.StartPolling()
 }
-
-func HiHandler(ctx *tgo.Context) {
-	from := ctx.RawUpdate().Message.From
-	fullName := from.FirstName + " " + from.LastName
-
-	text := fmt.Sprintf("Hi <i>%s</i>\n\nHow old are you?", fullName)
-
-	_, answer, err := ctx.Ask(
-		tgo.NewText(text, tgo.ParseModeHTML).Options(tgo.TextOptions{
-			ReplyMarkup: tgo.NewForceReply(),
-		}),
-		time.Second*10,
-	)
-	if err != nil {
-		ctx.Send(tgo.NewText("you were too late... bye!"))
-		return
-	}
-
-	answer.Reply(tgo.NewText("Wow! you are " + answer.Caption() + " years old?!"))
-}
-
 ```
