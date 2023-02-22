@@ -10,6 +10,14 @@ func (f Filter) Check(update *tgo.Update) bool { return f.f(update) }
 
 func NewFilter(f FilterFunc) *Filter { return &Filter{f: f} }
 
+func True() tgo.Filter {
+	return NewFilter(func(update *tgo.Update) bool { return true })
+}
+
+func False() tgo.Filter {
+	return NewFilter(func(update *tgo.Update) bool { return false })
+}
+
 func Or(filters ...tgo.Filter) tgo.Filter {
 	return NewFilter(func(update *tgo.Update) bool {
 		for _, filter := range filters {
