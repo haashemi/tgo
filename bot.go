@@ -60,34 +60,48 @@ func (bot *Bot) StartPolling() error {
 			offset = update.UpdateId + 1
 
 			go func(update *Update) {
-				ctx := newContext(bot, update)
+				baseCtx := &Context{bot: bot, update: update}
 
-				switch ctx.UpdateType() {
+				switch {
+				case update.Message != nil:
+					baseCtx.Contextable = update.Message
+					ctx := &messageContext{Context: baseCtx}
 
-				case "Message":
-					bot.askMut.RLock()
-					uid := fmt.Sprintf("%d-%d", ctx.ChatID(), ctx.SenderID())
-					receiver, ok := bot.asks[uid]
-					bot.askMut.RUnlock()
-
-					if ok {
-						receiver <- ctx.(MessageContext)
+					if bot.sendAnswerIfAsked(ctx) {
 						return
 					}
-					bot.handleOnMessage(ctx.(MessageContext), update)
+					bot.handleOnMessage(ctx)
 
-				case "EditedMessage":
-					return
-				case "ChannelPost":
-					return
-				case "EditedChannelPost":
-					return
-				case "CallbackQuery":
-					return
+				case update.EditedMessage != nil:
+					baseCtx.Contextable = update.EditedMessage
+
+				case update.ChannelPost != nil:
+					baseCtx.Contextable = update.ChannelPost
+
+				case update.EditedChannelPost != nil:
+					baseCtx.Contextable = update.EditedChannelPost
+
+				case update.CallbackQuery != nil:
+					baseCtx.Contextable = update.CallbackQuery
+					bot.handleOnCallbackQuery(&callbackContext{Context: baseCtx})
 				}
 			}(update)
 		}
 	}
+}
+
+func (bot *Bot) sendAnswerIfAsked(ctx *messageContext) (sent bool) {
+	bot.askMut.RLock()
+	uid := fmt.Sprintf("%d-%d", ctx.ChatID(), ctx.SenderID())
+	receiver, ok := bot.asks[uid]
+	bot.askMut.RUnlock()
+
+	if ok {
+		receiver <- ctx
+		return true
+	}
+
+	return false
 }
 
 func (bot *Bot) waitForAnswer(question *Message, timeout time.Duration) (*messageContext, error) {
