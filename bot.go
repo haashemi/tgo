@@ -1,18 +1,20 @@
 package tgo
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 )
 
 type Bot struct {
 	*API
 	*User
-	*Party
+	*MessageParty
 
 	askMut sync.RWMutex
-	asks   map[string]chan<- *Context
+	asks   map[string]chan<- MessageContext
 
 	sessionsMut sync.Mutex
 	sessions    map[int64]*Session
@@ -32,11 +34,11 @@ func NewBot(token string, opts Options) (*Bot, error) {
 	}
 
 	bot := &Bot{
-		API:      api,
-		User:     me,
-		Party:    &Party{},
-		asks:     make(map[string]chan<- *Context),
-		sessions: make(map[int64]*Session),
+		API:          api,
+		User:         me,
+		MessageParty: &MessageParty{onMessage: make(map[Filter][]MessageHandler)},
+		asks:         make(map[string]chan<- MessageContext),
+		sessions:     make(map[int64]*Session),
 	}
 
 	return bot, nil
@@ -48,7 +50,7 @@ func (bot *Bot) StartPolling() error {
 	for {
 		data, err := bot.GetUpdates(&GetUpdatesOptions{
 			Offset:  offset,
-			Timeout: bot.GetHTTPTimeout() - 1,
+			Timeout: bot.TimeoutSeconds() - 1,
 		})
 		if err != nil {
 			return err
@@ -57,24 +59,61 @@ func (bot *Bot) StartPolling() error {
 		for _, update := range data {
 			offset = update.UpdateId + 1
 
-			ctx := newContext(bot, update)
-
 			go func(update *Update) {
-				if update.Message != nil {
-					uid := fmt.Sprintf("%d-%d", ctx.ChatID(), ctx.SenderChatID())
+				ctx := newContext(bot, update)
 
+				switch ctx.UpdateType() {
+
+				case "Message":
 					bot.askMut.RLock()
+					uid := fmt.Sprintf("%d-%d", ctx.ChatID(), ctx.SenderID())
 					receiver, ok := bot.asks[uid]
 					bot.askMut.RUnlock()
 
 					if ok {
-						receiver <- ctx
+						receiver <- ctx.(MessageContext)
 						return
 					}
-				}
+					bot.handleOnMessage(ctx.(MessageContext), update)
 
-				bot.handleUpdate(ctx)
+				case "EditedMessage":
+					return
+				case "ChannelPost":
+					return
+				case "EditedChannelPost":
+					return
+				case "CallbackQuery":
+					return
+				}
 			}(update)
 		}
+	}
+}
+
+func (bot *Bot) waitForAnswer(question *Message, timeout time.Duration) (*messageContext, error) {
+	uid := fmt.Sprintf("%d-%d", question.ChatID(), question.SenderID())
+	waiter := make(chan MessageContext, 1)
+
+	bot.askMut.Lock()
+	bot.asks[uid] = waiter
+	bot.askMut.Unlock()
+
+	defer func() {
+		bot.askMut.Lock()
+		delete(bot.asks, uid)
+		bot.askMut.Unlock()
+
+		close(waiter)
+	}()
+
+	aCtx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	select {
+	case answer := <-waiter:
+		return answer, nil
+
+	case <-aCtx.Done():
+		return nil, aCtx.Err()
 	}
 }

@@ -1,61 +1,83 @@
 package tgo
 
-type Party struct {
+import "sync"
+
+type Filter interface{ Check(update *Update) bool }
+
+type MessageHandler func(ctx MessageContext)
+
+type MessageParty struct {
 	filter      Filter
-	middlewares []Handler
-	handlers    []handlerData
-	parties     []*Party
+	middlewares []MessageHandler
+	// parties     []*MessageParty // ToDo
+
+	onMessageMut sync.RWMutex
+	onMessage    map[Filter][]MessageHandler
+	// onEditedMessage      map[Filter][]MessageHandler // TODO++
+	// onChannelPost        map[Filter][]MessageHandler // TODO++
+	// onEditedChannelPost  map[Filter][]MessageHandler // TODO++
+	// onInlineQuery        map[Filter][]MessageHandler // TODO+
+	// onChosenInlineResult map[Filter][]MessageHandler // TODO+
+	// onCallbackQuery      map[Filter][]MessageHandler // TODO+++
+	// onShippingQuery      map[Filter][]MessageHandler // TODO
+	// onPreCheckoutQuery   map[Filter][]MessageHandler // TODO
+	// onPoll               map[Filter][]MessageHandler // TODO
+	// onPollAnswer         map[Filter][]MessageHandler // TODO
+	// onMyChatMember       map[Filter][]MessageHandler // TODO
+	// onChatMember         map[Filter][]MessageHandler // TODO
+	// onChatJoinRequest    map[Filter][]MessageHandler // TODO
 }
 
-type Filter func(update *Update) bool
-
-type Handler func(ctx *Context)
-
-type handlerData struct {
-	filter   Filter
-	handlers []Handler
+func (p *MessageParty) OnMessage(filter Filter, handlers ...MessageHandler) {
+	p.onMessageMut.Lock()
+	p.onMessage[filter] = handlers
+	p.onMessageMut.Unlock()
 }
 
-func (p *Party) handleUpdate(ctx *Context) {
+func (p *MessageParty) checkUpdate(ctx MessageContext, update *Update) bool {
 	// 1- Filter validation
-	if p.filter != nil && !p.filter(ctx.RawUpdate()) {
-		return
+	if p.filter != nil && !p.filter.Check(update) {
+		return false
 	}
 
 	// 2- Calling middlewares
 	for _, middleware := range p.middlewares {
 		middleware(ctx)
-		if ctx.isStopped() {
+		if ctx.IsStopped() {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (p *MessageParty) handleOnMessage(ctx MessageContext, update *Update) {
+	if !p.checkUpdate(ctx, update) {
+		return
+	}
+
+	for filter, handlers := range p.onMessage {
+
+		if filter.Check(ctx.RawUpdate()) {
+
+			go func(handlers []MessageHandler, ctx MessageContext) {
+
+				for _, handler := range handlers {
+					handler(ctx)
+
+					if ctx.IsStopped() {
+						return
+					}
+				}
+
+			}(handlers, ctx)
+
 			return
 		}
 	}
 
-	// 3- Calling handlers with a clone of ctx (as other handlers may stop their context)
-	for _, handler := range p.handlers {
-		if !handler.filter(ctx.RawUpdate()) {
-			continue
-		}
-		newCtx := ctx.clone()
-
-		go func(hs []Handler, ctx *Context) {
-			for _, h := range hs {
-				h(newCtx)
-				if newCtx.isStopped() {
-					return
-				}
-			}
-		}(handler.handlers, newCtx)
-	}
-
-	// 4- After calling the in-party handlers, we will pass the context to the nested parties
-	for _, party := range p.parties {
-		party.handleUpdate(ctx)
-	}
-}
-
-func (p *Party) Handle(filter Filter, handlers ...Handler) {
-	p.handlers = append(p.handlers, handlerData{
-		filter:   filter,
-		handlers: handlers,
-	})
+	// ToDo: work on nested parties
+	// for _, party := range p.parties {
+	// 	party.handleOnMessage(ctx)
+	// }
 }
