@@ -192,81 +192,129 @@ func (ctx *baseContext) SendGame(gameShortName string, optionalParams *SendGameO
 // ToDo: SendChatAction
 
 func (ctx *baseContext) Reply(text string, optionalParams *SendMessageOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendMessageOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.Send(text, optionalParams)
 }
 
 func (ctx *baseContext) ReplyPhoto(photo InputFile, optionalParams *SendPhotoOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendPhotoOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendPhoto(NewChatID(ctx.ChatID()), photo, optionalParams)
 }
 
 func (ctx *baseContext) ReplyAudio(audio InputFile, optionalParams *SendAudioOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendAudioOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendAudio(NewChatID(ctx.ChatID()), audio, optionalParams)
 }
 
 func (ctx *baseContext) ReplyDocument(document InputFile, optionalParams *SendDocumentOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendDocumentOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendDocument(NewChatID(ctx.ChatID()), document, optionalParams)
 }
 
 func (ctx *baseContext) ReplyVideo(video InputFile, optionalParams *SendVideoOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendVideoOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendVideo(NewChatID(ctx.ChatID()), video, optionalParams)
 }
 
 func (ctx *baseContext) ReplyAnimation(animation InputFile, optionalParams *SendAnimationOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendAnimationOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendAnimation(NewChatID(ctx.ChatID()), animation, optionalParams)
 }
 
 func (ctx *baseContext) ReplyVoice(voice InputFile, optionalParams *SendVoiceOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendVoiceOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendVoice(NewChatID(ctx.ChatID()), voice, optionalParams)
 }
 
 func (ctx *baseContext) ReplyVideoNote(videoNote InputFile, optionalParams *SendVideoNoteOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendVideoNoteOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendVideoNote(NewChatID(ctx.ChatID()), videoNote, optionalParams)
 }
 
 func (ctx *baseContext) ReplyLocation(latitude, longitude float64, optionalParams *SendLocationOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendLocationOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendLocation(NewChatID(ctx.ChatID()), latitude, longitude, optionalParams)
 }
 
 func (ctx *baseContext) ReplyVenue(latitude, longitude float64, title, address string, optionalParams *SendVenueOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendVenueOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendVenue(NewChatID(ctx.ChatID()), latitude, longitude, title, address, optionalParams)
 }
 
 func (ctx *baseContext) ReplyContact(phoneNumber, firstName string, optionalParams *SendContactOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendContactOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendContact(NewChatID(ctx.ChatID()), phoneNumber, firstName, optionalParams)
 }
 
 func (ctx *baseContext) ReplyPoll(question string, options []string, optionalParams *SendPollOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendPollOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendPoll(NewChatID(ctx.ChatID()), question, options, optionalParams)
 }
 
 func (ctx *baseContext) ReplyDice(optionalParams *SendDiceOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendDiceOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendDice(NewChatID(ctx.ChatID()), optionalParams)
 }
 
 func (ctx *baseContext) ReplySticker(sticker InputFile, optionalParams *SendStickerOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendStickerOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendSticker(NewChatID(ctx.ChatID()), sticker, optionalParams)
 }
 
 func (ctx *baseContext) ReplyInvoice(title, description, payload, providerToken, currency string, prices []*LabeledPrice, optionalParams *SendInvoiceOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendInvoiceOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendInvoice(NewChatID(ctx.ChatID()), title, description, payload, providerToken, currency, prices, optionalParams)
 }
 
 func (ctx *baseContext) ReplyGame(gameShortName string, optionalParams *SendGameOptions) (*Message, error) {
+	if optionalParams == nil {
+		optionalParams = &SendGameOptions{}
+	}
 	optionalParams.ReplyToMessageId = ctx.MessageID()
 	return ctx.bot.SendGame(ctx.ChatID(), gameShortName, optionalParams)
 }
