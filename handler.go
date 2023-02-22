@@ -4,23 +4,22 @@ type Party interface {
 	Party(filter Filter) Party
 
 	OnMessage(filter Filter, handlers ...MessageHandler)
-	BeforeOnMessage(handlers ...MessageHandler)
-	AfterOnMessage(handlers ...MessageHandler)
+	BeforeMessage(handlers ...MessageHandler)
+	AfterMessage(handlers ...MessageHandler)
 
 	OnCallbackQuery(filter Filter, handlers ...CallbackHandler)
-	BeforeOnCallbackQuery(handlers ...CallbackHandler)
-	AfterOnCallbackQuery(handlers ...CallbackHandler)
+	BeforeCallbackQuery(handlers ...CallbackHandler)
+	AfterCallbackQuery(handlers ...CallbackHandler)
 
-	handleOnMessage(ctx MessageContext, update *Update) (ok bool)
-	// handleOnCallbackQuery(ctx *CallbackQuery, update *Update)
+	handleOnMessage(ctx MessageContext) (ok bool)
+	handleOnCallbackQuery(ctx CallbackContext) (ok bool)
 }
 
 type Filter interface{ Check(update *Update) bool }
 
 type MessageHandler func(ctx MessageContext)
 
-// ToDo: this is just a placeholder for now, we will create CallbackContext soon
-type CallbackHandler func(ctx *CallbackQuery)
+type CallbackHandler func(ctx CallbackContext)
 
 type OnMessageHandler struct {
 	Filter   Filter
@@ -36,13 +35,13 @@ type party struct {
 	filter  Filter
 	parties []Party
 
-	onMessage       []OnMessageHandler
-	beforeOnMessage []MessageHandler
-	afterOnMessage  []MessageHandler
+	onMessage     []OnMessageHandler
+	beforeMessage []MessageHandler
+	afterMessage  []MessageHandler
 
-	onCallbackQuery       []OnCallbackHandler
-	beforeOnCallbackQuery []CallbackHandler
-	afterOnCallbackQuery  []CallbackHandler
+	onCallbackQuery     []OnCallbackHandler
+	beforeCallbackQuery []CallbackHandler
+	afterCallbackQuery  []CallbackHandler
 
 	// onEditedMessage      map[Filter][]MessageHandler // TODO++
 	// onChannelPost        map[Filter][]MessageHandler // TODO++
@@ -70,33 +69,33 @@ func (p *party) OnMessage(filter Filter, handlers ...MessageHandler) {
 	p.onMessage = append(p.onMessage, OnMessageHandler{Filter: filter, Handlers: handlers})
 }
 
-func (p *party) BeforeOnMessage(handlers ...MessageHandler) {
-	p.beforeOnMessage = append(p.beforeOnMessage, handlers...)
+func (p *party) BeforeMessage(handlers ...MessageHandler) {
+	p.beforeMessage = append(p.beforeMessage, handlers...)
 }
 
-func (p *party) AfterOnMessage(handlers ...MessageHandler) {
-	p.afterOnMessage = append(p.afterOnMessage, handlers...)
+func (p *party) AfterMessage(handlers ...MessageHandler) {
+	p.afterMessage = append(p.afterMessage, handlers...)
 }
 
 func (p *party) OnCallbackQuery(filter Filter, handlers ...CallbackHandler) {
 	p.onCallbackQuery = append(p.onCallbackQuery, OnCallbackHandler{Filter: filter, Handlers: handlers})
 }
 
-func (p *party) BeforeOnCallbackQuery(handlers ...CallbackHandler) {
-	p.beforeOnCallbackQuery = append(p.beforeOnCallbackQuery, handlers...)
+func (p *party) BeforeCallbackQuery(handlers ...CallbackHandler) {
+	p.beforeCallbackQuery = append(p.beforeCallbackQuery, handlers...)
 }
 
-func (p *party) AfterOnCallbackQuery(handlers ...CallbackHandler) {
-	p.afterOnCallbackQuery = append(p.afterOnCallbackQuery, handlers...)
+func (p *party) AfterCallbackQuery(handlers ...CallbackHandler) {
+	p.afterCallbackQuery = append(p.afterCallbackQuery, handlers...)
 }
 
-func (p *party) handleOnMessage(ctx MessageContext, update *Update) (done bool) {
-	if p.filter != nil && !p.filter.Check(update) {
+func (p *party) handleOnMessage(ctx MessageContext) (done bool) {
+	if p.filter != nil && !p.filter.Check(ctx.RawUpdate()) {
 		return false
 	}
 
 	for _, party := range p.parties {
-		if ok := party.handleOnMessage(ctx, update); ok {
+		if ok := party.handleOnMessage(ctx); ok {
 			return true
 		}
 	}
@@ -107,7 +106,7 @@ func (p *party) handleOnMessage(ctx MessageContext, update *Update) (done bool) 
 		}
 		ctx.ResetStopped()
 
-		for _, beforeHandler := range p.beforeOnMessage {
+		for _, beforeHandler := range p.beforeMessage {
 			if ctx.IsStopped() {
 				continue
 			}
@@ -121,7 +120,53 @@ func (p *party) handleOnMessage(ctx MessageContext, update *Update) (done bool) 
 			handler(ctx)
 		}
 
-		for _, afterHandler := range p.afterOnMessage {
+		for _, afterHandler := range p.afterMessage {
+			if ctx.IsStopped() {
+				continue
+			}
+			afterHandler(ctx)
+		}
+
+		if !ctx.IsStopped() {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (p *party) handleOnCallbackQuery(ctx CallbackContext) (done bool) {
+	if p.filter != nil && !p.filter.Check(ctx.RawUpdate()) {
+		return false
+	}
+
+	for _, party := range p.parties {
+		if ok := party.handleOnCallbackQuery(ctx); ok {
+			return true
+		}
+	}
+
+	for _, updateHandler := range p.onCallbackQuery {
+		if !updateHandler.Filter.Check(ctx.RawUpdate()) {
+			continue
+		}
+		ctx.ResetStopped()
+
+		for _, beforeHandler := range p.beforeCallbackQuery {
+			if ctx.IsStopped() {
+				continue
+			}
+			beforeHandler(ctx)
+		}
+
+		for _, handler := range updateHandler.Handlers {
+			if ctx.IsStopped() {
+				continue
+			}
+			handler(ctx)
+		}
+
+		for _, afterHandler := range p.afterCallbackQuery {
 			if ctx.IsStopped() {
 				continue
 			}
