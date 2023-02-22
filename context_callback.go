@@ -47,3 +47,8 @@ func (ctx *callbackContext) Query() *CallbackQuery {
 func (ctx *callbackContext) Data() string {
 	return ctx.Query().Data
 }
+
+func (ctx *callbackContext) Answer(options *AnswerCallbackQueryOptions) error {
+	_, err := ctx.bot.AnswerCallbackQuery(ctx.Query().Id, options)
+	return err
+}
