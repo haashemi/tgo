@@ -1,10 +1,12 @@
-# tgo
+# TGO [Work in Progress]
 
-Golang Telegram Bot framework
+TGo (hopefully) is an easy-to-use telegram bot framework.
 
-this library is in early development and has a long way to its first stable release
+It supports all [bot-api]("https://core.telegram.org/bots/api")'s methods and types with it's code-generator at `/internal/codegen` in `api_methods.go` & `api_types.go` out of the box.
 
-## Usage
+The rest of this is package is a wrapper around the generated code to improve the developer experience and make it way easier to use.
+
+## Basic example
 
 ```go
 package main
