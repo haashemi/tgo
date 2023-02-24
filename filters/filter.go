@@ -1,6 +1,8 @@
 package filters
 
 import (
+	"regexp"
+
 	"github.com/haashemi/tgo"
 )
 
@@ -59,4 +61,57 @@ func Text(text string) tgo.Filter {
 	return NewFilter(func(update *tgo.Update) bool {
 		return extractUpdateText(update) == text
 	})
+}
+
+// Texts compares the update (message's text or caption, callback query, inline query) with the passed texts.
+func Texts(texts ...string) tgo.Filter {
+	return NewFilter(func(update *tgo.Update) bool {
+		raw := extractUpdateText(update)
+
+		for _, text := range texts {
+			if raw == text {
+				return true
+			}
+		}
+
+		return false
+	})
+}
+
+// Regex matches the update (message's text or caption, callback query, inline query) with the passed regexp.
+func Regex(reg *regexp.Regexp) tgo.Filter {
+	return NewFilter(func(update *tgo.Update) bool {
+		return reg.MatchString(extractUpdateText(update))
+	})
+}
+
+// Whitelist compares IDs with the sender-id of the message or callback query. returns true if sender-id is in the blacklist.
+func Whitelist(IDs ...int64) tgo.Filter {
+	return NewFilter(func(update *tgo.Update) bool {
+		var senderID int64
+
+		switch data := extractUpdate(update).(type) {
+		case *tgo.Message:
+			senderID = data.SenderID()
+		case *tgo.CallbackQuery:
+			senderID = data.SenderID()
+		default:
+			// avoid unnecessary id comparisons.
+			return false
+		}
+
+		for _, id := range IDs {
+			if id == senderID {
+				return true
+			}
+		}
+
+		return false
+	})
+}
+
+// Blacklist compares IDs with the sender-id of the message or callback query. returns false if sender-id is in the blacklist.
+func Blacklist(IDs ...int64) tgo.Filter {
+	// Blacklist works the same as Whitelist, So, why not reducing duplicate code!
+	return Not(Whitelist(IDs...))
 }
