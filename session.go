@@ -2,6 +2,7 @@ package tgo
 
 import "sync"
 
+// Session is a simple key-value storage to store some user's data
 type Session struct {
 	mut  sync.RWMutex
 	data map[string]any
@@ -22,12 +23,14 @@ func (bot *Bot) GetSession(sessionID int64) *Session {
 	return s
 }
 
+// Set stores the value in the session
 func (s *Session) Set(key string, value any) {
 	s.mut.Lock()
 	s.data[key] = value
 	s.mut.Unlock()
 }
 
+// Get returns the stored value from the session
 func (s *Session) Get(key string) (data any, ok bool) {
 	s.mut.RLock()
 	defer s.mut.RUnlock()
@@ -36,6 +39,7 @@ func (s *Session) Get(key string) (data any, ok bool) {
 	return
 }
 
+// Del deletes the value from the session
 func (s *Session) Del(key string) {
 	s.mut.Lock()
 	delete(s.data, key)

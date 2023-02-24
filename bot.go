@@ -9,15 +9,18 @@ import (
 )
 
 type Bot struct {
-	*API
-	*User
-	*party
+	// ToDo: Maybe remove API and using Bot directly?
 
-	askMut sync.RWMutex
+	*API   // embedding all API methods directly to the Bot (as they are customized enough)
+	*User  // embedding all bot information directly to the Bot
+	*party // embedding all party methods directly to the Bot
+
 	asks   map[string]chan<- MessageContext
+	askMut sync.RWMutex
 
-	sessionsMut sync.Mutex
+	// this contains user-ids with their session
 	sessions    map[int64]*Session
+	sessionsMut sync.Mutex
 }
 
 type Options struct {
@@ -49,8 +52,14 @@ func (bot *Bot) StartPolling() error {
 
 	for {
 		data, err := bot.GetUpdates(&GetUpdatesOptions{
-			Offset:  offset,
+			// ToDo: I have no idea if I'm getting the offset in the right way or not.
+			Offset: offset,
+
+			// ToDo: decreasing a second is kinda risky... what if the timeout be a second?... 0?
 			Timeout: bot.TimeoutSeconds() - 1,
+
+			// ToDo: support all type of updates, then remove this line.
+			AllowedUpdates: []string{"message", "callback_query"},
 		})
 		if err != nil {
 			return err
@@ -72,14 +81,17 @@ func (bot *Bot) StartPolling() error {
 					}
 					bot.handleOnMessage(ctx)
 
-				case update.EditedMessage != nil:
-					baseCtx.Contextable = update.EditedMessage
+				// ToDo: Support this
+				// case update.EditedMessage != nil:
+				// 	baseCtx.Contextable = update.EditedMessage
 
-				case update.ChannelPost != nil:
-					baseCtx.Contextable = update.ChannelPost
+				// ToDo: Support this
+				// case update.ChannelPost != nil:
+				// 	baseCtx.Contextable = update.ChannelPost
 
-				case update.EditedChannelPost != nil:
-					baseCtx.Contextable = update.EditedChannelPost
+				// ToDo: Support this
+				// case update.EditedChannelPost != nil:
+				// 	baseCtx.Contextable = update.EditedChannelPost
 
 				case update.CallbackQuery != nil:
 					baseCtx.Contextable = update.CallbackQuery

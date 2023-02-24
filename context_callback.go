@@ -39,6 +39,7 @@ func (q *CallbackQuery) MessageID() int64 {
 	return q.Message.MessageId
 }
 
+// Query returns raw CallbackQuery update
 func (ctx *callbackContext) Query() *CallbackQuery {
 	return ctx.Contextable.(*CallbackQuery)
 }
@@ -48,6 +49,7 @@ func (ctx *callbackContext) Data() string {
 	return ctx.Query().Data
 }
 
+// Answer answers to callback queries sent from inline keyboards
 func (ctx *callbackContext) Answer(options *AnswerCallbackQueryOptions) error {
 	_, err := ctx.bot.AnswerCallbackQuery(ctx.Query().Id, options)
 	return err
