@@ -53,13 +53,17 @@ func (bot *Bot) StartPolling() error {
 	for {
 		data, err := bot.GetUpdates(&GetUpdatesOptions{
 			// ToDo: I have no idea if I'm getting the offset in the right way or not.
+			// But it works!
 			Offset: offset,
 
 			// ToDo: decreasing a second is kinda risky... what if the timeout be a second?... 0?
 			Timeout: bot.TimeoutSeconds() - 1,
 
 			// ToDo: support all type of updates, then remove this line.
-			AllowedUpdates: []string{"message", "callback_query"},
+			//
+			// remaining:
+			// 	inline_query, chosen_inline_result, shipping_query, pre_checkout_query, poll, poll_answer, my_chat_member, chat_member, chat_join_request
+			AllowedUpdates: []string{"message", "edited_message", "channel_post", "edited_channel_post", "callback_query"},
 		})
 		if err != nil {
 			return err
@@ -81,17 +85,17 @@ func (bot *Bot) StartPolling() error {
 					}
 					bot.handleOnMessage(ctx)
 
-				// ToDo: Support this
-				// case update.EditedMessage != nil:
-				// 	baseCtx.Contextable = update.EditedMessage
+				case update.EditedMessage != nil:
+					baseCtx.Contextable = update.EditedMessage
+					bot.handleOnEditedMessage(&messageContext{Context: baseCtx})
 
-				// ToDo: Support this
-				// case update.ChannelPost != nil:
-				// 	baseCtx.Contextable = update.ChannelPost
+				case update.ChannelPost != nil:
+					baseCtx.Contextable = update.ChannelPost
+					bot.handleOnChannelPost(&messageContext{Context: baseCtx})
 
-				// ToDo: Support this
-				// case update.EditedChannelPost != nil:
-				// 	baseCtx.Contextable = update.EditedChannelPost
+				case update.EditedChannelPost != nil:
+					baseCtx.Contextable = update.EditedChannelPost
+					bot.handleOnEditedChannelPost(&messageContext{Context: baseCtx})
 
 				case update.CallbackQuery != nil:
 					baseCtx.Contextable = update.CallbackQuery
