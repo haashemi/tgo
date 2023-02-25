@@ -16,7 +16,7 @@ func main() {
 		log.Fatalln(err.Error())
 	}
 
-	bot.OnMessage(filters.Text("hi"), Echo)
+	bot.OnMessage(filters.Text("hi"), Hi)
 
 	bot.OnMessage(filters.True(), Echo)
 
