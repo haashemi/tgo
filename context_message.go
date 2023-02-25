@@ -28,16 +28,18 @@ func (m *Message) MessageID() int64 {
 	return m.MessageId
 }
 
+// String returns the message's text or media caption
+func (m *Message) String() string {
+	if m.Text != "" {
+		return m.Text
+	}
+
+	return m.Caption
+}
+
 func (ctx *messageContext) Message() *Message {
 	return ctx.Contextable.(*Message)
 }
 
 // Caption returns the message's text or media caption
-func (ctx *messageContext) Caption() string {
-	msg := ctx.Message()
-
-	if msg.Text != "" {
-		return msg.Text
-	}
-	return msg.Caption
-}
+func (ctx *messageContext) Caption() string { return ctx.Message().String() }

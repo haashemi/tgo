@@ -2,6 +2,7 @@ package filters
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/haashemi/tgo"
 )
@@ -78,6 +79,20 @@ func Texts(texts ...string) tgo.Filter {
 	})
 }
 
+// WithPrefix tests whether the update (message's text or caption, callback query, inline query) begins with prefix.
+func WithPrefix(prefix string) tgo.Filter {
+	return NewFilter(func(update *tgo.Update) bool {
+		return strings.HasPrefix(extractUpdateText(update), prefix)
+	})
+}
+
+// WithPrefix tests whether the update (message's text or caption, callback query, inline query) ends with suffix.
+func WithSuffix(suffix string) tgo.Filter {
+	return NewFilter(func(update *tgo.Update) bool {
+		return strings.HasSuffix(extractUpdateText(update), suffix)
+	})
+}
+
 // Regex matches the update (message's text or caption, callback query, inline query) with the passed regexp.
 func Regex(reg *regexp.Regexp) tgo.Filter {
 	return NewFilter(func(update *tgo.Update) bool {
@@ -114,4 +129,28 @@ func Whitelist(IDs ...int64) tgo.Filter {
 func Blacklist(IDs ...int64) tgo.Filter {
 	// Blacklist works the same as Whitelist, So, why not reducing duplicate code!
 	return Not(Whitelist(IDs...))
+}
+
+func Command(cmd, botUsername string) tgo.Filter { return Commands("/", botUsername, cmd) }
+
+func Commands(prefix, botUsername string, cmds ...string) tgo.Filter {
+	// make sure they are all lower-cased
+	for index, command := range cmds {
+		cmds[index] = strings.ToLower(prefix + command)
+	}
+
+	return NewFilter(func(update *tgo.Update) bool {
+		if msg, ok := extractUpdate(update).(*tgo.Message); ok {
+			text := msg.String()
+
+			for _, cmd := range cmds {
+				if text == cmd || text == cmd+botUsername || strings.HasPrefix(text, cmd+" ") || strings.HasPrefix(text, cmd+botUsername+" ") {
+					return true
+				}
+			}
+		}
+
+		// this filter should only work on messages
+		return false
+	})
 }
