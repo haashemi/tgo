@@ -15,7 +15,7 @@ type Bot struct {
 	*User  // embedding all bot information directly to the Bot
 	*party // embedding all party methods directly to the Bot
 
-	asks   map[string]chan<- MessageContext
+	asks   map[string]chan<- Context
 	askMut sync.RWMutex
 
 	// this contains user-ids with their session
@@ -40,7 +40,7 @@ func NewBot(token string, opts Options) (*Bot, error) {
 		API:      api,
 		User:     me,
 		party:    &party{},
-		asks:     make(map[string]chan<- MessageContext),
+		asks:     make(map[string]chan<- Context),
 		sessions: make(map[int64]*Session),
 	}
 
@@ -73,40 +73,31 @@ func (bot *Bot) StartPolling() error {
 			offset = update.UpdateId + 1
 
 			go func(update *Update) {
-				baseCtx := &Context{bot: bot, update: update}
+				ctx := &botContext{bot: bot, update: update}
 
 				switch {
 				case update.Message != nil:
-					baseCtx.Contextable = update.Message
-					ctx := &messageContext{Context: baseCtx}
-
+					ctx.Contextable = update.Message
 					if bot.sendAnswerIfAsked(ctx) {
 						return
 					}
-					bot.handleOnMessage(ctx)
-
 				case update.EditedMessage != nil:
-					baseCtx.Contextable = update.EditedMessage
-					bot.handleOnEditedMessage(&messageContext{Context: baseCtx})
-
+					ctx.Contextable = update.EditedMessage
 				case update.ChannelPost != nil:
-					baseCtx.Contextable = update.ChannelPost
-					bot.handleOnChannelPost(&messageContext{Context: baseCtx})
-
+					ctx.Contextable = update.ChannelPost
 				case update.EditedChannelPost != nil:
-					baseCtx.Contextable = update.EditedChannelPost
-					bot.handleOnEditedChannelPost(&messageContext{Context: baseCtx})
-
+					ctx.Contextable = update.EditedChannelPost
 				case update.CallbackQuery != nil:
-					baseCtx.Contextable = update.CallbackQuery
-					bot.handleOnCallbackQuery(&callbackContext{Context: baseCtx})
+					ctx.Contextable = update.CallbackQuery
 				}
+
+				bot.handleUpdate(ctx)
 			}(update)
 		}
 	}
 }
 
-func (bot *Bot) sendAnswerIfAsked(ctx *messageContext) (sent bool) {
+func (bot *Bot) sendAnswerIfAsked(ctx Context) (sent bool) {
 	bot.askMut.RLock()
 	uid := fmt.Sprintf("%d-%d", ctx.ChatID(), ctx.SenderID())
 	receiver, ok := bot.asks[uid]
@@ -120,9 +111,9 @@ func (bot *Bot) sendAnswerIfAsked(ctx *messageContext) (sent bool) {
 	return false
 }
 
-func (bot *Bot) waitForAnswer(question *Message, timeout time.Duration) (*messageContext, error) {
+func (bot *Bot) waitForAnswer(question *Message, timeout time.Duration) (Context, error) {
 	uid := fmt.Sprintf("%d-%d", question.ChatID(), question.SenderID())
-	waiter := make(chan MessageContext, 1)
+	waiter := make(chan Context, 1)
 
 	bot.askMut.Lock()
 	bot.asks[uid] = waiter

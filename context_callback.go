@@ -1,9 +1,5 @@
 package tgo
 
-type CallbackContext = *callbackContext
-
-type callbackContext struct{ *Context }
-
 // SenderID returns the chat id of who sent the query
 func (q *CallbackQuery) SenderID() int64 {
 	return q.From.Id
@@ -39,18 +35,8 @@ func (q *CallbackQuery) MessageID() int64 {
 	return q.Message.MessageId
 }
 
-// Query returns raw CallbackQuery update
-func (ctx *callbackContext) Query() *CallbackQuery {
-	return ctx.Contextable.(*CallbackQuery)
-}
-
-// Data returns the callback's query
-func (ctx *callbackContext) Data() string {
-	return ctx.Query().Data
-}
-
 // Answer answers to callback queries sent from inline keyboards
-func (ctx *callbackContext) Answer(options *AnswerCallbackQueryOptions) error {
-	_, err := ctx.bot.AnswerCallbackQuery(ctx.Query().Id, options)
+func (ctx *botContext) Answer(options *AnswerCallbackQueryOptions) error {
+	_, err := ctx.bot.AnswerCallbackQuery(ctx.CallbackQuery().Id, options)
 	return err
 }

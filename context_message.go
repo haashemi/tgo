@@ -1,9 +1,5 @@
 package tgo
 
-type MessageContext = *messageContext
-
-type messageContext struct{ *Context }
-
 // SenderID returns the chat id of who sent the message
 func (m *Message) SenderID() int64 {
 	if m.From == nil {
@@ -36,10 +32,3 @@ func (m *Message) String() string {
 
 	return m.Caption
 }
-
-func (ctx *messageContext) Message() *Message {
-	return ctx.Contextable.(*Message)
-}
-
-// Caption returns the message's text or media caption
-func (ctx *messageContext) Caption() string { return ctx.Message().String() }
