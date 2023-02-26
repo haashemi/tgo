@@ -8,12 +8,16 @@ import (
 	"time"
 )
 
-type Bot struct {
-	// ToDo: Maybe remove API and using Bot directly?
+//go:generate go run ./internal/codegen
 
-	*API   // embedding all API methods directly to the Bot (as they are customized enough)
+const TelegramHost = "https://api.telegram.org"
+
+type Bot struct {
 	*User  // embedding all bot information directly to the Bot
 	*party // embedding all party methods directly to the Bot
+
+	url    string
+	client *http.Client
 
 	asks   map[string]chan<- Context
 	askMut sync.RWMutex
@@ -28,23 +32,27 @@ type Options struct {
 	Client *http.Client
 }
 
-func NewBot(token string, opts Options) (*Bot, error) {
-	api := NewAPI(token, opts.Host, opts.Client)
-
-	me, err := api.GetMe()
-	if err != nil {
-		return nil, err
+func NewBot(token string, opts Options) (bot *Bot, err error) {
+	if opts.Host == "" {
+		opts.Host = TelegramHost
+	}
+	if opts.Client == nil {
+		opts.Client = &http.Client{Timeout: 30 * time.Second}
 	}
 
-	bot := &Bot{
-		API:      api,
-		User:     me,
-		party:    &party{},
+	bot = &Bot{
+		party: &party{},
+
+		url:    opts.Host + "/bot" + token + "/",
+		client: opts.Client,
+
 		asks:     make(map[string]chan<- Context),
 		sessions: make(map[int64]*Session),
 	}
 
-	return bot, nil
+	bot.User, err = bot.GetMe()
+
+	return bot, err
 }
 
 func (bot *Bot) StartPolling() error {
@@ -57,7 +65,7 @@ func (bot *Bot) StartPolling() error {
 			Offset: offset,
 
 			// ToDo: decreasing a second is kinda risky... what if the timeout be a second?... 0?
-			Timeout: bot.TimeoutSeconds() - 1,
+			Timeout: int64(bot.client.Timeout.Seconds()) - 1,
 
 			// ToDo: support all type of updates, then remove this line.
 			//
@@ -138,3 +146,22 @@ func (bot *Bot) waitForAnswer(question *Message, timeout time.Duration) (Context
 		return nil, aCtx.Err()
 	}
 }
+
+type ChatID string
+
+func NewChatID(id any) ChatID {
+	if val, ok := id.(string); ok {
+		return ChatID(val)
+	}
+
+	return ChatID(fmt.Sprint(id))
+}
+
+type ParseMode string
+
+const (
+	ParseModeNone       ParseMode = ""
+	ParseModeMarkdown   ParseMode = "Markdown"
+	ParseModeMarkdownV2 ParseMode = "MarkdownV2"
+	ParseModeHTML       ParseMode = "HTML"
+)

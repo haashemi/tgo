@@ -20,7 +20,7 @@ type {{ .Name }} struct {
 
 var MethodGen = template.Must(template.New("method-generator").Parse(`
 // {{ .Name }} {{ .Description }}
-func (c *API) {{ .Name }}( {{ .Params }} ) ({{ .ReturnType }}, error) {
+func (b *Bot) {{ .Name }}( {{ .Params }} ) ({{ .ReturnType }}, error) {
 	params := &{{ .RawName }}Params{}
 
 	{{ range $param := .EssentialParams -}}
@@ -31,7 +31,7 @@ func (c *API) {{ .Name }}( {{ .Params }} ) ({{ .ReturnType }}, error) {
 	params.{{ .Name }}Options = optionalParams
 	{{ end }}
 
-	return doHTTP[{{ .ReturnType }}](c.client, c.url, "{{ .RawName }}", params)
+	return doHTTP[{{ .ReturnType }}](b.client, b.url, "{{ .RawName }}", params)
 }
 
 {{ if .UploadableParamsCheckCode }}
