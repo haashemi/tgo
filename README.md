@@ -23,7 +23,7 @@ const ImageURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTK2nG24A
 func main() {
     bot, _ := tgo.NewBot("bot:token", tgo.Options{})
     
-    bot.OnMessage(filters.Text("hi"), func(ctx tgo.MessageContext) {
+    bot.OnMessage(filters.And(filters.IsMessage(), filters.Text("hi")), func(ctx tgo.Context) {
         ctx.Reply("hi!", nil)
 
         ctx.SendPhoto(tgo.FileFromURL(ImageURL), &tgo.SendPhotoOptions{
