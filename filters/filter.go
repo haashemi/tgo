@@ -60,14 +60,14 @@ func Not(filter tgo.Filter) tgo.Filter {
 // Text compares the update (message's text or caption, callback query, inline query) with the passed text.
 func Text(text string) tgo.Filter {
 	return NewFilter(func(update *tgo.Update) bool {
-		return extractUpdateText(update) == text
+		return ExtractUpdateText(update) == text
 	})
 }
 
 // Texts compares the update (message's text or caption, callback query, inline query) with the passed texts.
 func Texts(texts ...string) tgo.Filter {
 	return NewFilter(func(update *tgo.Update) bool {
-		raw := extractUpdateText(update)
+		raw := ExtractUpdateText(update)
 
 		for _, text := range texts {
 			if raw == text {
@@ -82,21 +82,21 @@ func Texts(texts ...string) tgo.Filter {
 // WithPrefix tests whether the update (message's text or caption, callback query, inline query) begins with prefix.
 func WithPrefix(prefix string) tgo.Filter {
 	return NewFilter(func(update *tgo.Update) bool {
-		return strings.HasPrefix(extractUpdateText(update), prefix)
+		return strings.HasPrefix(ExtractUpdateText(update), prefix)
 	})
 }
 
 // WithPrefix tests whether the update (message's text or caption, callback query, inline query) ends with suffix.
 func WithSuffix(suffix string) tgo.Filter {
 	return NewFilter(func(update *tgo.Update) bool {
-		return strings.HasSuffix(extractUpdateText(update), suffix)
+		return strings.HasSuffix(ExtractUpdateText(update), suffix)
 	})
 }
 
 // Regex matches the update (message's text or caption, callback query, inline query) with the passed regexp.
 func Regex(reg *regexp.Regexp) tgo.Filter {
 	return NewFilter(func(update *tgo.Update) bool {
-		return reg.MatchString(extractUpdateText(update))
+		return reg.MatchString(ExtractUpdateText(update))
 	})
 }
 
@@ -105,7 +105,7 @@ func Whitelist(IDs ...int64) tgo.Filter {
 	return NewFilter(func(update *tgo.Update) bool {
 		var senderID int64
 
-		switch data := extractUpdate(update).(type) {
+		switch data := ExtractUpdate(update).(type) {
 		case *tgo.Message:
 			senderID = data.SenderID()
 		case *tgo.CallbackQuery:
@@ -140,7 +140,7 @@ func Commands(prefix, botUsername string, cmds ...string) tgo.Filter {
 	}
 
 	return NewFilter(func(update *tgo.Update) bool {
-		if msg, ok := extractUpdate(update).(*tgo.Message); ok {
+		if msg, ok := ExtractUpdate(update).(*tgo.Message); ok {
 			text := msg.String()
 
 			for _, cmd := range cmds {
