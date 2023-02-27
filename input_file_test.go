@@ -15,16 +15,14 @@ var (
 
 func TestInputFileUploadable(t *testing.T) {
 	got := RawInputFileUploadable.NeedsUpload()
-	expected := true
 
-	assert.Equal(t, expected, got)
+	assert.True(t, got)
 }
 
 func TestInputFileNotUploadable(t *testing.T) {
 	got := RawInputFileNotUploadable.NeedsUpload()
-	expected := false
 
-	assert.Equal(t, expected, got)
+	assert.False(t, got)
 }
 
 func TestFileFromID(t *testing.T) {
@@ -35,7 +33,7 @@ func TestFileFromID(t *testing.T) {
 	assert.IsType(t, expected, got)
 
 	// FileFromID is not uploadable
-	assert.Equal(t, false, got.NeedsUpload())
+	assert.False(t, got.NeedsUpload())
 }
 
 func TestFileFromURL(t *testing.T) {
@@ -46,7 +44,7 @@ func TestFileFromURL(t *testing.T) {
 	assert.IsType(t, expected, got)
 
 	// FileFromURL is not uploadable
-	assert.Equal(t, false, got.NeedsUpload())
+	assert.False(t, got.NeedsUpload())
 }
 
 func TestFileFromReader(t *testing.T) {
@@ -62,5 +60,5 @@ func TestFileFromReader(t *testing.T) {
 	assert.IsType(t, expected, got)
 
 	// FileFromReader is uploadable
-	assert.Equal(t, true, got.NeedsUpload())
+	assert.True(t, got.NeedsUpload())
 }

@@ -26,6 +26,9 @@ func (bot *Bot) GetSession(sessionID int64) *Session {
 // Set stores the value in the session
 func (s *Session) Set(key string, value any) {
 	s.mut.Lock()
+	if s.data == nil {
+		s.data = map[string]any{}
+	}
 	s.data[key] = value
 	s.mut.Unlock()
 }
