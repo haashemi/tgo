@@ -1,6 +1,7 @@
 package tgo
 
 import (
+	"sync"
 	"time"
 )
 
@@ -34,7 +35,7 @@ func (ctx *botContext) Bot() *Bot { return ctx.bot }
 
 // Session returns the user's session storage.
 // it will return the chat's session if user-id is zero.
-func (ctx *botContext) Session() *Session {
+func (ctx *botContext) Session() *sync.Map {
 	id := ctx.SenderID()
 	if id == 0 {
 		id = ctx.ChatID()

@@ -22,9 +22,8 @@ type Bot struct {
 	asks   map[string]chan<- Context
 	askMut sync.RWMutex
 
-	// this contains user-ids with their session
-	sessions    map[int64]*Session
-	sessionsMut sync.Mutex
+	// contains user-ids with their session
+	sessions sync.Map
 }
 
 type Options struct {
@@ -36,6 +35,7 @@ func NewBot(token string, opts Options) (bot *Bot, err error) {
 	if opts.Host == "" {
 		opts.Host = TelegramHost
 	}
+
 	if opts.Client == nil {
 		opts.Client = &http.Client{Timeout: 30 * time.Second}
 	}
@@ -46,8 +46,7 @@ func NewBot(token string, opts Options) (bot *Bot, err error) {
 		url:    opts.Host + "/bot" + token + "/",
 		client: opts.Client,
 
-		asks:     make(map[string]chan<- Context),
-		sessions: make(map[int64]*Session),
+		asks: make(map[string]chan<- Context),
 	}
 
 	bot.User, err = bot.GetMe()
@@ -103,6 +102,13 @@ func (bot *Bot) StartPolling() error {
 			}(update)
 		}
 	}
+}
+
+// GetSession returns the stored session as a sync.Map.
+// it creates a new session if session id didn't exists.
+func (bot *Bot) GetSession(sessionID int64) *sync.Map {
+	result, _ := bot.sessions.LoadOrStore(sessionID, &sync.Map{})
+	return result.(*sync.Map)
 }
 
 func (bot *Bot) sendAnswerIfAsked(ctx Context) (sent bool) {
