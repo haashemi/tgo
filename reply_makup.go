@@ -5,168 +5,156 @@ type ReplyMarkup interface {
 	IsReplyMarkup()
 }
 
-func NewInlineKeyboardMarkup(rows ...[]*InlineKeyboardButton) *InlineKeyboardMarkup {
-	return &InlineKeyboardMarkup{InlineKeyboard: rows}
-}
-
 // IsReplyMarkup is an empty function used to implement ReplyMarkup
 func (InlineKeyboardMarkup) IsReplyMarkup() {}
 
-func NewReplyKeyboardMarkup(rows ...[]*KeyboardButton) *ReplyKeyboardMarkup {
-	return &ReplyKeyboardMarkup{Keyboard: rows}
+// NewInlineKeyboardMarkup returns an InlineKeyboardMarkup which represents
+// an inline keyboard that appears right next to the message it belongs to.
+func NewInlineKeyboardMarkup(rows ...[]*InlineKeyboardButton) ReplyMarkup {
+	return &InlineKeyboardMarkup{InlineKeyboard: rows}
 }
-
-func (keyboard *ReplyKeyboardMarkup) Persistent() *ReplyKeyboardMarkup {
-	keyboard.IsPersistent = true
-	return keyboard
-}
-
-func (keyboard *ReplyKeyboardMarkup) WithResizeKeyboard() *ReplyKeyboardMarkup {
-	keyboard.ResizeKeyboard = true
-	return keyboard
-}
-
-func (keyboard *ReplyKeyboardMarkup) WithOneTimeKeyboard() *ReplyKeyboardMarkup {
-	keyboard.OneTimeKeyboard = true
-	return keyboard
-}
-
-func (keyboard *ReplyKeyboardMarkup) WithInputFieldPlaceholder(placeholder string) *ReplyKeyboardMarkup {
-	keyboard.InputFieldPlaceholder = placeholder
-	return keyboard
-}
-
-func (keyboard *ReplyKeyboardMarkup) IsSelective() *ReplyKeyboardMarkup {
-	keyboard.Selective = true
-	return keyboard
-}
-
-// IsReplyMarkup is an empty function used to implement ReplyMarkup
-func (ReplyKeyboardMarkup) IsReplyMarkup() {}
-
-func NewReplyKeyboardRemove() *ReplyKeyboardRemove {
-	return &ReplyKeyboardRemove{RemoveKeyboard: true}
-}
-
-func (data *ReplyKeyboardRemove) IsSelective() *ReplyKeyboardRemove {
-	data.Selective = true
-	return data
-}
-
-// IsReplyMarkup is an empty function used to implement ReplyMarkup
-func (ReplyKeyboardRemove) IsReplyMarkup() {}
-
-func NewForceReply() *ForceReply {
-	return &ForceReply{ForceReply: true}
-}
-
-func (data *ForceReply) WithPlaceholder(placeholder string) *ForceReply {
-	data.InputFieldPlaceholder = placeholder
-	return data
-}
-
-func (data *ForceReply) IsSelective() *ForceReply {
-	data.Selective = true
-	return data
-}
-
-// IsReplyMarkup is an empty function used to implement ReplyMarkup
-func (ForceReply) IsReplyMarkup() {}
-
-//////////////////////////////////////////
-//////////////////////////////////////////
-//////////////////////////////////////////
 
 func NewInlineKeyboardRow(buttons ...*InlineKeyboardButton) []*InlineKeyboardButton {
 	return buttons
 }
 
-func NewInlineKeyboardButton(text string) *InlineKeyboardButton {
-	return &InlineKeyboardButton{Text: text}
+func UrlInlineKeyboardButton(text string, url string) *InlineKeyboardButton {
+	return &InlineKeyboardButton{Text: text, Url: url}
 }
 
-func (btn *InlineKeyboardButton) WithUrl(param string) *InlineKeyboardButton {
-	btn.Url = param
-	return btn
+func CallbackDataInlineKeyboardButton(text string, callbackData string) *InlineKeyboardButton {
+	return &InlineKeyboardButton{Text: text, CallbackData: callbackData}
 }
 
-func (btn *InlineKeyboardButton) WithCallbackData(param string) *InlineKeyboardButton {
-	btn.CallbackData = param
-	return btn
+func WebAppInlineKeyboardButton(text string, webAppURL string) *InlineKeyboardButton {
+	return &InlineKeyboardButton{Text: text, WebApp: &WebAppInfo{Url: webAppURL}}
 }
 
-func (btn *InlineKeyboardButton) WithWebApp(webAppURL string) *InlineKeyboardButton {
-	btn.WebApp = &WebAppInfo{Url: webAppURL}
-	return btn
+func LoginUrlInlineKeyboardButton(text string, loginUrl *LoginUrl) *InlineKeyboardButton {
+	return &InlineKeyboardButton{Text: text, LoginUrl: loginUrl}
 }
 
-func (btn *InlineKeyboardButton) WithLoginUrl(param LoginUrl) *InlineKeyboardButton {
-	btn.LoginUrl = &param
-	return btn
+func SwitchInlineQueryInlineKeyboardButton(text string, switchInlineQuery string) *InlineKeyboardButton {
+	return &InlineKeyboardButton{Text: text, SwitchInlineQuery: switchInlineQuery}
 }
 
-func (btn *InlineKeyboardButton) WithSwitchInlineQuery(param string) *InlineKeyboardButton {
-	btn.SwitchInlineQuery = param
-	return btn
+func SwitchInlineQueryCurrentChatInlineKeyboardButton(text string, switchInlineQueryCurrentChat string) *InlineKeyboardButton {
+	return &InlineKeyboardButton{Text: text, SwitchInlineQueryCurrentChat: switchInlineQueryCurrentChat}
 }
 
-func (btn *InlineKeyboardButton) WithSwitchInlineQueryCurrentChat(param string) *InlineKeyboardButton {
-	btn.SwitchInlineQueryCurrentChat = param
-	return btn
+func CallbackGameInlineKeyboardButton(text string) *InlineKeyboardButton {
+	return &InlineKeyboardButton{Text: text, CallbackGame: &CallbackGame{}}
 }
 
-func (btn *InlineKeyboardButton) WithCallbackGame() *InlineKeyboardButton {
-	btn.CallbackGame = &CallbackGame{}
-	return btn
+func PayInlineKeyboardButton(text string) *InlineKeyboardButton {
+	return &InlineKeyboardButton{Text: text, Pay: true}
 }
 
-func (btn *InlineKeyboardButton) WithPay() *InlineKeyboardButton {
-	btn.Pay = true
-	return btn
+type ReplyKeyboardOptionSetter func(*ReplyKeyboardMarkup)
+
+// IsReplyMarkup is an empty function used to implement ReplyMarkup
+func (ReplyKeyboardMarkup) IsReplyMarkup() {}
+
+func NewReplyKeyboardMarkup(rows [][]*KeyboardButton, options ...ReplyKeyboardOptionSetter) ReplyMarkup {
+	keyboard := &ReplyKeyboardMarkup{Keyboard: rows}
+
+	for _, setOption := range options {
+		setOption(keyboard)
+	}
+
+	return keyboard
+}
+
+func KeyboardIsPersistent() ReplyKeyboardOptionSetter {
+	return func(rkm *ReplyKeyboardMarkup) {
+		rkm.IsPersistent = true
+	}
+}
+
+func KeyboardIsResized() ReplyKeyboardOptionSetter {
+	return func(rkm *ReplyKeyboardMarkup) {
+		rkm.ResizeKeyboard = true
+	}
+}
+
+func KeyboardIsOneTime() ReplyKeyboardOptionSetter {
+	return func(rkm *ReplyKeyboardMarkup) {
+		rkm.OneTimeKeyboard = true
+	}
+}
+
+func KeyboardIsSelective() ReplyKeyboardOptionSetter {
+	return func(rkm *ReplyKeyboardMarkup) {
+		rkm.Selective = true
+	}
+}
+
+func KeyboardPlaceholder(placeholder string) ReplyKeyboardOptionSetter {
+	return func(rkm *ReplyKeyboardMarkup) {
+		rkm.InputFieldPlaceholder = placeholder
+	}
 }
 
 func NewReplyKeyboardRow(buttons ...*KeyboardButton) []*KeyboardButton {
 	return buttons
 }
 
-func NewKeyboardButton(text string) *KeyboardButton {
+func TextKeyboardButton(text string) *KeyboardButton {
 	return &KeyboardButton{Text: text}
 }
-
-func (btn *KeyboardButton) WithRequestUser(param *KeyboardButtonRequestUser) *KeyboardButton {
-	btn.RequestUser = param
-	return btn
+func RequestUserKeyboardButton(text string, requestUser *KeyboardButtonRequestUser) *KeyboardButton {
+	return &KeyboardButton{Text: text, RequestUser: requestUser}
+}
+func RequestChatKeyboardButton(text string, requestChat *KeyboardButtonRequestChat) *KeyboardButton {
+	return &KeyboardButton{Text: text, RequestChat: requestChat}
+}
+func RequestContactKeyboardButton(text string) *KeyboardButton {
+	return &KeyboardButton{Text: text, RequestContact: true}
+}
+func RequestLocationKeyboardButton(text string) *KeyboardButton {
+	return &KeyboardButton{Text: text, RequestLocation: true}
+}
+func RequestPollKeyboardButton(text string, pollType PollType) *KeyboardButton {
+	return &KeyboardButton{Text: text, RequestPoll: &KeyboardButtonPollType{Type: string(pollType)}}
+}
+func WebAppKeyboardButton(text string, webAppURL string) *KeyboardButton {
+	return &KeyboardButton{Text: text, WebApp: &WebAppInfo{Url: webAppURL}}
 }
 
-func (btn *KeyboardButton) WithRequestChat(param *KeyboardButtonRequestChat) *KeyboardButton {
-	btn.RequestChat = param
-	return btn
+// IsReplyMarkup is an empty function used to implement ReplyMarkup
+func (ReplyKeyboardRemove) IsReplyMarkup() {}
+
+func NewReplyKeyboardRemove(selective bool) *ReplyKeyboardRemove {
+	return &ReplyKeyboardRemove{RemoveKeyboard: true, Selective: selective}
 }
 
-func (btn *KeyboardButton) WithRequestContact() *KeyboardButton {
-	btn.RequestContact = true
-	return btn
+type ForceReplyOptionSetter func(*ForceReply)
+
+// IsReplyMarkup is an empty function used to implement ReplyMarkup
+func (ForceReply) IsReplyMarkup() {}
+
+// NewForceReply returns a ForceReply object which results Telegram clients to display
+// a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply').
+// This can be extremely useful if you want to create user-friendly step-by-step interfaces
+// without having to sacrifice privacy mode.
+func NewForceReply(options ...ForceReplyOptionSetter) ReplyMarkup {
+	markup := &ForceReply{ForceReply: true}
+
+	for _, setOption := range options {
+		setOption(markup)
+	}
+
+	return markup
 }
 
-func (btn *KeyboardButton) WithRequestLocation() *KeyboardButton {
-	btn.RequestLocation = true
-	return btn
+func ForceReplyPlaceholder(placeholder string) ForceReplyOptionSetter {
+	return func(fr *ForceReply) {
+		fr.InputFieldPlaceholder = placeholder
+	}
 }
 
-type PollType string
-
-const (
-	PollTypeAny     PollType = ""        // If this gets passed, the user will be allowed to create a poll of any type.
-	PollTypeQuiz    PollType = "quiz"    // if this gets passed, the user will be allowed to create only polls in the quiz mode.
-	PollTypeRegular PollType = "regular" // If this gets passed, only regular polls will be allowed.
-)
-
-func (btn *KeyboardButton) WithRequestPoll(pollType PollType) *KeyboardButton {
-	btn.RequestPoll = &KeyboardButtonPollType{Type: string(pollType)}
-	return btn
-}
-
-func (btn *KeyboardButton) WithWebApp(webAppURL string) *KeyboardButton {
-	btn.WebApp = &WebAppInfo{Url: webAppURL}
-	return btn
+func ForceReplyIsSelective() ForceReplyOptionSetter {
+	return func(fr *ForceReply) {
+		fr.Selective = true
+	}
 }

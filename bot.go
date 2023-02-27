@@ -107,8 +107,14 @@ func (bot *Bot) StartPolling() error {
 // GetSession returns the stored session as a sync.Map.
 // it creates a new session if session id didn't exists.
 func (bot *Bot) GetSession(sessionID int64) *sync.Map {
-	result, _ := bot.sessions.LoadOrStore(sessionID, &sync.Map{})
-	return result.(*sync.Map)
+	result, ok := bot.sessions.Load(sessionID)
+	if !ok {
+		return result.(*sync.Map)
+	}
+
+	session := &sync.Map{}
+	bot.sessions.Store(sessionID, session)
+	return session
 }
 
 func (bot *Bot) sendAnswerIfAsked(ctx Context) (sent bool) {
@@ -170,4 +176,12 @@ const (
 	ParseModeMarkdown   ParseMode = "Markdown"
 	ParseModeMarkdownV2 ParseMode = "MarkdownV2"
 	ParseModeHTML       ParseMode = "HTML"
+)
+
+type PollType string
+
+const (
+	PollTypeAny     PollType = ""        // If this gets passed, the user will be allowed to create a poll of any type.
+	PollTypeQuiz    PollType = "quiz"    // if this gets passed, the user will be allowed to create only polls in the quiz mode.
+	PollTypeRegular PollType = "regular" // If this gets passed, only regular polls will be allowed.
 )
