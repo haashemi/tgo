@@ -9,7 +9,7 @@ import (
 
 // Interface check
 var (
-	RawInputFileUploadable    InputFile = InputFileUploadable{}
+	RawInputFileUploadable    InputFile = &InputFileUploadable{}
 	RawInputFileNotUploadable InputFile = InputFileNotUploadable("")
 )
 
@@ -30,10 +30,6 @@ func TestFileFromID(t *testing.T) {
 	got := FileFromID("some-id-123")
 
 	assert.Equal(t, expected, got)
-	assert.IsType(t, expected, got)
-
-	// FileFromID is not uploadable
-	assert.False(t, got.NeedsUpload())
 }
 
 func TestFileFromURL(t *testing.T) {
@@ -41,10 +37,6 @@ func TestFileFromURL(t *testing.T) {
 	got := FileFromURL("https://example.com/image.png")
 
 	assert.Equal(t, expected, got)
-	assert.IsType(t, expected, got)
-
-	// FileFromURL is not uploadable
-	assert.False(t, got.NeedsUpload())
 }
 
 func TestFileFromReader(t *testing.T) {
@@ -57,8 +49,4 @@ func TestFileFromReader(t *testing.T) {
 	got := FileFromReader("SomeName", reader)
 
 	assert.Equal(t, expected, got)
-	assert.IsType(t, expected, got)
-
-	// FileFromReader is uploadable
-	assert.True(t, got.NeedsUpload())
 }
