@@ -14,6 +14,10 @@ func (bot *Bot) GetSession(sessionID int64) *Session {
 	bot.sessionsMut.Lock()
 	defer bot.sessionsMut.Unlock()
 
+	if bot.sessions == nil {
+		bot.sessions = map[int64]*Session{}
+	}
+
 	if s, ok := bot.sessions[sessionID]; ok {
 		return s
 	}

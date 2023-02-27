@@ -1,6 +1,7 @@
 package tgo
 
 import (
+	"math/rand"
 	"sync"
 	"testing"
 
@@ -16,6 +17,43 @@ var TestKeyValues = map[string]any{
 	"string2":  "tgo is actually awesome!",
 	"complex":  69 + 85i,
 	"complex2": 85 + 69i,
+}
+
+func TestGetSession(t *testing.T) {
+	var sessionIds []int64
+
+	for i := 0; i < 50; i++ {
+		sessionIds = append(sessionIds, rand.Int63())
+	}
+
+	var bot = &Bot{}
+
+	var wg sync.WaitGroup
+
+	wg.Add(len(sessionIds) * 2)
+
+	for _, sid := range sessionIds {
+		go func(sid int64) {
+			session := bot.GetSession(sid)
+
+			assert.NotNil(t, session)
+
+			wg.Done()
+		}(sid)
+	}
+
+	// Make sure they are still exists and didn't gone for some reason
+	for _, sid := range sessionIds {
+		go func(sid int64) {
+			session := bot.GetSession(sid)
+
+			assert.NotNil(t, session)
+
+			wg.Done()
+		}(sid)
+	}
+
+	wg.Wait()
 }
 
 func TestSession(t *testing.T) {
