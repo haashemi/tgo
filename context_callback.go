@@ -15,7 +15,7 @@ func (q *CallbackQuery) ChatID() int64 {
 	return q.Message.Chat.Id
 }
 
-// SenderID returns the chat's thread id of where the message of that callback button was in.
+// ThreadID returns the chat's thread id of where the message of that callback button was in.
 // it returns zero if the message couldn't be found.
 func (q *CallbackQuery) ThreadID() int64 {
 	if q.Message == nil {

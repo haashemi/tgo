@@ -111,162 +111,66 @@ func (ctx *botContext) Text() string {
 }
 
 func (ctx *botContext) Send(text string, optionalParams *SendMessageOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendMessageOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendMessage(NewChatID(ctx.ChatID()), text, optionalParams)
 }
 
 func (ctx *botContext) SendPhoto(photo InputFile, optionalParams *SendPhotoOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendPhotoOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendPhoto(NewChatID(ctx.ChatID()), photo, optionalParams)
 }
 
 func (ctx *botContext) SendAudio(audio InputFile, optionalParams *SendAudioOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendAudioOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendAudio(NewChatID(ctx.ChatID()), audio, optionalParams)
 }
 
 func (ctx *botContext) SendDocument(document InputFile, optionalParams *SendDocumentOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendDocumentOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendDocument(NewChatID(ctx.ChatID()), document, optionalParams)
 }
 
 func (ctx *botContext) SendVideo(video InputFile, optionalParams *SendVideoOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendVideoOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendVideo(NewChatID(ctx.ChatID()), video, optionalParams)
 }
 
 func (ctx *botContext) SendAnimation(animation InputFile, optionalParams *SendAnimationOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendAnimationOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendAnimation(NewChatID(ctx.ChatID()), animation, optionalParams)
 }
 
 func (ctx *botContext) SendVoice(voice InputFile, optionalParams *SendVoiceOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendVoiceOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendVoice(NewChatID(ctx.ChatID()), voice, optionalParams)
 }
 
 func (ctx *botContext) SendVideoNote(videoNote InputFile, optionalParams *SendVideoNoteOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendVideoNoteOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendVideoNote(NewChatID(ctx.ChatID()), videoNote, optionalParams)
 }
 
 func (ctx *botContext) SendLocation(latitude, longitude float64, optionalParams *SendLocationOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendLocationOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendLocation(NewChatID(ctx.ChatID()), latitude, longitude, optionalParams)
 }
 
 func (ctx *botContext) SendVenue(latitude, longitude float64, title, address string, optionalParams *SendVenueOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendVenueOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendVenue(NewChatID(ctx.ChatID()), latitude, longitude, title, address, optionalParams)
 }
 
 func (ctx *botContext) SendContact(phoneNumber, firstName string, optionalParams *SendContactOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendContactOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendContact(NewChatID(ctx.ChatID()), phoneNumber, firstName, optionalParams)
 }
 
 func (ctx *botContext) SendPoll(question string, options []string, optionalParams *SendPollOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendPollOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendPoll(NewChatID(ctx.ChatID()), question, options, optionalParams)
 }
 
 func (ctx *botContext) SendDice(optionalParams *SendDiceOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendDiceOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendDice(NewChatID(ctx.ChatID()), optionalParams)
 }
 
 func (ctx *botContext) SendSticker(sticker InputFile, optionalParams *SendStickerOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendStickerOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendSticker(NewChatID(ctx.ChatID()), sticker, optionalParams)
 }
 
 func (ctx *botContext) SendInvoice(title, description, payload, providerToken, currency string, prices []*LabeledPrice, optionalParams *SendInvoiceOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendInvoiceOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendInvoice(NewChatID(ctx.ChatID()), title, description, payload, providerToken, currency, prices, optionalParams)
 }
 
 func (ctx *botContext) SendGame(gameShortName string, optionalParams *SendGameOptions) (*Message, error) {
-	if threadID := ctx.ThreadID(); threadID != 0 {
-		if optionalParams == nil {
-			optionalParams = &SendGameOptions{}
-		}
-		optionalParams.MessageThreadId = threadID
-	}
 	return ctx.bot.SendGame(ctx.ChatID(), gameShortName, optionalParams)
 }
 
