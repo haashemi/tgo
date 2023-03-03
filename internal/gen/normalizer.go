@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -9,6 +10,27 @@ import (
 )
 
 var tCase = cases.Title(language.English)
+
+func snakeToPascal(s string) string {
+	return strings.ReplaceAll(tCase.String(strings.ReplaceAll(s, "_", "  ")), " ", "")
+}
+
+func upperFirstLetter(s string) string {
+	return strings.ToUpper(string(s[0])) + s[1:]
+}
+
+func lowerFirstLetter(s string) string {
+	return strings.ToLower(string(s[0])) + s[1:]
+}
+
+func getStructFieldTag(name string, isOptional bool) string {
+	var optionalField string
+	if isOptional {
+		optionalField = ",omitempty"
+	}
+
+	return fmt.Sprintf("`json:\"%s%s\"`", name, optionalField)
+}
 
 var returnTypePatterns = []*regexp.Regexp{
 	regexp.MustCompile(`Returns the [a-z ]+ as ?a? (?P<type>[A-Za-z]+) `),
@@ -27,23 +49,37 @@ var returnTypePatterns = []*regexp.Regexp{
 	regexp.MustCompile(`(?P<type>[A-Za-z]+) on success`),
 }
 
-func upperFirstLetter(s string) string {
-	return strings.ToUpper(string(s[0])) + s[1:]
+func extractReturnType(desc string) string {
+	var parts []string
+	for _, part := range strings.Split(desc, ".") {
+		tP := strings.ToLower(part)
+		if strings.Contains(tP, "returns") || strings.Contains(tP, "returned") {
+			parts = append(parts, strings.TrimSpace(part))
+		}
+	}
+
+	if parts == nil {
+		return ""
+	}
+	desc = strings.Join(parts, ". ")
+
+	for _, pattern := range returnTypePatterns {
+		matches := pattern.FindStringSubmatch(desc)
+		if len(matches) == 2 {
+			return matches[1]
+		} else if len(matches) > 2 {
+			return "json.RawMessage"
+		}
+	}
+
+	return ""
 }
 
-func lowerFirstLetter(s string) string {
-	return strings.ToLower(string(s[0])) + s[1:]
-}
-
-func snakeToPascal(s string) string {
-	return strings.ReplaceAll(tCase.String(strings.ReplaceAll(s, "_", "  ")), " ", "")
-}
-
-func typeOf(key, s string) string {
+func typeOf(key, s string, isOptional bool) string {
 	if exactType := strings.TrimPrefix(s, "Array of "); exactType != s {
-		return "[]" + typeOf(key, exactType)
+		return "[]" + typeOf(key, exactType, true)
 	} else if exactType := strings.TrimPrefix(s, "array of "); exactType != s {
-		return "[]" + typeOf(key, exactType)
+		return "[]" + typeOf(key, exactType, true)
 	}
 
 	switch key {
@@ -65,7 +101,7 @@ func typeOf(key, s string) string {
 	// Special types
 	case "Integer or String":
 		return "ChatID"
-	case "InputFile", "InputFile or String":
+	case "InputFile or String":
 		return "InputFile"
 	case "InputMediaAudio, InputMediaDocument, InputMediaPhoto and InputMediaVideo":
 		return "InputMedia"
@@ -74,29 +110,9 @@ func typeOf(key, s string) string {
 
 	// Other types, it should be a struct.
 	default:
-		return "*" + s
-	}
-}
-
-func extractReturnType(desc string) []string {
-	var parts []string
-	for _, part := range strings.Split(desc, ".") {
-		tP := strings.ToLower(part)
-		if strings.Contains(tP, "returns") || strings.Contains(tP, "returned") {
-			parts = append(parts, strings.TrimSpace(part))
+		if isOptional {
+			return "*" + s
 		}
+		return s
 	}
-
-	if parts == nil {
-		return nil
-	}
-	desc = strings.Join(parts, ". ")
-
-	for _, pattern := range returnTypePatterns {
-		if matches := pattern.FindStringSubmatch(desc); len(matches) != 0 {
-			return matches[1:]
-		}
-	}
-
-	return nil
 }

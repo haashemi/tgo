@@ -139,6 +139,10 @@ func Commands(prefix, botUsername string, cmds ...string) tgo.Filter {
 		cmds[index] = strings.ToLower(prefix + command)
 	}
 
+	if !strings.HasPrefix(botUsername, "@") {
+		botUsername = "@" + botUsername
+	}
+
 	return NewFilter(func(update *tgo.Update) bool {
 		if msg, ok := ExtractUpdate(update).(*tgo.Message); ok {
 			text := msg.String()

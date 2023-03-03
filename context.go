@@ -339,3 +339,9 @@ func (ctx *botContext) Delete() error {
 	_, err := ctx.bot.DeleteMessage(NewChatID(ctx.ChatID()), ctx.MessageID())
 	return err
 }
+
+// Answer answers to callback queries sent from inline keyboards
+func (ctx *botContext) Answer(options *AnswerCallbackQueryOptions) error {
+	_, err := ctx.bot.AnswerCallbackQuery(ctx.CallbackQuery().Id, options)
+	return err
+}
