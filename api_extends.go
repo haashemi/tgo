@@ -2,6 +2,19 @@ package tgo
 
 import "io"
 
+// ChatID is just an any type.
+// It should be a username (string) or a user-id (integer).
+type ChatID any
+
+type ParseMode string
+
+const (
+	ParseModeNone       ParseMode = ""
+	ParseModeMarkdown   ParseMode = "Markdown"
+	ParseModeMarkdownV2 ParseMode = "MarkdownV2"
+	ParseModeHTML       ParseMode = "HTML"
+)
+
 type ReplyMarkup interface {
 	// IsReplyMarkup does nothing and is only used to enforce type-safety
 	IsReplyMarkup()

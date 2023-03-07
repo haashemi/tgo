@@ -2,22 +2,23 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"go/format"
+	"log"
 	"os"
 )
 
 const TelegramDocURL = "https://core.telegram.org/bots/api"
 
 func main() {
-	x, _ := FetchAndParse()
-	b, _ := json.MarshalIndent(x, "", "    ")
-	os.WriteFile("schema.json", b, os.ModePerm)
+	resp, err := FetchAndParse()
+	if err != nil {
+		log.Fatalln("failed to fetch or parse the data >>", err)
+	}
 
 	buf := bytes.NewBuffer(nil)
 	buf.Write([]byte("// CODE GENERATED. DO NOT EDIT.\npackage tgo\n\n"))
 
-	for _, data := range x.Data {
+	for _, data := range resp.Data {
 		Generate(data, buf)
 	}
 

@@ -16,21 +16,26 @@ func main() {
 		log.Fatalln(err.Error())
 	}
 
-	onMessage := bot.Party(filters.IsMessage())
-	{
-		onMessage.Handle(filters.Text("hi"), Hi)
+	// It will call the handler when a new message gets received with text/caption of "hi"
+	bot.Handle(filters.And(filters.IsMessage(), filters.Text("hi")), Hi)
 
-		onMessage.Handle(filters.True(), Echo)
-	}
+	// Handlers are called in order (at the least in DefaultRouter, other routers may work differently)
+	// so, if no handlers gets used and the update is a new message, Echo will be called.
+	bot.Handle(filters.And(filters.IsMessage()), Echo)
 
 	log.Println("Bot is started as", bot.Username)
-	log.Fatalln(bot.StartPolling())
+
+	if err := bot.StartPolling(); err != nil {
+		log.Fatalln("Polling stopped >>", err.Error())
+		return
+	}
+	log.Println("Bot stopped successfully")
 }
 
 // Hi answers the hi message with a new hi!
 func Hi(ctx tgo.Context) {
 	// Get sender's first name with getting the raw message
-	senderFirstName := ctx.Message().From.FirstName
+	senderFirstName := ctx.Message.From.FirstName
 
 	// create the text using HTML Markups
 	text := fmt.Sprintf("Hi <i>%s</i>!", senderFirstName)

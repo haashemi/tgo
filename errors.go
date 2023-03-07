@@ -7,3 +7,5 @@ type Error struct {
 }
 
 func (e Error) Error() string { return e.Description }
+
+// ToDo: add every single api errors.
