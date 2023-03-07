@@ -51,7 +51,7 @@ type {{ .Name }}Params struct {
 
 {{range $desc := .Description }}
 // {{ $desc }} {{end}}
-func (b *Bot) {{ .PascalCaseName }}( {{ range $param := .EssentialFields -}} {{ $param.CamelCaseName }} {{ $param.Type }}, {{end -}} {{if .OptionalFields -}}optionalParams *{{ .PascalCaseName }}Options{{end -}}) ({{ .ReturnType }}, error) {
+func (b *Client) {{ .PascalCaseName }}( {{ range $param := .EssentialFields -}} {{ $param.CamelCaseName }} {{ $param.Type }}, {{end -}} {{if .OptionalFields -}}optionalParams *{{ .PascalCaseName }}Options{{end -}}) ({{ .ReturnType }}, error) {
 	params := &{{ .Name }}Params{}
 
 	{{ range $param := .EssentialFields -}}
