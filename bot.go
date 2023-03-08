@@ -62,8 +62,13 @@ func (bot *Bot) GetSession(sessionID int64) *sync.Map {
 	return session
 }
 
-func (bot *Bot) AddRouter(routers ...Router) {
-	bot.routers = append(bot.routers, routers...)
+func (bot *Bot) AddRouter(router Router) error {
+	if err := router.Setup(bot); err != nil {
+		return err
+	}
+
+	bot.routers = append(bot.routers, router)
+	return nil
 }
 
 func (bot *Bot) StartPolling() error {
