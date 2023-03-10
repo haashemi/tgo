@@ -27,19 +27,11 @@ type GetUpdatesOptions struct {
 	AllowedUpdates []string `json:"allowed_updates,omitempty"` // A JSON-serialized list of the update types you want your bot to receive. For example, specify [“message”, “edited_channel_post”, “callback_query”] to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except chat_member (default). If not specified, the previous setting will be used.Please note that this parameter doesn't affect updates created before the call to the getUpdates, so unwanted updates may be received for a short period of time.
 }
 
-type getUpdatesParams struct {
-	*GetUpdatesOptions
-}
-
 // getUpdates is used to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
 //
 // Notes1. This method will not work if an outgoing webhook is set up.2. In order to avoid getting duplicate updates, recalculate offset after each server response.
-func (b *Client) GetUpdates(optionalParams *GetUpdatesOptions) ([]*Update, error) {
-	params := &getUpdatesParams{}
-
-	params.GetUpdatesOptions = optionalParams
-
-	return doHTTP[[]*Update](b.client, b.url, "getUpdates", params)
+func (c *Client) GetUpdates(optionalParams *GetUpdatesOptions) ([]*Update, error) {
+	return doHTTP[[]*Update](c.client, c.url, "getUpdates", optionalParams)
 }
 
 type SetWebhookOptions struct {
@@ -62,40 +54,25 @@ type setWebhookParams struct {
 //
 // Notes1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.3. Ports currently supported for webhooks: 443, 80, 88, 8443.
 // If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks.
-func (b *Client) SetWebhook(url string, optionalParams *SetWebhookOptions) (bool, error) {
+func (c *Client) SetWebhook(url string, optionalParams *SetWebhookOptions) (bool, error) {
 	params := &setWebhookParams{}
-
 	params.Url = url
 	params.SetWebhookOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setWebhook", params)
+	return doHTTP[bool](c.client, c.url, "setWebhook", params)
 }
 
 type DeleteWebhookOptions struct {
 	DropPendingUpdates bool `json:"drop_pending_updates,omitempty"` // Pass True to drop all pending updates
 }
 
-type deleteWebhookParams struct {
-	*DeleteWebhookOptions
-}
-
 // deleteWebhook is used to remove webhook integration if you decide to switch back to getUpdates. Returns True on success.
-func (b *Client) DeleteWebhook(optionalParams *DeleteWebhookOptions) (bool, error) {
-	params := &deleteWebhookParams{}
-
-	params.DeleteWebhookOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "deleteWebhook", params)
-}
-
-type getWebhookInfoParams struct {
+func (c *Client) DeleteWebhook(optionalParams *DeleteWebhookOptions) (bool, error) {
+	return doHTTP[bool](c.client, c.url, "deleteWebhook", optionalParams)
 }
 
 // getWebhookInfo is used to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty.
-func (b *Client) GetWebhookInfo() (*WebhookInfo, error) {
-	params := &getWebhookInfoParams{}
-
-	return doHTTP[*WebhookInfo](b.client, b.url, "getWebhookInfo", params)
+func (c *Client) GetWebhookInfo() (*WebhookInfo, error) {
+	return doHTTP[*WebhookInfo](c.client, c.url, "getWebhookInfo", nil)
 }
 
 // Describes the current status of a webhook.
@@ -980,34 +957,19 @@ type InputFile interface {
 	IsInputFile()
 }
 
-type getMeParams struct {
-}
-
 // A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object.
-func (b *Client) GetMe() (*User, error) {
-	params := &getMeParams{}
-
-	return doHTTP[*User](b.client, b.url, "getMe", params)
-}
-
-type logOutParams struct {
+func (c *Client) GetMe() (*User, error) {
+	return doHTTP[*User](c.client, c.url, "getMe", nil)
 }
 
 // logOut is used to log out from the cloud Bot API server before launching the bot locally. You must log out the bot before running it locally, otherwise there is no guarantee that the bot will receive updates. After a successful call, you can immediately log in on a local server, but will not be able to log in back to the cloud Bot API server for 10 minutes. Returns True on success. Requires no parameters.
-func (b *Client) LogOut() (bool, error) {
-	params := &logOutParams{}
-
-	return doHTTP[bool](b.client, b.url, "logOut", params)
-}
-
-type closeParams struct {
+func (c *Client) LogOut() (bool, error) {
+	return doHTTP[bool](c.client, c.url, "logOut", nil)
 }
 
 // close is used to close the bot instance before moving it from one local server to another. You need to delete the webhook before calling this method to ensure that the bot isn't launched again after server restart. The method will return error 429 in the first 10 minutes after the bot is launched. Returns True on success. Requires no parameters.
-func (b *Client) Close() (bool, error) {
-	params := &closeParams{}
-
-	return doHTTP[bool](b.client, b.url, "close", params)
+func (c *Client) Close() (bool, error) {
+	return doHTTP[bool](c.client, c.url, "close", nil)
 }
 
 type SendMessageOptions struct {
@@ -1030,14 +992,12 @@ type sendMessageParams struct {
 }
 
 // sendMessage is used to send text messages. On success, the sent Message is returned.
-func (b *Client) SendMessage(chatId ChatID, text string, optionalParams *SendMessageOptions) (*Message, error) {
+func (c *Client) SendMessage(chatId ChatID, text string, optionalParams *SendMessageOptions) (*Message, error) {
 	params := &sendMessageParams{}
-
 	params.ChatId = chatId
 	params.Text = text
 	params.SendMessageOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendMessage", params)
+	return doHTTP[*Message](c.client, c.url, "sendMessage", params)
 }
 
 type ForwardMessageOptions struct {
@@ -1055,15 +1015,13 @@ type forwardMessageParams struct {
 }
 
 // forwardMessage is used to forward messages of any kind. Service messages can't be forwarded. On success, the sent Message is returned.
-func (b *Client) ForwardMessage(chatId ChatID, fromChatId ChatID, messageId int64, optionalParams *ForwardMessageOptions) (*Message, error) {
+func (c *Client) ForwardMessage(chatId ChatID, fromChatId ChatID, messageId int64, optionalParams *ForwardMessageOptions) (*Message, error) {
 	params := &forwardMessageParams{}
-
 	params.ChatId = chatId
 	params.FromChatId = fromChatId
 	params.MessageId = messageId
 	params.ForwardMessageOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "forwardMessage", params)
+	return doHTTP[*Message](c.client, c.url, "forwardMessage", params)
 }
 
 type CopyMessageOptions struct {
@@ -1087,15 +1045,13 @@ type copyMessageParams struct {
 }
 
 // copyMessage is used to copy messages of any kind. Service messages and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
-func (b *Client) CopyMessage(chatId ChatID, fromChatId ChatID, messageId int64, optionalParams *CopyMessageOptions) (*MessageId, error) {
+func (c *Client) CopyMessage(chatId ChatID, fromChatId ChatID, messageId int64, optionalParams *CopyMessageOptions) (*MessageId, error) {
 	params := &copyMessageParams{}
-
 	params.ChatId = chatId
 	params.FromChatId = fromChatId
 	params.MessageId = messageId
 	params.CopyMessageOptions = optionalParams
-
-	return doHTTP[*MessageId](b.client, b.url, "copyMessage", params)
+	return doHTTP[*MessageId](c.client, c.url, "copyMessage", params)
 }
 
 type SendPhotoOptions struct {
@@ -1119,14 +1075,12 @@ type sendPhotoParams struct {
 }
 
 // sendPhoto is used to send photos. On success, the sent Message is returned.
-func (b *Client) SendPhoto(chatId ChatID, photo InputFile, optionalParams *SendPhotoOptions) (*Message, error) {
+func (c *Client) SendPhoto(chatId ChatID, photo InputFile, optionalParams *SendPhotoOptions) (*Message, error) {
 	params := &sendPhotoParams{}
-
 	params.ChatId = chatId
 	params.Photo = photo
 	params.SendPhotoOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendPhoto", params)
+	return doHTTP[*Message](c.client, c.url, "sendPhoto", params)
 }
 
 func (params *sendPhotoParams) HasUploadable() bool {
@@ -1163,14 +1117,12 @@ type sendAudioParams struct {
 
 // sendAudio is used to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
 // For sending voice messages, use the sendVoice method instead.
-func (b *Client) SendAudio(chatId ChatID, audio InputFile, optionalParams *SendAudioOptions) (*Message, error) {
+func (c *Client) SendAudio(chatId ChatID, audio InputFile, optionalParams *SendAudioOptions) (*Message, error) {
 	params := &sendAudioParams{}
-
 	params.ChatId = chatId
 	params.Audio = audio
 	params.SendAudioOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendAudio", params)
+	return doHTTP[*Message](c.client, c.url, "sendAudio", params)
 }
 
 func (params *sendAudioParams) HasUploadable() bool {
@@ -1208,14 +1160,12 @@ type sendDocumentParams struct {
 }
 
 // sendDocument is used to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
-func (b *Client) SendDocument(chatId ChatID, document InputFile, optionalParams *SendDocumentOptions) (*Message, error) {
+func (c *Client) SendDocument(chatId ChatID, document InputFile, optionalParams *SendDocumentOptions) (*Message, error) {
 	params := &sendDocumentParams{}
-
 	params.ChatId = chatId
 	params.Document = document
 	params.SendDocumentOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendDocument", params)
+	return doHTTP[*Message](c.client, c.url, "sendDocument", params)
 }
 
 func (params *sendDocumentParams) HasUploadable() bool {
@@ -1257,14 +1207,12 @@ type sendVideoParams struct {
 }
 
 // sendVideo is used to send video files, Telegram clients support MPEG4 videos (other formats may be sent as Document). On success, the sent Message is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
-func (b *Client) SendVideo(chatId ChatID, video InputFile, optionalParams *SendVideoOptions) (*Message, error) {
+func (c *Client) SendVideo(chatId ChatID, video InputFile, optionalParams *SendVideoOptions) (*Message, error) {
 	params := &sendVideoParams{}
-
 	params.ChatId = chatId
 	params.Video = video
 	params.SendVideoOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendVideo", params)
+	return doHTTP[*Message](c.client, c.url, "sendVideo", params)
 }
 
 func (params *sendVideoParams) HasUploadable() bool {
@@ -1305,14 +1253,12 @@ type sendAnimationParams struct {
 }
 
 // sendAnimation is used to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future.
-func (b *Client) SendAnimation(chatId ChatID, animation InputFile, optionalParams *SendAnimationOptions) (*Message, error) {
+func (c *Client) SendAnimation(chatId ChatID, animation InputFile, optionalParams *SendAnimationOptions) (*Message, error) {
 	params := &sendAnimationParams{}
-
 	params.ChatId = chatId
 	params.Animation = animation
 	params.SendAnimationOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendAnimation", params)
+	return doHTTP[*Message](c.client, c.url, "sendAnimation", params)
 }
 
 func (params *sendAnimationParams) HasUploadable() bool {
@@ -1349,14 +1295,12 @@ type sendVoiceParams struct {
 }
 
 // sendVoice is used to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
-func (b *Client) SendVoice(chatId ChatID, voice InputFile, optionalParams *SendVoiceOptions) (*Message, error) {
+func (c *Client) SendVoice(chatId ChatID, voice InputFile, optionalParams *SendVoiceOptions) (*Message, error) {
 	params := &sendVoiceParams{}
-
 	params.ChatId = chatId
 	params.Voice = voice
 	params.SendVoiceOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendVoice", params)
+	return doHTTP[*Message](c.client, c.url, "sendVoice", params)
 }
 
 func (params *sendVoiceParams) HasUploadable() bool {
@@ -1388,14 +1332,12 @@ type sendVideoNoteParams struct {
 }
 
 // As of v.4.0, Telegram clients support rounded square MPEG4 videos of up to 1 minute long. sendVideoNote is used to send video messages. On success, the sent Message is returned.
-func (b *Client) SendVideoNote(chatId ChatID, videoNote InputFile, optionalParams *SendVideoNoteOptions) (*Message, error) {
+func (c *Client) SendVideoNote(chatId ChatID, videoNote InputFile, optionalParams *SendVideoNoteOptions) (*Message, error) {
 	params := &sendVideoNoteParams{}
-
 	params.ChatId = chatId
 	params.VideoNote = videoNote
 	params.SendVideoNoteOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendVideoNote", params)
+	return doHTTP[*Message](c.client, c.url, "sendVideoNote", params)
 }
 
 func (params *sendVideoNoteParams) HasUploadable() bool {
@@ -1427,14 +1369,12 @@ type sendMediaGroupParams struct {
 }
 
 // sendMediaGroup is used to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Messages that were sent is returned.
-func (b *Client) SendMediaGroup(chatId ChatID, media []InputMedia, optionalParams *SendMediaGroupOptions) ([]*Message, error) {
+func (c *Client) SendMediaGroup(chatId ChatID, media []InputMedia, optionalParams *SendMediaGroupOptions) ([]*Message, error) {
 	params := &sendMediaGroupParams{}
-
 	params.ChatId = chatId
 	params.Media = media
 	params.SendMediaGroupOptions = optionalParams
-
-	return doHTTP[[]*Message](b.client, b.url, "sendMediaGroup", params)
+	return doHTTP[[]*Message](c.client, c.url, "sendMediaGroup", params)
 }
 
 type SendLocationOptions struct {
@@ -1459,15 +1399,13 @@ type sendLocationParams struct {
 }
 
 // sendLocation is used to send point on the map. On success, the sent Message is returned.
-func (b *Client) SendLocation(chatId ChatID, latitude float64, longitude float64, optionalParams *SendLocationOptions) (*Message, error) {
+func (c *Client) SendLocation(chatId ChatID, latitude float64, longitude float64, optionalParams *SendLocationOptions) (*Message, error) {
 	params := &sendLocationParams{}
-
 	params.ChatId = chatId
 	params.Latitude = latitude
 	params.Longitude = longitude
 	params.SendLocationOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendLocation", params)
+	return doHTTP[*Message](c.client, c.url, "sendLocation", params)
 }
 
 type SendVenueOptions struct {
@@ -1494,17 +1432,15 @@ type sendVenueParams struct {
 }
 
 // sendVenue is used to send information about a venue. On success, the sent Message is returned.
-func (b *Client) SendVenue(chatId ChatID, latitude float64, longitude float64, title string, address string, optionalParams *SendVenueOptions) (*Message, error) {
+func (c *Client) SendVenue(chatId ChatID, latitude float64, longitude float64, title string, address string, optionalParams *SendVenueOptions) (*Message, error) {
 	params := &sendVenueParams{}
-
 	params.ChatId = chatId
 	params.Latitude = latitude
 	params.Longitude = longitude
 	params.Title = title
 	params.Address = address
 	params.SendVenueOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendVenue", params)
+	return doHTTP[*Message](c.client, c.url, "sendVenue", params)
 }
 
 type SendContactOptions struct {
@@ -1527,15 +1463,13 @@ type sendContactParams struct {
 }
 
 // sendContact is used to send phone contacts. On success, the sent Message is returned.
-func (b *Client) SendContact(chatId ChatID, phoneNumber string, firstName string, optionalParams *SendContactOptions) (*Message, error) {
+func (c *Client) SendContact(chatId ChatID, phoneNumber string, firstName string, optionalParams *SendContactOptions) (*Message, error) {
 	params := &sendContactParams{}
-
 	params.ChatId = chatId
 	params.PhoneNumber = phoneNumber
 	params.FirstName = firstName
 	params.SendContactOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendContact", params)
+	return doHTTP[*Message](c.client, c.url, "sendContact", params)
 }
 
 type SendPollOptions struct {
@@ -1566,15 +1500,13 @@ type sendPollParams struct {
 }
 
 // sendPoll is used to send a native poll. On success, the sent Message is returned.
-func (b *Client) SendPoll(chatId ChatID, question string, options []string, optionalParams *SendPollOptions) (*Message, error) {
+func (c *Client) SendPoll(chatId ChatID, question string, options []string, optionalParams *SendPollOptions) (*Message, error) {
 	params := &sendPollParams{}
-
 	params.ChatId = chatId
 	params.Question = question
 	params.Options = options
 	params.SendPollOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendPoll", params)
+	return doHTTP[*Message](c.client, c.url, "sendPoll", params)
 }
 
 type SendDiceOptions struct {
@@ -1594,13 +1526,11 @@ type sendDiceParams struct {
 }
 
 // sendDice is used to send an animated emoji that will display a random value. On success, the sent Message is returned.
-func (b *Client) SendDice(chatId ChatID, optionalParams *SendDiceOptions) (*Message, error) {
+func (c *Client) SendDice(chatId ChatID, optionalParams *SendDiceOptions) (*Message, error) {
 	params := &sendDiceParams{}
-
 	params.ChatId = chatId
 	params.SendDiceOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendDice", params)
+	return doHTTP[*Message](c.client, c.url, "sendDice", params)
 }
 
 type SendChatActionOptions struct {
@@ -1619,14 +1549,12 @@ type sendChatActionParams struct {
 // Example: The ImageBot needs some time to process a request and upload the image. Instead of sending a text message along the lines of “Retrieving image, please wait…”, the bot may use sendChatAction with action = upload_photo. The user will see a “sending photo” status for the bot.
 //
 // We only recommend using this method when a response from the bot will take a noticeable amount of time to arrive.
-func (b *Client) SendChatAction(chatId ChatID, action string, optionalParams *SendChatActionOptions) (bool, error) {
+func (c *Client) SendChatAction(chatId ChatID, action string, optionalParams *SendChatActionOptions) (bool, error) {
 	params := &sendChatActionParams{}
-
 	params.ChatId = chatId
 	params.Action = action
 	params.SendChatActionOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "sendChatAction", params)
+	return doHTTP[bool](c.client, c.url, "sendChatAction", params)
 }
 
 type GetUserProfilePhotosOptions struct {
@@ -1641,13 +1569,11 @@ type getUserProfilePhotosParams struct {
 }
 
 // getUserProfilePhotos is used to get a list of profile pictures for a user. Returns a UserProfilePhotos object.
-func (b *Client) GetUserProfilePhotos(userId int64, optionalParams *GetUserProfilePhotosOptions) (*UserProfilePhotos, error) {
+func (c *Client) GetUserProfilePhotos(userId int64, optionalParams *GetUserProfilePhotosOptions) (*UserProfilePhotos, error) {
 	params := &getUserProfilePhotosParams{}
-
 	params.UserId = userId
 	params.GetUserProfilePhotosOptions = optionalParams
-
-	return doHTTP[*UserProfilePhotos](b.client, b.url, "getUserProfilePhotos", params)
+	return doHTTP[*UserProfilePhotos](c.client, c.url, "getUserProfilePhotos", params)
 }
 
 type getFileParams struct {
@@ -1656,12 +1582,10 @@ type getFileParams struct {
 
 // getFile is used to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a File object is returned. The file can then be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile again.
 // Note: This function may not preserve the original file name and MIME type. You should save the file's MIME type and name (if available) when the File object is received.
-func (b *Client) GetFile(fileId string) (*File, error) {
+func (c *Client) GetFile(fileId string) (*File, error) {
 	params := &getFileParams{}
-
 	params.FileId = fileId
-
-	return doHTTP[*File](b.client, b.url, "getFile", params)
+	return doHTTP[*File](c.client, c.url, "getFile", params)
 }
 
 type BanChatMemberOptions struct {
@@ -1677,14 +1601,12 @@ type banChatMemberParams struct {
 }
 
 // banChatMember is used to ban a user in a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the chat on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success.
-func (b *Client) BanChatMember(chatId ChatID, userId int64, optionalParams *BanChatMemberOptions) (bool, error) {
+func (c *Client) BanChatMember(chatId ChatID, userId int64, optionalParams *BanChatMemberOptions) (bool, error) {
 	params := &banChatMemberParams{}
-
 	params.ChatId = chatId
 	params.UserId = userId
 	params.BanChatMemberOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "banChatMember", params)
+	return doHTTP[bool](c.client, c.url, "banChatMember", params)
 }
 
 type UnbanChatMemberOptions struct {
@@ -1699,14 +1621,12 @@ type unbanChatMemberParams struct {
 }
 
 // unbanChatMember is used to unban a previously banned user in a supergroup or channel. The user will not return to the group or channel automatically, but will be able to join via link, etc. The bot must be an administrator for this to work. By default, this method guarantees that after the call the user is not a member of the chat, but will be able to join it. So if the user is a member of the chat they will also be removed from the chat. If you don't want this, use the parameter only_if_banned. Returns True on success.
-func (b *Client) UnbanChatMember(chatId ChatID, userId int64, optionalParams *UnbanChatMemberOptions) (bool, error) {
+func (c *Client) UnbanChatMember(chatId ChatID, userId int64, optionalParams *UnbanChatMemberOptions) (bool, error) {
 	params := &unbanChatMemberParams{}
-
 	params.ChatId = chatId
 	params.UserId = userId
 	params.UnbanChatMemberOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "unbanChatMember", params)
+	return doHTTP[bool](c.client, c.url, "unbanChatMember", params)
 }
 
 type RestrictChatMemberOptions struct {
@@ -1723,15 +1643,13 @@ type restrictChatMemberParams struct {
 }
 
 // restrictChatMember is used to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights. Pass True for all permissions to lift restrictions from a user. Returns True on success.
-func (b *Client) RestrictChatMember(chatId ChatID, userId int64, permissions ChatPermissions, optionalParams *RestrictChatMemberOptions) (bool, error) {
+func (c *Client) RestrictChatMember(chatId ChatID, userId int64, permissions ChatPermissions, optionalParams *RestrictChatMemberOptions) (bool, error) {
 	params := &restrictChatMemberParams{}
-
 	params.ChatId = chatId
 	params.UserId = userId
 	params.Permissions = permissions
 	params.RestrictChatMemberOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "restrictChatMember", params)
+	return doHTTP[bool](c.client, c.url, "restrictChatMember", params)
 }
 
 type PromoteChatMemberOptions struct {
@@ -1757,14 +1675,12 @@ type promoteChatMemberParams struct {
 }
 
 // promoteChatMember is used to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Pass False for all boolean parameters to demote a user. Returns True on success.
-func (b *Client) PromoteChatMember(chatId ChatID, userId int64, optionalParams *PromoteChatMemberOptions) (bool, error) {
+func (c *Client) PromoteChatMember(chatId ChatID, userId int64, optionalParams *PromoteChatMemberOptions) (bool, error) {
 	params := &promoteChatMemberParams{}
-
 	params.ChatId = chatId
 	params.UserId = userId
 	params.PromoteChatMemberOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "promoteChatMember", params)
+	return doHTTP[bool](c.client, c.url, "promoteChatMember", params)
 }
 
 type setChatAdministratorCustomTitleParams struct {
@@ -1774,14 +1690,12 @@ type setChatAdministratorCustomTitleParams struct {
 }
 
 // setChatAdministratorCustomTitle is used to set a custom title for an administrator in a supergroup promoted by the bot. Returns True on success.
-func (b *Client) SetChatAdministratorCustomTitle(chatId ChatID, userId int64, customTitle string) (bool, error) {
+func (c *Client) SetChatAdministratorCustomTitle(chatId ChatID, userId int64, customTitle string) (bool, error) {
 	params := &setChatAdministratorCustomTitleParams{}
-
 	params.ChatId = chatId
 	params.UserId = userId
 	params.CustomTitle = customTitle
-
-	return doHTTP[bool](b.client, b.url, "setChatAdministratorCustomTitle", params)
+	return doHTTP[bool](c.client, c.url, "setChatAdministratorCustomTitle", params)
 }
 
 type banChatSenderChatParams struct {
@@ -1790,13 +1704,11 @@ type banChatSenderChatParams struct {
 }
 
 // banChatSenderChat is used to ban a channel chat in a supergroup or a channel. Until the chat is unbanned, the owner of the banned chat won't be able to send messages on behalf of any of their channels. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights. Returns True on success.
-func (b *Client) BanChatSenderChat(chatId ChatID, senderChatId int64) (bool, error) {
+func (c *Client) BanChatSenderChat(chatId ChatID, senderChatId int64) (bool, error) {
 	params := &banChatSenderChatParams{}
-
 	params.ChatId = chatId
 	params.SenderChatId = senderChatId
-
-	return doHTTP[bool](b.client, b.url, "banChatSenderChat", params)
+	return doHTTP[bool](c.client, c.url, "banChatSenderChat", params)
 }
 
 type unbanChatSenderChatParams struct {
@@ -1805,13 +1717,11 @@ type unbanChatSenderChatParams struct {
 }
 
 // unbanChatSenderChat is used to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights. Returns True on success.
-func (b *Client) UnbanChatSenderChat(chatId ChatID, senderChatId int64) (bool, error) {
+func (c *Client) UnbanChatSenderChat(chatId ChatID, senderChatId int64) (bool, error) {
 	params := &unbanChatSenderChatParams{}
-
 	params.ChatId = chatId
 	params.SenderChatId = senderChatId
-
-	return doHTTP[bool](b.client, b.url, "unbanChatSenderChat", params)
+	return doHTTP[bool](c.client, c.url, "unbanChatSenderChat", params)
 }
 
 type SetChatPermissionsOptions struct {
@@ -1826,14 +1736,12 @@ type setChatPermissionsParams struct {
 }
 
 // setChatPermissions is used to set default chat permissions for all members. The bot must be an administrator in the group or a supergroup for this to work and must have the can_restrict_members administrator rights. Returns True on success.
-func (b *Client) SetChatPermissions(chatId ChatID, permissions ChatPermissions, optionalParams *SetChatPermissionsOptions) (bool, error) {
+func (c *Client) SetChatPermissions(chatId ChatID, permissions ChatPermissions, optionalParams *SetChatPermissionsOptions) (bool, error) {
 	params := &setChatPermissionsParams{}
-
 	params.ChatId = chatId
 	params.Permissions = permissions
 	params.SetChatPermissionsOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setChatPermissions", params)
+	return doHTTP[bool](c.client, c.url, "setChatPermissions", params)
 }
 
 type exportChatInviteLinkParams struct {
@@ -1843,12 +1751,10 @@ type exportChatInviteLinkParams struct {
 // exportChatInviteLink is used to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.
 //
 // Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again.
-func (b *Client) ExportChatInviteLink(chatId ChatID) (string, error) {
+func (c *Client) ExportChatInviteLink(chatId ChatID) (string, error) {
 	params := &exportChatInviteLinkParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[string](b.client, b.url, "exportChatInviteLink", params)
+	return doHTTP[string](c.client, c.url, "exportChatInviteLink", params)
 }
 
 type CreateChatInviteLinkOptions struct {
@@ -1865,13 +1771,11 @@ type createChatInviteLinkParams struct {
 }
 
 // createChatInviteLink is used to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method revokeChatInviteLink. Returns the new invite link as ChatInviteLink object.
-func (b *Client) CreateChatInviteLink(chatId ChatID, optionalParams *CreateChatInviteLinkOptions) (*ChatInviteLink, error) {
+func (c *Client) CreateChatInviteLink(chatId ChatID, optionalParams *CreateChatInviteLinkOptions) (*ChatInviteLink, error) {
 	params := &createChatInviteLinkParams{}
-
 	params.ChatId = chatId
 	params.CreateChatInviteLinkOptions = optionalParams
-
-	return doHTTP[*ChatInviteLink](b.client, b.url, "createChatInviteLink", params)
+	return doHTTP[*ChatInviteLink](c.client, c.url, "createChatInviteLink", params)
 }
 
 type EditChatInviteLinkOptions struct {
@@ -1889,14 +1793,12 @@ type editChatInviteLinkParams struct {
 }
 
 // editChatInviteLink is used to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the edited invite link as a ChatInviteLink object.
-func (b *Client) EditChatInviteLink(chatId ChatID, inviteLink string, optionalParams *EditChatInviteLinkOptions) (*ChatInviteLink, error) {
+func (c *Client) EditChatInviteLink(chatId ChatID, inviteLink string, optionalParams *EditChatInviteLinkOptions) (*ChatInviteLink, error) {
 	params := &editChatInviteLinkParams{}
-
 	params.ChatId = chatId
 	params.InviteLink = inviteLink
 	params.EditChatInviteLinkOptions = optionalParams
-
-	return doHTTP[*ChatInviteLink](b.client, b.url, "editChatInviteLink", params)
+	return doHTTP[*ChatInviteLink](c.client, c.url, "editChatInviteLink", params)
 }
 
 type revokeChatInviteLinkParams struct {
@@ -1905,13 +1807,11 @@ type revokeChatInviteLinkParams struct {
 }
 
 // revokeChatInviteLink is used to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as ChatInviteLink object.
-func (b *Client) RevokeChatInviteLink(chatId ChatID, inviteLink string) (*ChatInviteLink, error) {
+func (c *Client) RevokeChatInviteLink(chatId ChatID, inviteLink string) (*ChatInviteLink, error) {
 	params := &revokeChatInviteLinkParams{}
-
 	params.ChatId = chatId
 	params.InviteLink = inviteLink
-
-	return doHTTP[*ChatInviteLink](b.client, b.url, "revokeChatInviteLink", params)
+	return doHTTP[*ChatInviteLink](c.client, c.url, "revokeChatInviteLink", params)
 }
 
 type approveChatJoinRequestParams struct {
@@ -1920,13 +1820,11 @@ type approveChatJoinRequestParams struct {
 }
 
 // approveChatJoinRequest is used to approve a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success.
-func (b *Client) ApproveChatJoinRequest(chatId ChatID, userId int64) (bool, error) {
+func (c *Client) ApproveChatJoinRequest(chatId ChatID, userId int64) (bool, error) {
 	params := &approveChatJoinRequestParams{}
-
 	params.ChatId = chatId
 	params.UserId = userId
-
-	return doHTTP[bool](b.client, b.url, "approveChatJoinRequest", params)
+	return doHTTP[bool](c.client, c.url, "approveChatJoinRequest", params)
 }
 
 type declineChatJoinRequestParams struct {
@@ -1935,13 +1833,11 @@ type declineChatJoinRequestParams struct {
 }
 
 // declineChatJoinRequest is used to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success.
-func (b *Client) DeclineChatJoinRequest(chatId ChatID, userId int64) (bool, error) {
+func (c *Client) DeclineChatJoinRequest(chatId ChatID, userId int64) (bool, error) {
 	params := &declineChatJoinRequestParams{}
-
 	params.ChatId = chatId
 	params.UserId = userId
-
-	return doHTTP[bool](b.client, b.url, "declineChatJoinRequest", params)
+	return doHTTP[bool](c.client, c.url, "declineChatJoinRequest", params)
 }
 
 type setChatPhotoParams struct {
@@ -1950,13 +1846,11 @@ type setChatPhotoParams struct {
 }
 
 // setChatPhoto is used to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success.
-func (b *Client) SetChatPhoto(chatId ChatID, photo InputFile) (bool, error) {
+func (c *Client) SetChatPhoto(chatId ChatID, photo InputFile) (bool, error) {
 	params := &setChatPhotoParams{}
-
 	params.ChatId = chatId
 	params.Photo = photo
-
-	return doHTTP[bool](b.client, b.url, "setChatPhoto", params)
+	return doHTTP[bool](c.client, c.url, "setChatPhoto", params)
 }
 
 func (params *setChatPhotoParams) HasUploadable() bool {
@@ -1973,12 +1867,10 @@ type deleteChatPhotoParams struct {
 }
 
 // deleteChatPhoto is used to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success.
-func (b *Client) DeleteChatPhoto(chatId ChatID) (bool, error) {
+func (c *Client) DeleteChatPhoto(chatId ChatID) (bool, error) {
 	params := &deleteChatPhotoParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[bool](b.client, b.url, "deleteChatPhoto", params)
+	return doHTTP[bool](c.client, c.url, "deleteChatPhoto", params)
 }
 
 type setChatTitleParams struct {
@@ -1987,13 +1879,11 @@ type setChatTitleParams struct {
 }
 
 // setChatTitle is used to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success.
-func (b *Client) SetChatTitle(chatId ChatID, title string) (bool, error) {
+func (c *Client) SetChatTitle(chatId ChatID, title string) (bool, error) {
 	params := &setChatTitleParams{}
-
 	params.ChatId = chatId
 	params.Title = title
-
-	return doHTTP[bool](b.client, b.url, "setChatTitle", params)
+	return doHTTP[bool](c.client, c.url, "setChatTitle", params)
 }
 
 type SetChatDescriptionOptions struct {
@@ -2007,13 +1897,11 @@ type setChatDescriptionParams struct {
 }
 
 // setChatDescription is used to change the description of a group, a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success.
-func (b *Client) SetChatDescription(chatId ChatID, optionalParams *SetChatDescriptionOptions) (bool, error) {
+func (c *Client) SetChatDescription(chatId ChatID, optionalParams *SetChatDescriptionOptions) (bool, error) {
 	params := &setChatDescriptionParams{}
-
 	params.ChatId = chatId
 	params.SetChatDescriptionOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setChatDescription", params)
+	return doHTTP[bool](c.client, c.url, "setChatDescription", params)
 }
 
 type PinChatMessageOptions struct {
@@ -2028,14 +1916,12 @@ type pinChatMessageParams struct {
 }
 
 // pinChatMessage is used to add a message to the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success.
-func (b *Client) PinChatMessage(chatId ChatID, messageId int64, optionalParams *PinChatMessageOptions) (bool, error) {
+func (c *Client) PinChatMessage(chatId ChatID, messageId int64, optionalParams *PinChatMessageOptions) (bool, error) {
 	params := &pinChatMessageParams{}
-
 	params.ChatId = chatId
 	params.MessageId = messageId
 	params.PinChatMessageOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "pinChatMessage", params)
+	return doHTTP[bool](c.client, c.url, "pinChatMessage", params)
 }
 
 type UnpinChatMessageOptions struct {
@@ -2049,13 +1935,11 @@ type unpinChatMessageParams struct {
 }
 
 // unpinChatMessage is used to remove a message from the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success.
-func (b *Client) UnpinChatMessage(chatId ChatID, optionalParams *UnpinChatMessageOptions) (bool, error) {
+func (c *Client) UnpinChatMessage(chatId ChatID, optionalParams *UnpinChatMessageOptions) (bool, error) {
 	params := &unpinChatMessageParams{}
-
 	params.ChatId = chatId
 	params.UnpinChatMessageOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "unpinChatMessage", params)
+	return doHTTP[bool](c.client, c.url, "unpinChatMessage", params)
 }
 
 type unpinAllChatMessagesParams struct {
@@ -2063,12 +1947,10 @@ type unpinAllChatMessagesParams struct {
 }
 
 // unpinAllChatMessages is used to clear the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success.
-func (b *Client) UnpinAllChatMessages(chatId ChatID) (bool, error) {
+func (c *Client) UnpinAllChatMessages(chatId ChatID) (bool, error) {
 	params := &unpinAllChatMessagesParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[bool](b.client, b.url, "unpinAllChatMessages", params)
+	return doHTTP[bool](c.client, c.url, "unpinAllChatMessages", params)
 }
 
 type leaveChatParams struct {
@@ -2076,12 +1958,10 @@ type leaveChatParams struct {
 }
 
 // Use this method for your bot to leave a group, supergroup or channel. Returns True on success.
-func (b *Client) LeaveChat(chatId ChatID) (bool, error) {
+func (c *Client) LeaveChat(chatId ChatID) (bool, error) {
 	params := &leaveChatParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[bool](b.client, b.url, "leaveChat", params)
+	return doHTTP[bool](c.client, c.url, "leaveChat", params)
 }
 
 type getChatParams struct {
@@ -2089,12 +1969,10 @@ type getChatParams struct {
 }
 
 // getChat is used to get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.). Returns a Chat object on success.
-func (b *Client) GetChat(chatId ChatID) (*Chat, error) {
+func (c *Client) GetChat(chatId ChatID) (*Chat, error) {
 	params := &getChatParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[*Chat](b.client, b.url, "getChat", params)
+	return doHTTP[*Chat](c.client, c.url, "getChat", params)
 }
 
 type getChatAdministratorsParams struct {
@@ -2102,12 +1980,10 @@ type getChatAdministratorsParams struct {
 }
 
 // getChatAdministrators is used to get a list of administrators in a chat, which aren't bots. Returns an Array of ChatMember objects.
-func (b *Client) GetChatAdministrators(chatId ChatID) ([]*ChatMember, error) {
+func (c *Client) GetChatAdministrators(chatId ChatID) ([]*ChatMember, error) {
 	params := &getChatAdministratorsParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[[]*ChatMember](b.client, b.url, "getChatAdministrators", params)
+	return doHTTP[[]*ChatMember](c.client, c.url, "getChatAdministrators", params)
 }
 
 type getChatMemberCountParams struct {
@@ -2115,12 +1991,10 @@ type getChatMemberCountParams struct {
 }
 
 // getChatMemberCount is used to get the number of members in a chat. Returns Int on success.
-func (b *Client) GetChatMemberCount(chatId ChatID) (int64, error) {
+func (c *Client) GetChatMemberCount(chatId ChatID) (int64, error) {
 	params := &getChatMemberCountParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[int64](b.client, b.url, "getChatMemberCount", params)
+	return doHTTP[int64](c.client, c.url, "getChatMemberCount", params)
 }
 
 type getChatMemberParams struct {
@@ -2129,13 +2003,11 @@ type getChatMemberParams struct {
 }
 
 // getChatMember is used to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success.
-func (b *Client) GetChatMember(chatId ChatID, userId int64) (*ChatMember, error) {
+func (c *Client) GetChatMember(chatId ChatID, userId int64) (*ChatMember, error) {
 	params := &getChatMemberParams{}
-
 	params.ChatId = chatId
 	params.UserId = userId
-
-	return doHTTP[*ChatMember](b.client, b.url, "getChatMember", params)
+	return doHTTP[*ChatMember](c.client, c.url, "getChatMember", params)
 }
 
 type setChatStickerSetParams struct {
@@ -2144,13 +2016,11 @@ type setChatStickerSetParams struct {
 }
 
 // setChatStickerSet is used to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success.
-func (b *Client) SetChatStickerSet(chatId ChatID, stickerSetName string) (bool, error) {
+func (c *Client) SetChatStickerSet(chatId ChatID, stickerSetName string) (bool, error) {
 	params := &setChatStickerSetParams{}
-
 	params.ChatId = chatId
 	params.StickerSetName = stickerSetName
-
-	return doHTTP[bool](b.client, b.url, "setChatStickerSet", params)
+	return doHTTP[bool](c.client, c.url, "setChatStickerSet", params)
 }
 
 type deleteChatStickerSetParams struct {
@@ -2158,22 +2028,15 @@ type deleteChatStickerSetParams struct {
 }
 
 // deleteChatStickerSet is used to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success.
-func (b *Client) DeleteChatStickerSet(chatId ChatID) (bool, error) {
+func (c *Client) DeleteChatStickerSet(chatId ChatID) (bool, error) {
 	params := &deleteChatStickerSetParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[bool](b.client, b.url, "deleteChatStickerSet", params)
-}
-
-type getForumTopicIconStickersParams struct {
+	return doHTTP[bool](c.client, c.url, "deleteChatStickerSet", params)
 }
 
 // getForumTopicIconStickers is used to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of Sticker objects.
-func (b *Client) GetForumTopicIconStickers() ([]*Sticker, error) {
-	params := &getForumTopicIconStickersParams{}
-
-	return doHTTP[[]*Sticker](b.client, b.url, "getForumTopicIconStickers", params)
+func (c *Client) GetForumTopicIconStickers() ([]*Sticker, error) {
+	return doHTTP[[]*Sticker](c.client, c.url, "getForumTopicIconStickers", nil)
 }
 
 type CreateForumTopicOptions struct {
@@ -2189,14 +2052,12 @@ type createForumTopicParams struct {
 }
 
 // createForumTopic is used to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns information about the created topic as a ForumTopic object.
-func (b *Client) CreateForumTopic(chatId ChatID, name string, optionalParams *CreateForumTopicOptions) (*ForumTopic, error) {
+func (c *Client) CreateForumTopic(chatId ChatID, name string, optionalParams *CreateForumTopicOptions) (*ForumTopic, error) {
 	params := &createForumTopicParams{}
-
 	params.ChatId = chatId
 	params.Name = name
 	params.CreateForumTopicOptions = optionalParams
-
-	return doHTTP[*ForumTopic](b.client, b.url, "createForumTopic", params)
+	return doHTTP[*ForumTopic](c.client, c.url, "createForumTopic", params)
 }
 
 type EditForumTopicOptions struct {
@@ -2212,14 +2073,12 @@ type editForumTopicParams struct {
 }
 
 // editForumTopic is used to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success.
-func (b *Client) EditForumTopic(chatId ChatID, messageThreadId int64, optionalParams *EditForumTopicOptions) (bool, error) {
+func (c *Client) EditForumTopic(chatId ChatID, messageThreadId int64, optionalParams *EditForumTopicOptions) (bool, error) {
 	params := &editForumTopicParams{}
-
 	params.ChatId = chatId
 	params.MessageThreadId = messageThreadId
 	params.EditForumTopicOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "editForumTopic", params)
+	return doHTTP[bool](c.client, c.url, "editForumTopic", params)
 }
 
 type closeForumTopicParams struct {
@@ -2228,13 +2087,11 @@ type closeForumTopicParams struct {
 }
 
 // closeForumTopic is used to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success.
-func (b *Client) CloseForumTopic(chatId ChatID, messageThreadId int64) (bool, error) {
+func (c *Client) CloseForumTopic(chatId ChatID, messageThreadId int64) (bool, error) {
 	params := &closeForumTopicParams{}
-
 	params.ChatId = chatId
 	params.MessageThreadId = messageThreadId
-
-	return doHTTP[bool](b.client, b.url, "closeForumTopic", params)
+	return doHTTP[bool](c.client, c.url, "closeForumTopic", params)
 }
 
 type reopenForumTopicParams struct {
@@ -2243,13 +2100,11 @@ type reopenForumTopicParams struct {
 }
 
 // reopenForumTopic is used to reopen a closed topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success.
-func (b *Client) ReopenForumTopic(chatId ChatID, messageThreadId int64) (bool, error) {
+func (c *Client) ReopenForumTopic(chatId ChatID, messageThreadId int64) (bool, error) {
 	params := &reopenForumTopicParams{}
-
 	params.ChatId = chatId
 	params.MessageThreadId = messageThreadId
-
-	return doHTTP[bool](b.client, b.url, "reopenForumTopic", params)
+	return doHTTP[bool](c.client, c.url, "reopenForumTopic", params)
 }
 
 type deleteForumTopicParams struct {
@@ -2258,13 +2113,11 @@ type deleteForumTopicParams struct {
 }
 
 // deleteForumTopic is used to delete a forum topic along with all its messages in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_delete_messages administrator rights. Returns True on success.
-func (b *Client) DeleteForumTopic(chatId ChatID, messageThreadId int64) (bool, error) {
+func (c *Client) DeleteForumTopic(chatId ChatID, messageThreadId int64) (bool, error) {
 	params := &deleteForumTopicParams{}
-
 	params.ChatId = chatId
 	params.MessageThreadId = messageThreadId
-
-	return doHTTP[bool](b.client, b.url, "deleteForumTopic", params)
+	return doHTTP[bool](c.client, c.url, "deleteForumTopic", params)
 }
 
 type unpinAllForumTopicMessagesParams struct {
@@ -2273,13 +2126,11 @@ type unpinAllForumTopicMessagesParams struct {
 }
 
 // unpinAllForumTopicMessages is used to clear the list of pinned messages in a forum topic. The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success.
-func (b *Client) UnpinAllForumTopicMessages(chatId ChatID, messageThreadId int64) (bool, error) {
+func (c *Client) UnpinAllForumTopicMessages(chatId ChatID, messageThreadId int64) (bool, error) {
 	params := &unpinAllForumTopicMessagesParams{}
-
 	params.ChatId = chatId
 	params.MessageThreadId = messageThreadId
-
-	return doHTTP[bool](b.client, b.url, "unpinAllForumTopicMessages", params)
+	return doHTTP[bool](c.client, c.url, "unpinAllForumTopicMessages", params)
 }
 
 type editGeneralForumTopicParams struct {
@@ -2288,13 +2139,11 @@ type editGeneralForumTopicParams struct {
 }
 
 // editGeneralForumTopic is used to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have can_manage_topics administrator rights. Returns True on success.
-func (b *Client) EditGeneralForumTopic(chatId ChatID, name string) (bool, error) {
+func (c *Client) EditGeneralForumTopic(chatId ChatID, name string) (bool, error) {
 	params := &editGeneralForumTopicParams{}
-
 	params.ChatId = chatId
 	params.Name = name
-
-	return doHTTP[bool](b.client, b.url, "editGeneralForumTopic", params)
+	return doHTTP[bool](c.client, c.url, "editGeneralForumTopic", params)
 }
 
 type closeGeneralForumTopicParams struct {
@@ -2302,12 +2151,10 @@ type closeGeneralForumTopicParams struct {
 }
 
 // closeGeneralForumTopic is used to close an open 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
-func (b *Client) CloseGeneralForumTopic(chatId ChatID) (bool, error) {
+func (c *Client) CloseGeneralForumTopic(chatId ChatID) (bool, error) {
 	params := &closeGeneralForumTopicParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[bool](b.client, b.url, "closeGeneralForumTopic", params)
+	return doHTTP[bool](c.client, c.url, "closeGeneralForumTopic", params)
 }
 
 type reopenGeneralForumTopicParams struct {
@@ -2315,12 +2162,10 @@ type reopenGeneralForumTopicParams struct {
 }
 
 // reopenGeneralForumTopic is used to reopen a closed 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically unhidden if it was hidden. Returns True on success.
-func (b *Client) ReopenGeneralForumTopic(chatId ChatID) (bool, error) {
+func (c *Client) ReopenGeneralForumTopic(chatId ChatID) (bool, error) {
 	params := &reopenGeneralForumTopicParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[bool](b.client, b.url, "reopenGeneralForumTopic", params)
+	return doHTTP[bool](c.client, c.url, "reopenGeneralForumTopic", params)
 }
 
 type hideGeneralForumTopicParams struct {
@@ -2328,12 +2173,10 @@ type hideGeneralForumTopicParams struct {
 }
 
 // hideGeneralForumTopic is used to hide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically closed if it was open. Returns True on success.
-func (b *Client) HideGeneralForumTopic(chatId ChatID) (bool, error) {
+func (c *Client) HideGeneralForumTopic(chatId ChatID) (bool, error) {
 	params := &hideGeneralForumTopicParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[bool](b.client, b.url, "hideGeneralForumTopic", params)
+	return doHTTP[bool](c.client, c.url, "hideGeneralForumTopic", params)
 }
 
 type unhideGeneralForumTopicParams struct {
@@ -2341,12 +2184,10 @@ type unhideGeneralForumTopicParams struct {
 }
 
 // unhideGeneralForumTopic is used to unhide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
-func (b *Client) UnhideGeneralForumTopic(chatId ChatID) (bool, error) {
+func (c *Client) UnhideGeneralForumTopic(chatId ChatID) (bool, error) {
 	params := &unhideGeneralForumTopicParams{}
-
 	params.ChatId = chatId
-
-	return doHTTP[bool](b.client, b.url, "unhideGeneralForumTopic", params)
+	return doHTTP[bool](c.client, c.url, "unhideGeneralForumTopic", params)
 }
 
 type AnswerCallbackQueryOptions struct {
@@ -2365,13 +2206,11 @@ type answerCallbackQueryParams struct {
 // answerCallbackQuery is used to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
 //
 // Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
-func (b *Client) AnswerCallbackQuery(callbackQueryId string, optionalParams *AnswerCallbackQueryOptions) (bool, error) {
+func (c *Client) AnswerCallbackQuery(callbackQueryId string, optionalParams *AnswerCallbackQueryOptions) (bool, error) {
 	params := &answerCallbackQueryParams{}
-
 	params.CallbackQueryId = callbackQueryId
 	params.AnswerCallbackQueryOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "answerCallbackQuery", params)
+	return doHTTP[bool](c.client, c.url, "answerCallbackQuery", params)
 }
 
 type SetMyCommandsOptions struct {
@@ -2386,13 +2225,11 @@ type setMyCommandsParams struct {
 }
 
 // setMyCommands is used to change the list of the bot's commands. See this manual for more details about bot commands. Returns True on success.
-func (b *Client) SetMyCommands(commands []*BotCommand, optionalParams *SetMyCommandsOptions) (bool, error) {
+func (c *Client) SetMyCommands(commands []*BotCommand, optionalParams *SetMyCommandsOptions) (bool, error) {
 	params := &setMyCommandsParams{}
-
 	params.Commands = commands
 	params.SetMyCommandsOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setMyCommands", params)
+	return doHTTP[bool](c.client, c.url, "setMyCommands", params)
 }
 
 type DeleteMyCommandsOptions struct {
@@ -2400,17 +2237,9 @@ type DeleteMyCommandsOptions struct {
 	LanguageCode string           `json:"language_code,omitempty"` // A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
 }
 
-type deleteMyCommandsParams struct {
-	*DeleteMyCommandsOptions
-}
-
 // deleteMyCommands is used to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success.
-func (b *Client) DeleteMyCommands(optionalParams *DeleteMyCommandsOptions) (bool, error) {
-	params := &deleteMyCommandsParams{}
-
-	params.DeleteMyCommandsOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "deleteMyCommands", params)
+func (c *Client) DeleteMyCommands(optionalParams *DeleteMyCommandsOptions) (bool, error) {
+	return doHTTP[bool](c.client, c.url, "deleteMyCommands", optionalParams)
 }
 
 type GetMyCommandsOptions struct {
@@ -2418,17 +2247,9 @@ type GetMyCommandsOptions struct {
 	LanguageCode string           `json:"language_code,omitempty"` // A two-letter ISO 639-1 language code or an empty string
 }
 
-type getMyCommandsParams struct {
-	*GetMyCommandsOptions
-}
-
 // getMyCommands is used to get the current list of the bot's commands for the given scope and user language. Returns an Array of BotCommand objects. If commands aren't set, an empty list is returned.
-func (b *Client) GetMyCommands(optionalParams *GetMyCommandsOptions) ([]*BotCommand, error) {
-	params := &getMyCommandsParams{}
-
-	params.GetMyCommandsOptions = optionalParams
-
-	return doHTTP[[]*BotCommand](b.client, b.url, "getMyCommands", params)
+func (c *Client) GetMyCommands(optionalParams *GetMyCommandsOptions) ([]*BotCommand, error) {
+	return doHTTP[[]*BotCommand](c.client, c.url, "getMyCommands", optionalParams)
 }
 
 type SetMyDescriptionOptions struct {
@@ -2436,34 +2257,18 @@ type SetMyDescriptionOptions struct {
 	LanguageCode string `json:"language_code,omitempty"` // A two-letter ISO 639-1 language code. If empty, the description will be applied to all users for whose language there is no dedicated description.
 }
 
-type setMyDescriptionParams struct {
-	*SetMyDescriptionOptions
-}
-
 // setMyDescription is used to change the bot's description, which is shown in the chat with the bot if the chat is empty. Returns True on success.
-func (b *Client) SetMyDescription(optionalParams *SetMyDescriptionOptions) (bool, error) {
-	params := &setMyDescriptionParams{}
-
-	params.SetMyDescriptionOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setMyDescription", params)
+func (c *Client) SetMyDescription(optionalParams *SetMyDescriptionOptions) (bool, error) {
+	return doHTTP[bool](c.client, c.url, "setMyDescription", optionalParams)
 }
 
 type GetMyDescriptionOptions struct {
 	LanguageCode string `json:"language_code,omitempty"` // A two-letter ISO 639-1 language code or an empty string
 }
 
-type getMyDescriptionParams struct {
-	*GetMyDescriptionOptions
-}
-
 // getMyDescription is used to get the current bot description for the given user language. Returns BotDescription on success.
-func (b *Client) GetMyDescription(optionalParams *GetMyDescriptionOptions) (*BotDescription, error) {
-	params := &getMyDescriptionParams{}
-
-	params.GetMyDescriptionOptions = optionalParams
-
-	return doHTTP[*BotDescription](b.client, b.url, "getMyDescription", params)
+func (c *Client) GetMyDescription(optionalParams *GetMyDescriptionOptions) (*BotDescription, error) {
+	return doHTTP[*BotDescription](c.client, c.url, "getMyDescription", optionalParams)
 }
 
 type SetMyShortDescriptionOptions struct {
@@ -2471,34 +2276,18 @@ type SetMyShortDescriptionOptions struct {
 	LanguageCode     string `json:"language_code,omitempty"`     // A two-letter ISO 639-1 language code. If empty, the short description will be applied to all users for whose language there is no dedicated short description.
 }
 
-type setMyShortDescriptionParams struct {
-	*SetMyShortDescriptionOptions
-}
-
 // setMyShortDescription is used to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot. Returns True on success.
-func (b *Client) SetMyShortDescription(optionalParams *SetMyShortDescriptionOptions) (bool, error) {
-	params := &setMyShortDescriptionParams{}
-
-	params.SetMyShortDescriptionOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setMyShortDescription", params)
+func (c *Client) SetMyShortDescription(optionalParams *SetMyShortDescriptionOptions) (bool, error) {
+	return doHTTP[bool](c.client, c.url, "setMyShortDescription", optionalParams)
 }
 
 type GetMyShortDescriptionOptions struct {
 	LanguageCode string `json:"language_code,omitempty"` // A two-letter ISO 639-1 language code or an empty string
 }
 
-type getMyShortDescriptionParams struct {
-	*GetMyShortDescriptionOptions
-}
-
 // getMyShortDescription is used to get the current bot short description for the given user language. Returns BotShortDescription on success.
-func (b *Client) GetMyShortDescription(optionalParams *GetMyShortDescriptionOptions) (*BotShortDescription, error) {
-	params := &getMyShortDescriptionParams{}
-
-	params.GetMyShortDescriptionOptions = optionalParams
-
-	return doHTTP[*BotShortDescription](b.client, b.url, "getMyShortDescription", params)
+func (c *Client) GetMyShortDescription(optionalParams *GetMyShortDescriptionOptions) (*BotShortDescription, error) {
+	return doHTTP[*BotShortDescription](c.client, c.url, "getMyShortDescription", optionalParams)
 }
 
 type SetChatMenuButtonOptions struct {
@@ -2506,34 +2295,18 @@ type SetChatMenuButtonOptions struct {
 	MenuButton *MenuButton `json:"menu_button,omitempty"` // A JSON-serialized object for the bot's new menu button. Defaults to MenuButtonDefault
 }
 
-type setChatMenuButtonParams struct {
-	*SetChatMenuButtonOptions
-}
-
 // setChatMenuButton is used to change the bot's menu button in a private chat, or the default menu button. Returns True on success.
-func (b *Client) SetChatMenuButton(optionalParams *SetChatMenuButtonOptions) (bool, error) {
-	params := &setChatMenuButtonParams{}
-
-	params.SetChatMenuButtonOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setChatMenuButton", params)
+func (c *Client) SetChatMenuButton(optionalParams *SetChatMenuButtonOptions) (bool, error) {
+	return doHTTP[bool](c.client, c.url, "setChatMenuButton", optionalParams)
 }
 
 type GetChatMenuButtonOptions struct {
 	ChatId int64 `json:"chat_id,omitempty"` // Unique identifier for the target private chat. If not specified, default bot's menu button will be returned
 }
 
-type getChatMenuButtonParams struct {
-	*GetChatMenuButtonOptions
-}
-
 // getChatMenuButton is used to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success.
-func (b *Client) GetChatMenuButton(optionalParams *GetChatMenuButtonOptions) (*MenuButton, error) {
-	params := &getChatMenuButtonParams{}
-
-	params.GetChatMenuButtonOptions = optionalParams
-
-	return doHTTP[*MenuButton](b.client, b.url, "getChatMenuButton", params)
+func (c *Client) GetChatMenuButton(optionalParams *GetChatMenuButtonOptions) (*MenuButton, error) {
+	return doHTTP[*MenuButton](c.client, c.url, "getChatMenuButton", optionalParams)
 }
 
 type SetMyDefaultAdministratorRightsOptions struct {
@@ -2541,34 +2314,18 @@ type SetMyDefaultAdministratorRightsOptions struct {
 	ForChannels bool                     `json:"for_channels,omitempty"` // Pass True to change the default administrator rights of the bot in channels. Otherwise, the default administrator rights of the bot for groups and supergroups will be changed.
 }
 
-type setMyDefaultAdministratorRightsParams struct {
-	*SetMyDefaultAdministratorRightsOptions
-}
-
 // setMyDefaultAdministratorRights is used to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels. These rights will be suggested to users, but they are free to modify the list before adding the bot. Returns True on success.
-func (b *Client) SetMyDefaultAdministratorRights(optionalParams *SetMyDefaultAdministratorRightsOptions) (bool, error) {
-	params := &setMyDefaultAdministratorRightsParams{}
-
-	params.SetMyDefaultAdministratorRightsOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setMyDefaultAdministratorRights", params)
+func (c *Client) SetMyDefaultAdministratorRights(optionalParams *SetMyDefaultAdministratorRightsOptions) (bool, error) {
+	return doHTTP[bool](c.client, c.url, "setMyDefaultAdministratorRights", optionalParams)
 }
 
 type GetMyDefaultAdministratorRightsOptions struct {
 	ForChannels bool `json:"for_channels,omitempty"` // Pass True to get default administrator rights of the bot in channels. Otherwise, default administrator rights of the bot for groups and supergroups will be returned.
 }
 
-type getMyDefaultAdministratorRightsParams struct {
-	*GetMyDefaultAdministratorRightsOptions
-}
-
 // getMyDefaultAdministratorRights is used to get the current default administrator rights of the bot. Returns ChatAdministratorRights on success.
-func (b *Client) GetMyDefaultAdministratorRights(optionalParams *GetMyDefaultAdministratorRightsOptions) (*ChatAdministratorRights, error) {
-	params := &getMyDefaultAdministratorRightsParams{}
-
-	params.GetMyDefaultAdministratorRightsOptions = optionalParams
-
-	return doHTTP[*ChatAdministratorRights](b.client, b.url, "getMyDefaultAdministratorRights", params)
+func (c *Client) GetMyDefaultAdministratorRights(optionalParams *GetMyDefaultAdministratorRightsOptions) (*ChatAdministratorRights, error) {
+	return doHTTP[*ChatAdministratorRights](c.client, c.url, "getMyDefaultAdministratorRights", optionalParams)
 }
 
 type EditMessageTextOptions struct {
@@ -2588,13 +2345,11 @@ type editMessageTextParams struct {
 }
 
 // editMessageText is used to edit text and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
-func (b *Client) EditMessageText(text string, optionalParams *EditMessageTextOptions) (*Message, error) {
+func (c *Client) EditMessageText(text string, optionalParams *EditMessageTextOptions) (*Message, error) {
 	params := &editMessageTextParams{}
-
 	params.Text = text
 	params.EditMessageTextOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "editMessageText", params)
+	return doHTTP[*Message](c.client, c.url, "editMessageText", params)
 }
 
 type EditMessageCaptionOptions struct {
@@ -2607,17 +2362,9 @@ type EditMessageCaptionOptions struct {
 	ReplyMarkup     *InlineKeyboardMarkup `json:"reply_markup,omitempty"`      // A JSON-serialized object for an inline keyboard.
 }
 
-type editMessageCaptionParams struct {
-	*EditMessageCaptionOptions
-}
-
 // editMessageCaption is used to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
-func (b *Client) EditMessageCaption(optionalParams *EditMessageCaptionOptions) (*Message, error) {
-	params := &editMessageCaptionParams{}
-
-	params.EditMessageCaptionOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "editMessageCaption", params)
+func (c *Client) EditMessageCaption(optionalParams *EditMessageCaptionOptions) (*Message, error) {
+	return doHTTP[*Message](c.client, c.url, "editMessageCaption", optionalParams)
 }
 
 type EditMessageMediaOptions struct {
@@ -2634,13 +2381,11 @@ type editMessageMediaParams struct {
 }
 
 // editMessageMedia is used to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
-func (b *Client) EditMessageMedia(media InputMedia, optionalParams *EditMessageMediaOptions) (*Message, error) {
+func (c *Client) EditMessageMedia(media InputMedia, optionalParams *EditMessageMediaOptions) (*Message, error) {
 	params := &editMessageMediaParams{}
-
 	params.Media = media
 	params.EditMessageMediaOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "editMessageMedia", params)
+	return doHTTP[*Message](c.client, c.url, "editMessageMedia", params)
 }
 
 type EditMessageLiveLocationOptions struct {
@@ -2661,14 +2406,12 @@ type editMessageLiveLocationParams struct {
 }
 
 // editMessageLiveLocation is used to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
-func (b *Client) EditMessageLiveLocation(latitude float64, longitude float64, optionalParams *EditMessageLiveLocationOptions) (*Message, error) {
+func (c *Client) EditMessageLiveLocation(latitude float64, longitude float64, optionalParams *EditMessageLiveLocationOptions) (*Message, error) {
 	params := &editMessageLiveLocationParams{}
-
 	params.Latitude = latitude
 	params.Longitude = longitude
 	params.EditMessageLiveLocationOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "editMessageLiveLocation", params)
+	return doHTTP[*Message](c.client, c.url, "editMessageLiveLocation", params)
 }
 
 type StopMessageLiveLocationOptions struct {
@@ -2678,17 +2421,9 @@ type StopMessageLiveLocationOptions struct {
 	ReplyMarkup     *InlineKeyboardMarkup `json:"reply_markup,omitempty"`      // A JSON-serialized object for a new inline keyboard.
 }
 
-type stopMessageLiveLocationParams struct {
-	*StopMessageLiveLocationOptions
-}
-
 // stopMessageLiveLocation is used to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned.
-func (b *Client) StopMessageLiveLocation(optionalParams *StopMessageLiveLocationOptions) (*Message, error) {
-	params := &stopMessageLiveLocationParams{}
-
-	params.StopMessageLiveLocationOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "stopMessageLiveLocation", params)
+func (c *Client) StopMessageLiveLocation(optionalParams *StopMessageLiveLocationOptions) (*Message, error) {
+	return doHTTP[*Message](c.client, c.url, "stopMessageLiveLocation", optionalParams)
 }
 
 type EditMessageReplyMarkupOptions struct {
@@ -2698,17 +2433,9 @@ type EditMessageReplyMarkupOptions struct {
 	ReplyMarkup     *InlineKeyboardMarkup `json:"reply_markup,omitempty"`      // A JSON-serialized object for an inline keyboard.
 }
 
-type editMessageReplyMarkupParams struct {
-	*EditMessageReplyMarkupOptions
-}
-
 // editMessageReplyMarkup is used to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
-func (b *Client) EditMessageReplyMarkup(optionalParams *EditMessageReplyMarkupOptions) (*Message, error) {
-	params := &editMessageReplyMarkupParams{}
-
-	params.EditMessageReplyMarkupOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "editMessageReplyMarkup", params)
+func (c *Client) EditMessageReplyMarkup(optionalParams *EditMessageReplyMarkupOptions) (*Message, error) {
+	return doHTTP[*Message](c.client, c.url, "editMessageReplyMarkup", optionalParams)
 }
 
 type StopPollOptions struct {
@@ -2723,14 +2450,12 @@ type stopPollParams struct {
 }
 
 // stopPoll is used to stop a poll which was sent by the bot. On success, the stopped Poll is returned.
-func (b *Client) StopPoll(chatId ChatID, messageId int64, optionalParams *StopPollOptions) (*Poll, error) {
+func (c *Client) StopPoll(chatId ChatID, messageId int64, optionalParams *StopPollOptions) (*Poll, error) {
 	params := &stopPollParams{}
-
 	params.ChatId = chatId
 	params.MessageId = messageId
 	params.StopPollOptions = optionalParams
-
-	return doHTTP[*Poll](b.client, b.url, "stopPoll", params)
+	return doHTTP[*Poll](c.client, c.url, "stopPoll", params)
 }
 
 type deleteMessageParams struct {
@@ -2739,13 +2464,11 @@ type deleteMessageParams struct {
 }
 
 // deleteMessage is used to delete a message, including service messages, with the following limitations:- A message can only be deleted if it was sent less than 48 hours ago.- Service messages about a supergroup, channel, or forum topic creation can't be deleted.- A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.- Bots can delete outgoing messages in private chats, groups, and supergroups.- Bots can delete incoming messages in private chats.- Bots granted can_post_messages permissions can delete outgoing messages in channels.- If the bot is an administrator of a group, it can delete any message there.- If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.Returns True on success.
-func (b *Client) DeleteMessage(chatId ChatID, messageId int64) (bool, error) {
+func (c *Client) DeleteMessage(chatId ChatID, messageId int64) (bool, error) {
 	params := &deleteMessageParams{}
-
 	params.ChatId = chatId
 	params.MessageId = messageId
-
-	return doHTTP[bool](b.client, b.url, "deleteMessage", params)
+	return doHTTP[bool](c.client, c.url, "deleteMessage", params)
 }
 
 // Sticker represents a sticker.
@@ -2812,14 +2535,12 @@ type sendStickerParams struct {
 }
 
 // sendSticker is used to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned.
-func (b *Client) SendSticker(chatId ChatID, sticker InputFile, optionalParams *SendStickerOptions) (*Message, error) {
+func (c *Client) SendSticker(chatId ChatID, sticker InputFile, optionalParams *SendStickerOptions) (*Message, error) {
 	params := &sendStickerParams{}
-
 	params.ChatId = chatId
 	params.Sticker = sticker
 	params.SendStickerOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendSticker", params)
+	return doHTTP[*Message](c.client, c.url, "sendSticker", params)
 }
 
 func (params *sendStickerParams) HasUploadable() bool {
@@ -2836,12 +2557,10 @@ type getStickerSetParams struct {
 }
 
 // getStickerSet is used to get a sticker set. On success, a StickerSet object is returned.
-func (b *Client) GetStickerSet(name string) (*StickerSet, error) {
+func (c *Client) GetStickerSet(name string) (*StickerSet, error) {
 	params := &getStickerSetParams{}
-
 	params.Name = name
-
-	return doHTTP[*StickerSet](b.client, b.url, "getStickerSet", params)
+	return doHTTP[*StickerSet](c.client, c.url, "getStickerSet", params)
 }
 
 type getCustomEmojiStickersParams struct {
@@ -2849,12 +2568,10 @@ type getCustomEmojiStickersParams struct {
 }
 
 // getCustomEmojiStickers is used to get information about custom emoji stickers by their identifiers. Returns an Array of Sticker objects.
-func (b *Client) GetCustomEmojiStickers(customEmojiIds []string) ([]*Sticker, error) {
+func (c *Client) GetCustomEmojiStickers(customEmojiIds []string) ([]*Sticker, error) {
 	params := &getCustomEmojiStickersParams{}
-
 	params.CustomEmojiIds = customEmojiIds
-
-	return doHTTP[[]*Sticker](b.client, b.url, "getCustomEmojiStickers", params)
+	return doHTTP[[]*Sticker](c.client, c.url, "getCustomEmojiStickers", params)
 }
 
 type uploadStickerFileParams struct {
@@ -2864,14 +2581,12 @@ type uploadStickerFileParams struct {
 }
 
 // uploadStickerFile is used to upload a file with a sticker for later use in the createNewStickerSet and addStickerToSet methods (the file can be used multiple times). Returns the uploaded File on success.
-func (b *Client) UploadStickerFile(userId int64, sticker InputFile, stickerFormat string) (*File, error) {
+func (c *Client) UploadStickerFile(userId int64, sticker InputFile, stickerFormat string) (*File, error) {
 	params := &uploadStickerFileParams{}
-
 	params.UserId = userId
 	params.Sticker = sticker
 	params.StickerFormat = stickerFormat
-
-	return doHTTP[*File](b.client, b.url, "uploadStickerFile", params)
+	return doHTTP[*File](c.client, c.url, "uploadStickerFile", params)
 }
 
 func (params *uploadStickerFileParams) HasUploadable() bool {
@@ -2899,17 +2614,15 @@ type createNewStickerSetParams struct {
 }
 
 // createNewStickerSet is used to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. Returns True on success.
-func (b *Client) CreateNewStickerSet(userId int64, name string, title string, stickers []*InputSticker, stickerFormat string, optionalParams *CreateNewStickerSetOptions) (bool, error) {
+func (c *Client) CreateNewStickerSet(userId int64, name string, title string, stickers []*InputSticker, stickerFormat string, optionalParams *CreateNewStickerSetOptions) (bool, error) {
 	params := &createNewStickerSetParams{}
-
 	params.UserId = userId
 	params.Name = name
 	params.Title = title
 	params.Stickers = stickers
 	params.StickerFormat = stickerFormat
 	params.CreateNewStickerSetOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "createNewStickerSet", params)
+	return doHTTP[bool](c.client, c.url, "createNewStickerSet", params)
 }
 
 type addStickerToSetParams struct {
@@ -2919,14 +2632,12 @@ type addStickerToSetParams struct {
 }
 
 // addStickerToSet is used to add a new sticker to a set created by the bot. The format of the added sticker must match the format of the other stickers in the set. Emoji sticker sets can have up to 200 stickers. Animated and video sticker sets can have up to 50 stickers. Static sticker sets can have up to 120 stickers. Returns True on success.
-func (b *Client) AddStickerToSet(userId int64, name string, sticker InputSticker) (bool, error) {
+func (c *Client) AddStickerToSet(userId int64, name string, sticker InputSticker) (bool, error) {
 	params := &addStickerToSetParams{}
-
 	params.UserId = userId
 	params.Name = name
 	params.Sticker = sticker
-
-	return doHTTP[bool](b.client, b.url, "addStickerToSet", params)
+	return doHTTP[bool](c.client, c.url, "addStickerToSet", params)
 }
 
 type setStickerPositionInSetParams struct {
@@ -2935,13 +2646,11 @@ type setStickerPositionInSetParams struct {
 }
 
 // setStickerPositionInSet is used to move a sticker in a set created by the bot to a specific position. Returns True on success.
-func (b *Client) SetStickerPositionInSet(sticker string, position int64) (bool, error) {
+func (c *Client) SetStickerPositionInSet(sticker string, position int64) (bool, error) {
 	params := &setStickerPositionInSetParams{}
-
 	params.Sticker = sticker
 	params.Position = position
-
-	return doHTTP[bool](b.client, b.url, "setStickerPositionInSet", params)
+	return doHTTP[bool](c.client, c.url, "setStickerPositionInSet", params)
 }
 
 type deleteStickerFromSetParams struct {
@@ -2949,12 +2658,10 @@ type deleteStickerFromSetParams struct {
 }
 
 // deleteStickerFromSet is used to delete a sticker from a set created by the bot. Returns True on success.
-func (b *Client) DeleteStickerFromSet(sticker string) (bool, error) {
+func (c *Client) DeleteStickerFromSet(sticker string) (bool, error) {
 	params := &deleteStickerFromSetParams{}
-
 	params.Sticker = sticker
-
-	return doHTTP[bool](b.client, b.url, "deleteStickerFromSet", params)
+	return doHTTP[bool](c.client, c.url, "deleteStickerFromSet", params)
 }
 
 type setStickerEmojiListParams struct {
@@ -2963,13 +2670,11 @@ type setStickerEmojiListParams struct {
 }
 
 // setStickerEmojiList is used to change the list of emoji assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns True on success.
-func (b *Client) SetStickerEmojiList(sticker string, emojiList []string) (bool, error) {
+func (c *Client) SetStickerEmojiList(sticker string, emojiList []string) (bool, error) {
 	params := &setStickerEmojiListParams{}
-
 	params.Sticker = sticker
 	params.EmojiList = emojiList
-
-	return doHTTP[bool](b.client, b.url, "setStickerEmojiList", params)
+	return doHTTP[bool](c.client, c.url, "setStickerEmojiList", params)
 }
 
 type SetStickerKeywordsOptions struct {
@@ -2983,13 +2688,11 @@ type setStickerKeywordsParams struct {
 }
 
 // setStickerKeywords is used to change search keywords assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns True on success.
-func (b *Client) SetStickerKeywords(sticker string, optionalParams *SetStickerKeywordsOptions) (bool, error) {
+func (c *Client) SetStickerKeywords(sticker string, optionalParams *SetStickerKeywordsOptions) (bool, error) {
 	params := &setStickerKeywordsParams{}
-
 	params.Sticker = sticker
 	params.SetStickerKeywordsOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setStickerKeywords", params)
+	return doHTTP[bool](c.client, c.url, "setStickerKeywords", params)
 }
 
 type SetStickerMaskPositionOptions struct {
@@ -3003,13 +2706,11 @@ type setStickerMaskPositionParams struct {
 }
 
 // setStickerMaskPosition is used to change the mask position of a mask sticker. The sticker must belong to a sticker set that was created by the bot. Returns True on success.
-func (b *Client) SetStickerMaskPosition(sticker string, optionalParams *SetStickerMaskPositionOptions) (bool, error) {
+func (c *Client) SetStickerMaskPosition(sticker string, optionalParams *SetStickerMaskPositionOptions) (bool, error) {
 	params := &setStickerMaskPositionParams{}
-
 	params.Sticker = sticker
 	params.SetStickerMaskPositionOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setStickerMaskPosition", params)
+	return doHTTP[bool](c.client, c.url, "setStickerMaskPosition", params)
 }
 
 type setStickerSetTitleParams struct {
@@ -3018,13 +2719,11 @@ type setStickerSetTitleParams struct {
 }
 
 // setStickerSetTitle is used to set the title of a created sticker set. Returns True on success.
-func (b *Client) SetStickerSetTitle(name string, title string) (bool, error) {
+func (c *Client) SetStickerSetTitle(name string, title string) (bool, error) {
 	params := &setStickerSetTitleParams{}
-
 	params.Name = name
 	params.Title = title
-
-	return doHTTP[bool](b.client, b.url, "setStickerSetTitle", params)
+	return doHTTP[bool](c.client, c.url, "setStickerSetTitle", params)
 }
 
 type SetStickerSetThumbnailOptions struct {
@@ -3039,14 +2738,12 @@ type setStickerSetThumbnailParams struct {
 }
 
 // setStickerSetThumbnail is used to set the thumbnail of a regular or mask sticker set. The format of the thumbnail file must match the format of the stickers in the set. Returns True on success.
-func (b *Client) SetStickerSetThumbnail(name string, userId int64, optionalParams *SetStickerSetThumbnailOptions) (bool, error) {
+func (c *Client) SetStickerSetThumbnail(name string, userId int64, optionalParams *SetStickerSetThumbnailOptions) (bool, error) {
 	params := &setStickerSetThumbnailParams{}
-
 	params.Name = name
 	params.UserId = userId
 	params.SetStickerSetThumbnailOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setStickerSetThumbnail", params)
+	return doHTTP[bool](c.client, c.url, "setStickerSetThumbnail", params)
 }
 
 func (params *setStickerSetThumbnailParams) HasUploadable() bool {
@@ -3069,13 +2766,11 @@ type setCustomEmojiStickerSetThumbnailParams struct {
 }
 
 // setCustomEmojiStickerSetThumbnail is used to set the thumbnail of a custom emoji sticker set. Returns True on success.
-func (b *Client) SetCustomEmojiStickerSetThumbnail(name string, optionalParams *SetCustomEmojiStickerSetThumbnailOptions) (bool, error) {
+func (c *Client) SetCustomEmojiStickerSetThumbnail(name string, optionalParams *SetCustomEmojiStickerSetThumbnailOptions) (bool, error) {
 	params := &setCustomEmojiStickerSetThumbnailParams{}
-
 	params.Name = name
 	params.SetCustomEmojiStickerSetThumbnailOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "setCustomEmojiStickerSetThumbnail", params)
+	return doHTTP[bool](c.client, c.url, "setCustomEmojiStickerSetThumbnail", params)
 }
 
 type deleteStickerSetParams struct {
@@ -3083,12 +2778,10 @@ type deleteStickerSetParams struct {
 }
 
 // deleteStickerSet is used to delete a sticker set that was created by the bot. Returns True on success.
-func (b *Client) DeleteStickerSet(name string) (bool, error) {
+func (c *Client) DeleteStickerSet(name string) (bool, error) {
 	params := &deleteStickerSetParams{}
-
 	params.Name = name
-
-	return doHTTP[bool](b.client, b.url, "deleteStickerSet", params)
+	return doHTTP[bool](c.client, c.url, "deleteStickerSet", params)
 }
 
 // InlineQuery represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results.
@@ -3117,14 +2810,12 @@ type answerInlineQueryParams struct {
 }
 
 // answerInlineQuery is used to send answers to an inline query. On success, True is returned.No more than 50 results per query are allowed.
-func (b *Client) AnswerInlineQuery(inlineQueryId string, results []*InlineQueryResult, optionalParams *AnswerInlineQueryOptions) (bool, error) {
+func (c *Client) AnswerInlineQuery(inlineQueryId string, results []*InlineQueryResult, optionalParams *AnswerInlineQueryOptions) (bool, error) {
 	params := &answerInlineQueryParams{}
-
 	params.InlineQueryId = inlineQueryId
 	params.Results = results
 	params.AnswerInlineQueryOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "answerInlineQuery", params)
+	return doHTTP[bool](c.client, c.url, "answerInlineQuery", params)
 }
 
 // InlineQueryResult represents one result of an inline query. Telegram clients currently support results of the following 20 types:
@@ -3579,13 +3270,11 @@ type answerWebAppQueryParams struct {
 }
 
 // answerWebAppQuery is used to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned.
-func (b *Client) AnswerWebAppQuery(webAppQueryId string, result InlineQueryResult) (*SentWebAppMessage, error) {
+func (c *Client) AnswerWebAppQuery(webAppQueryId string, result InlineQueryResult) (*SentWebAppMessage, error) {
 	params := &answerWebAppQueryParams{}
-
 	params.WebAppQueryId = webAppQueryId
 	params.Result = result
-
-	return doHTTP[*SentWebAppMessage](b.client, b.url, "answerWebAppQuery", params)
+	return doHTTP[*SentWebAppMessage](c.client, c.url, "answerWebAppQuery", params)
 }
 
 // Describes an inline message sent by a Web App on behalf of a user.
@@ -3630,9 +3319,8 @@ type sendInvoiceParams struct {
 }
 
 // sendInvoice is used to send invoices. On success, the sent Message is returned.
-func (b *Client) SendInvoice(chatId ChatID, title string, description string, payload string, providerToken string, currency string, prices []*LabeledPrice, optionalParams *SendInvoiceOptions) (*Message, error) {
+func (c *Client) SendInvoice(chatId ChatID, title string, description string, payload string, providerToken string, currency string, prices []*LabeledPrice, optionalParams *SendInvoiceOptions) (*Message, error) {
 	params := &sendInvoiceParams{}
-
 	params.ChatId = chatId
 	params.Title = title
 	params.Description = description
@@ -3641,8 +3329,7 @@ func (b *Client) SendInvoice(chatId ChatID, title string, description string, pa
 	params.Currency = currency
 	params.Prices = prices
 	params.SendInvoiceOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendInvoice", params)
+	return doHTTP[*Message](c.client, c.url, "sendInvoice", params)
 }
 
 type CreateInvoiceLinkOptions struct {
@@ -3674,9 +3361,8 @@ type createInvoiceLinkParams struct {
 }
 
 // createInvoiceLink is used to create a link for an invoice. Returns the created invoice link as String on success.
-func (b *Client) CreateInvoiceLink(title string, description string, payload string, providerToken string, currency string, prices []*LabeledPrice, optionalParams *CreateInvoiceLinkOptions) (string, error) {
+func (c *Client) CreateInvoiceLink(title string, description string, payload string, providerToken string, currency string, prices []*LabeledPrice, optionalParams *CreateInvoiceLinkOptions) (string, error) {
 	params := &createInvoiceLinkParams{}
-
 	params.Title = title
 	params.Description = description
 	params.Payload = payload
@@ -3684,8 +3370,7 @@ func (b *Client) CreateInvoiceLink(title string, description string, payload str
 	params.Currency = currency
 	params.Prices = prices
 	params.CreateInvoiceLinkOptions = optionalParams
-
-	return doHTTP[string](b.client, b.url, "createInvoiceLink", params)
+	return doHTTP[string](c.client, c.url, "createInvoiceLink", params)
 }
 
 type AnswerShippingQueryOptions struct {
@@ -3701,14 +3386,12 @@ type answerShippingQueryParams struct {
 }
 
 // If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. answerShippingQuery is used to reply to shipping queries. On success, True is returned.
-func (b *Client) AnswerShippingQuery(shippingQueryId string, ok bool, optionalParams *AnswerShippingQueryOptions) (bool, error) {
+func (c *Client) AnswerShippingQuery(shippingQueryId string, ok bool, optionalParams *AnswerShippingQueryOptions) (bool, error) {
 	params := &answerShippingQueryParams{}
-
 	params.ShippingQueryId = shippingQueryId
 	params.Ok = ok
 	params.AnswerShippingQueryOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "answerShippingQuery", params)
+	return doHTTP[bool](c.client, c.url, "answerShippingQuery", params)
 }
 
 type AnswerPreCheckoutQueryOptions struct {
@@ -3723,14 +3406,12 @@ type answerPreCheckoutQueryParams struct {
 }
 
 // Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. answerPreCheckoutQuery is used to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent.
-func (b *Client) AnswerPreCheckoutQuery(preCheckoutQueryId string, ok bool, optionalParams *AnswerPreCheckoutQueryOptions) (bool, error) {
+func (c *Client) AnswerPreCheckoutQuery(preCheckoutQueryId string, ok bool, optionalParams *AnswerPreCheckoutQueryOptions) (bool, error) {
 	params := &answerPreCheckoutQueryParams{}
-
 	params.PreCheckoutQueryId = preCheckoutQueryId
 	params.Ok = ok
 	params.AnswerPreCheckoutQueryOptions = optionalParams
-
-	return doHTTP[bool](b.client, b.url, "answerPreCheckoutQuery", params)
+	return doHTTP[bool](c.client, c.url, "answerPreCheckoutQuery", params)
 }
 
 // LabeledPrice represents a portion of the price for goods or services.
@@ -3845,13 +3526,11 @@ type setPassportDataErrorsParams struct {
 
 // Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns True on success.
 // Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues.
-func (b *Client) SetPassportDataErrors(userId int64, errors []*PassportElementError) (bool, error) {
+func (c *Client) SetPassportDataErrors(userId int64, errors []*PassportElementError) (bool, error) {
 	params := &setPassportDataErrorsParams{}
-
 	params.UserId = userId
 	params.Errors = errors
-
-	return doHTTP[bool](b.client, b.url, "setPassportDataErrors", params)
+	return doHTTP[bool](c.client, c.url, "setPassportDataErrors", params)
 }
 
 // PassportElementError represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
@@ -3969,14 +3648,12 @@ type sendGameParams struct {
 }
 
 // sendGame is used to send a game. On success, the sent Message is returned.
-func (b *Client) SendGame(chatId int64, gameShortName string, optionalParams *SendGameOptions) (*Message, error) {
+func (c *Client) SendGame(chatId int64, gameShortName string, optionalParams *SendGameOptions) (*Message, error) {
 	params := &sendGameParams{}
-
 	params.ChatId = chatId
 	params.GameShortName = gameShortName
 	params.SendGameOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "sendGame", params)
+	return doHTTP[*Message](c.client, c.url, "sendGame", params)
 }
 
 // Game represents a game. Use BotFather to create and edit games, their short names will act as unique identifiers.
@@ -4009,14 +3686,12 @@ type setGameScoreParams struct {
 }
 
 // setGameScore is used to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False.
-func (b *Client) SetGameScore(userId int64, score int64, optionalParams *SetGameScoreOptions) (*Message, error) {
+func (c *Client) SetGameScore(userId int64, score int64, optionalParams *SetGameScoreOptions) (*Message, error) {
 	params := &setGameScoreParams{}
-
 	params.UserId = userId
 	params.Score = score
 	params.SetGameScoreOptions = optionalParams
-
-	return doHTTP[*Message](b.client, b.url, "setGameScore", params)
+	return doHTTP[*Message](c.client, c.url, "setGameScore", params)
 }
 
 type GetGameHighScoresOptions struct {
@@ -4034,13 +3709,11 @@ type getGameHighScoresParams struct {
 // getGameHighScores is used to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
 //
 // This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change.
-func (b *Client) GetGameHighScores(userId int64, optionalParams *GetGameHighScoresOptions) ([]*GameHighScore, error) {
+func (c *Client) GetGameHighScores(userId int64, optionalParams *GetGameHighScoresOptions) ([]*GameHighScore, error) {
 	params := &getGameHighScoresParams{}
-
 	params.UserId = userId
 	params.GetGameHighScoresOptions = optionalParams
-
-	return doHTTP[[]*GameHighScore](b.client, b.url, "getGameHighScores", params)
+	return doHTTP[[]*GameHighScore](c.client, c.url, "getGameHighScores", params)
 }
 
 // GameHighScore represents one row of the high scores table for a game.

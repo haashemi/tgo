@@ -2,14 +2,18 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"go/format"
 	"log"
 	"os"
+	"time"
 )
 
 const TelegramDocURL = "https://core.telegram.org/bots/api"
 
 func main() {
+	s := time.Now()
+
 	resp, err := FetchAndParse()
 	if err != nil {
 		log.Fatalln("failed to fetch or parse the data >>", err)
@@ -29,4 +33,6 @@ func main() {
 	} else {
 		os.WriteFile("api.go", mewB, os.ModePerm)
 	}
+
+	fmt.Println("generated in", time.Since(s))
 }

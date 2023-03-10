@@ -39,8 +39,9 @@ type {{ .PascalCaseName }}Options struct {
 		{{ $field.PascalCaseName }} {{ $field.Type }} {{ $field.Tag }} // {{ $field.Description }} 
 	{{end -}}	
 }
-{{end}}
+{{ end }}
 
+{{ if .EssentialFields }}
 type {{ .Name }}Params struct {
 	{{ if .OptionalFields -}} *{{ .PascalCaseName }}Options {{ end }}
 
@@ -48,21 +49,24 @@ type {{ .Name }}Params struct {
 		{{ $field.PascalCaseName }} {{ $field.Type }} {{ $field.Tag }} // {{ $field.Description }} 
 	{{end -}}
 }
+{{ end }}
 
 {{range $desc := .Description }}
 // {{ $desc }} {{end}}
-func (b *Client) {{ .PascalCaseName }}( {{ range $param := .EssentialFields -}} {{ $param.CamelCaseName }} {{ $param.Type }}, {{end -}} {{if .OptionalFields -}}optionalParams *{{ .PascalCaseName }}Options{{end -}}) ({{ .ReturnType }}, error) {
+func (c *Client) {{ .PascalCaseName }}( {{ range $param := .EssentialFields -}} {{ $param.CamelCaseName }} {{ $param.Type }}, {{end -}} {{if .OptionalFields -}}optionalParams *{{ .PascalCaseName }}Options{{end -}}) ({{ .ReturnType }}, error) {
+	{{ if .EssentialFields -}}
 	params := &{{ .Name }}Params{}
+	{{ end -}}
 
 	{{ range $param := .EssentialFields -}}
 	params.{{ $param.PascalCaseName }} = {{ $param.CamelCaseName }}
 	{{ end -}}
 
-	{{ if .OptionalFields -}}
+	{{ if .OptionalFields -}} {{if .EssentialFields -}}
 	params.{{ .PascalCaseName }}Options = optionalParams
-	{{ end }}
+	{{ end -}}{{end -}}
 
-	return doHTTP[{{ .ReturnType }}](b.client, b.url, "{{ .Name }}", params)
+	return doHTTP[{{ .ReturnType }}](c.client, c.url, "{{ .Name }}", {{ if .EssentialFields -}}params{{else -}}{{if .OptionalFields -}}optionalParams{{else -}}nil{{end -}}{{end -}})
 }
 
 {{ if .Uploadables }}
@@ -85,7 +89,7 @@ func Generate(data RawData, writer io.Writer) {
 	}
 
 	// Interface validation
-	if !strings.Contains(data.Description[0], "holds no information") && data.OptionalFields == nil && data.EssentialFields == nil {
+	if !strings.Contains(data.Description[0], "holds no information") && data.EssentialFields == nil && data.OptionalFields == nil {
 		InterfaceGen.Execute(writer, data)
 		return
 	}
