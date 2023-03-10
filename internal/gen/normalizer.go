@@ -85,6 +85,13 @@ func typeOf(key, s string, isOptional bool) string {
 	switch key {
 	case "parse_mode":
 		return "ParseMode"
+	case "media":
+		switch s {
+		case "InputMedia", "InputMediaAudio, InputMediaDocument, InputMediaPhoto and InputMediaVideo":
+			return "InputMedia"
+		case "InputFile", "String", "InputFile or String":
+			return "InputFile"
+		}
 	}
 
 	switch s {
