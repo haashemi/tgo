@@ -1,6 +1,9 @@
 package tgo
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
 // ChatID is just an any type.
 // It should be a username (string) or a user-id (integer).
@@ -115,6 +118,11 @@ func (InputFileNotUploadable) IsInputFile() {}
 type InputFileUploadable struct {
 	Name   string
 	Reader io.Reader
+}
+
+// MarshalJSON is a custom marshaller which be called with json.Marshal
+func (iFile *InputFileUploadable) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf(`"attach://%s"`, iFile.Name)), nil
 }
 
 func FileFromReader(name string, reader io.Reader) InputFile {
