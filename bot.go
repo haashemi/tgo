@@ -2,7 +2,6 @@ package tgo
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -13,7 +12,7 @@ type Bot struct {
 	*Client        // embedding the client to add all api methods to the bot
 	*DefaultRouter // embedding a default router to the Bot
 
-	asks   map[string]chan<- Context
+	asks   map[int64]chan<- Context
 	askMut sync.RWMutex
 
 	routers []Router
@@ -41,7 +40,7 @@ func NewBot(token string, opts Options) (bot *Bot, err error) {
 		Client:        client,
 		DefaultRouter: defaultRouter,
 
-		asks: make(map[string]chan<- Context),
+		asks: make(map[int64]chan<- Context),
 
 		routers: []Router{defaultRouter},
 	}
@@ -111,8 +110,7 @@ func (bot *Bot) StartPolling() error {
 
 func (bot *Bot) sendAnswerIfAsked(ctx Context) (sent bool) {
 	bot.askMut.RLock()
-	uid := fmt.Sprintf("%d-%d", ctx.ChatID(), ctx.SenderID())
-	receiver, ok := bot.asks[uid]
+	receiver, ok := bot.asks[ctx.ChatID()]
 	bot.askMut.RUnlock()
 
 	if ok {
@@ -124,16 +122,16 @@ func (bot *Bot) sendAnswerIfAsked(ctx Context) (sent bool) {
 }
 
 func (bot *Bot) waitForAnswer(question *Message, timeout time.Duration) (Context, error) {
-	uid := fmt.Sprintf("%d-%d", question.ChatID(), question.SenderID())
+	chatID := question.ChatID()
 	waiter := make(chan Context, 1)
 
 	bot.askMut.Lock()
-	bot.asks[uid] = waiter
+	bot.asks[chatID] = waiter
 	bot.askMut.Unlock()
 
 	defer func() {
 		bot.askMut.Lock()
-		delete(bot.asks, uid)
+		delete(bot.asks, chatID)
 		bot.askMut.Unlock()
 
 		close(waiter)
