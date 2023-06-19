@@ -52,7 +52,7 @@ func NewBot(token string, opts Options) (bot *Bot, err error) {
 // it creates a new session if session id didn't exists.
 func (bot *Bot) GetSession(sessionID int64) *sync.Map {
 	result, ok := bot.sessions.Load(sessionID)
-	if !ok {
+	if ok {
 		return result.(*sync.Map)
 	}
 
