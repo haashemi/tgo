@@ -2,8 +2,10 @@ package tgo
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -85,6 +87,10 @@ func (bot *Bot) StartPolling() error {
 			AllowedUpdates: []string{"message", "edited_message", "channel_post", "edited_channel_post", "callback_query"},
 		})
 		if err != nil {
+			if errors.Is(err, syscall.ECONNRESET) {
+				time.Sleep(time.Second / 2)
+				continue
+			}
 			return err
 		}
 
