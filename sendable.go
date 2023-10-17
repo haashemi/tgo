@@ -65,6 +65,23 @@ func (x *SendPhoto) SetParseMode(mode ParseMode)     { x.ParseMode = mode }
 func (x *SendVideo) SetParseMode(mode ParseMode)     { x.ParseMode = mode }
 func (x *SendVoice) SetParseMode(mode ParseMode)     { x.ParseMode = mode }
 
+func (x *SendAnimation) SetReplyToMessageId(id int64) { x.ReplyToMessageId = id }
+func (x *SendAudio) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id }
+func (x *SendContact) SetReplyToMessageId(id int64)   { x.ReplyToMessageId = id }
+func (x *SendDice) SetReplyToMessageId(id int64)      { x.ReplyToMessageId = id }
+func (x *SendDocument) SetReplyToMessageId(id int64)  { x.ReplyToMessageId = id }
+func (x *SendGame) SetReplyToMessageId(id int64)      { x.ReplyToMessageId = id }
+func (x *SendInvoice) SetReplyToMessageId(id int64)   { x.ReplyToMessageId = id }
+func (x *SendLocation) SetReplyToMessageId(id int64)  { x.ReplyToMessageId = id }
+func (x *SendMessage) SetReplyToMessageId(id int64)   { x.ReplyToMessageId = id }
+func (x *SendPhoto) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id }
+func (x *SendPoll) SetReplyToMessageId(id int64)      { x.ReplyToMessageId = id }
+func (x *SendSticker) SetReplyToMessageId(id int64)   { x.ReplyToMessageId = id }
+func (x *SendVenue) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id }
+func (x *SendVideo) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id }
+func (x *SendVideoNote) SetReplyToMessageId(id int64) { x.ReplyToMessageId = id }
+func (x *SendVoice) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id }
+
 func (b *Bot) Send(msg Sendable) (*Message, error) {
 	if x, ok := msg.(ParseModeSettable); ok {
 		if x.GetParseMode() == ParseModeNone {
