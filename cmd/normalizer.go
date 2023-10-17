@@ -123,6 +123,8 @@ func getStringerMethod(prefix, param, paramType string, isOptional bool) string 
 	pascalCasedParam := snakeToPascal(param)
 
 	switch getType(param, paramType, isOptional) {
+	case "*InputFile":
+		return ""
 	case "bool":
 		return fmt.Sprintf(`payload["%s"] = strconv.FormatBool(%s.%s)`, param, prefix, pascalCasedParam)
 	case "int64":

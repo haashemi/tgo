@@ -66,13 +66,6 @@ func (x *SetWebhook) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
 	payload["url"] = x.Url
-	if x.Certificate != nil {
-		if bb, err := json.Marshal(x.Certificate); err != nil {
-			return nil, err
-		} else {
-			payload["certificate"] = string(bb)
-		}
-	}
 	if x.IpAddress != "" {
 		payload["ip_address"] = x.IpAddress
 	}
@@ -1199,11 +1192,6 @@ func (x *SendPhoto) getParams() (map[string]string, error) {
 	if x.MessageThreadId != 0 {
 		payload["message_thread_id"] = strconv.FormatInt(x.MessageThreadId, 10)
 	}
-	if bb, err := json.Marshal(x.Photo); err != nil {
-		return nil, err
-	} else {
-		payload["photo"] = string(bb)
-	}
 	if x.Caption != "" {
 		payload["caption"] = x.Caption
 	}
@@ -1299,11 +1287,6 @@ func (x *SendAudio) getParams() (map[string]string, error) {
 	if x.MessageThreadId != 0 {
 		payload["message_thread_id"] = strconv.FormatInt(x.MessageThreadId, 10)
 	}
-	if bb, err := json.Marshal(x.Audio); err != nil {
-		return nil, err
-	} else {
-		payload["audio"] = string(bb)
-	}
 	if x.Caption != "" {
 		payload["caption"] = x.Caption
 	}
@@ -1325,13 +1308,6 @@ func (x *SendAudio) getParams() (map[string]string, error) {
 	}
 	if x.Title != "" {
 		payload["title"] = x.Title
-	}
-	if x.Thumbnail != nil {
-		if bb, err := json.Marshal(x.Thumbnail); err != nil {
-			return nil, err
-		} else {
-			payload["thumbnail"] = string(bb)
-		}
 	}
 	if x.DisableNotification {
 		payload["disable_notification"] = strconv.FormatBool(x.DisableNotification)
@@ -1409,18 +1385,6 @@ func (x *SendDocument) getParams() (map[string]string, error) {
 	}
 	if x.MessageThreadId != 0 {
 		payload["message_thread_id"] = strconv.FormatInt(x.MessageThreadId, 10)
-	}
-	if bb, err := json.Marshal(x.Document); err != nil {
-		return nil, err
-	} else {
-		payload["document"] = string(bb)
-	}
-	if x.Thumbnail != nil {
-		if bb, err := json.Marshal(x.Thumbnail); err != nil {
-			return nil, err
-		} else {
-			payload["thumbnail"] = string(bb)
-		}
 	}
 	if x.Caption != "" {
 		payload["caption"] = x.Caption
@@ -1519,11 +1483,6 @@ func (x *SendVideo) getParams() (map[string]string, error) {
 	if x.MessageThreadId != 0 {
 		payload["message_thread_id"] = strconv.FormatInt(x.MessageThreadId, 10)
 	}
-	if bb, err := json.Marshal(x.Video); err != nil {
-		return nil, err
-	} else {
-		payload["video"] = string(bb)
-	}
 	if x.Duration != 0 {
 		payload["duration"] = strconv.FormatInt(x.Duration, 10)
 	}
@@ -1532,13 +1491,6 @@ func (x *SendVideo) getParams() (map[string]string, error) {
 	}
 	if x.Height != 0 {
 		payload["height"] = strconv.FormatInt(x.Height, 10)
-	}
-	if x.Thumbnail != nil {
-		if bb, err := json.Marshal(x.Thumbnail); err != nil {
-			return nil, err
-		} else {
-			payload["thumbnail"] = string(bb)
-		}
 	}
 	if x.Caption != "" {
 		payload["caption"] = x.Caption
@@ -1639,11 +1591,6 @@ func (x *SendAnimation) getParams() (map[string]string, error) {
 	if x.MessageThreadId != 0 {
 		payload["message_thread_id"] = strconv.FormatInt(x.MessageThreadId, 10)
 	}
-	if bb, err := json.Marshal(x.Animation); err != nil {
-		return nil, err
-	} else {
-		payload["animation"] = string(bb)
-	}
 	if x.Duration != 0 {
 		payload["duration"] = strconv.FormatInt(x.Duration, 10)
 	}
@@ -1652,13 +1599,6 @@ func (x *SendAnimation) getParams() (map[string]string, error) {
 	}
 	if x.Height != 0 {
 		payload["height"] = strconv.FormatInt(x.Height, 10)
-	}
-	if x.Thumbnail != nil {
-		if bb, err := json.Marshal(x.Thumbnail); err != nil {
-			return nil, err
-		} else {
-			payload["thumbnail"] = string(bb)
-		}
 	}
 	if x.Caption != "" {
 		payload["caption"] = x.Caption
@@ -1746,11 +1686,6 @@ func (x *SendVoice) getParams() (map[string]string, error) {
 	}
 	if x.MessageThreadId != 0 {
 		payload["message_thread_id"] = strconv.FormatInt(x.MessageThreadId, 10)
-	}
-	if bb, err := json.Marshal(x.Voice); err != nil {
-		return nil, err
-	} else {
-		payload["voice"] = string(bb)
 	}
 	if x.Caption != "" {
 		payload["caption"] = x.Caption
@@ -1843,23 +1778,11 @@ func (x *SendVideoNote) getParams() (map[string]string, error) {
 	if x.MessageThreadId != 0 {
 		payload["message_thread_id"] = strconv.FormatInt(x.MessageThreadId, 10)
 	}
-	if bb, err := json.Marshal(x.VideoNote); err != nil {
-		return nil, err
-	} else {
-		payload["video_note"] = string(bb)
-	}
 	if x.Duration != 0 {
 		payload["duration"] = strconv.FormatInt(x.Duration, 10)
 	}
 	if x.Length != 0 {
 		payload["length"] = strconv.FormatInt(x.Length, 10)
-	}
-	if x.Thumbnail != nil {
-		if bb, err := json.Marshal(x.Thumbnail); err != nil {
-			return nil, err
-		} else {
-			payload["thumbnail"] = string(bb)
-		}
 	}
 	if x.DisableNotification {
 		payload["disable_notification"] = strconv.FormatBool(x.DisableNotification)
@@ -2313,11 +2236,6 @@ func (x *SetChatPhoto) getParams() (map[string]string, error) {
 		return nil, err
 	} else {
 		payload["chat_id"] = string(bb)
-	}
-	if bb, err := json.Marshal(x.Photo); err != nil {
-		return nil, err
-	} else {
-		payload["photo"] = string(bb)
 	}
 	return payload, nil
 }
@@ -3015,11 +2933,6 @@ func (x *SendSticker) getParams() (map[string]string, error) {
 	if x.MessageThreadId != 0 {
 		payload["message_thread_id"] = strconv.FormatInt(x.MessageThreadId, 10)
 	}
-	if bb, err := json.Marshal(x.Sticker); err != nil {
-		return nil, err
-	} else {
-		payload["sticker"] = string(bb)
-	}
 	if x.Emoji != "" {
 		payload["emoji"] = x.Emoji
 	}
@@ -3098,11 +3011,6 @@ func (x *UploadStickerFile) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
 	payload["user_id"] = strconv.FormatInt(x.UserId, 10)
-	if bb, err := json.Marshal(x.Sticker); err != nil {
-		return nil, err
-	} else {
-		payload["sticker"] = string(bb)
-	}
 	payload["sticker_format"] = x.StickerFormat
 	return payload, nil
 }
@@ -3236,13 +3144,6 @@ func (x *SetStickerSetThumbnail) getParams() (map[string]string, error) {
 
 	payload["name"] = x.Name
 	payload["user_id"] = strconv.FormatInt(x.UserId, 10)
-	if x.Thumbnail != nil {
-		if bb, err := json.Marshal(x.Thumbnail); err != nil {
-			return nil, err
-		} else {
-			payload["thumbnail"] = string(bb)
-		}
-	}
 	return payload, nil
 }
 

@@ -76,13 +76,15 @@ import (
 
 				{{range $field := $section.Fields -}}
 					{{ $stringerField := getStringerMethod "x" $field.Name $field.Type $field.IsOptional -}}
-					{{ if not $field.IsOptional -}}
-						{{ $stringerField }}
-					{{ else -}} 
-						{{ $dv := getDefaultValue (getType $field.Name $field.Type $field.IsOptional) -}}
-						if x.{{snakeToPascal $field.Name }} {{ if not (eq $dv "false") -}}!= {{ $dv }}{{ end -}} {
+					{{ if $stringerField -}}
+						{{ if not $field.IsOptional -}}
 							{{ $stringerField }}
-						} 
+						{{ else -}} 
+							{{ $dv := getDefaultValue (getType $field.Name $field.Type $field.IsOptional) -}}
+							if x.{{snakeToPascal $field.Name }} {{ if not (eq $dv "false") -}}!= {{ $dv }}{{ end -}} {
+								{{ $stringerField }}
+							} 
+						{{ end -}}
 					{{ end -}}
 				{{ end -}} 
 

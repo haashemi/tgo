@@ -44,6 +44,6 @@ func FileFromURL(url string) *InputFile {
 	return &InputFile{Value: url}
 }
 
-func FileFromReader(reader io.Reader) *InputFile {
-	return &InputFile{Reader: reader}
+func FileFromReader(name string, reader io.Reader) *InputFile {
+	return &InputFile{Value: name, Reader: reader}
 }
