@@ -11,7 +11,10 @@ import (
 const BotToken = "bot_token"
 
 func main() {
-	bot, err := tgo.NewBot(BotToken, tgo.Options{})
+	bot, err := tgo.NewBot(BotToken, tgo.Options{
+		// it will set this parse mode for all api call via bot.Send, ctx.Send, and ctx.Reply
+		DefaultParseMode: tgo.ParseModeHTML,
+	})
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -40,14 +43,14 @@ func Hi(ctx tgo.Context) {
 	// create the text using HTML Markups
 	text := fmt.Sprintf("Hi <i>%s</i>!", senderFirstName)
 
-	ctx.Reply(text, &tgo.SendMessageOptions{
-		// pass the parse mode, so telegram knows that our text contains HTML Markup!
-		ParseMode: tgo.ParseModeHTML,
+	// HTML Parse mode will be automatically set
+	ctx.Reply(&tgo.SendMessage{
+		Text: text,
 	})
 }
 
 // Echo just echoes with text
 func Echo(ctx tgo.Context) {
 	// get text or caption of the sent message and send it back!
-	ctx.Send(ctx.Text(), nil)
+	ctx.Send(&tgo.SendMessage{Text: ctx.Text()})
 }
