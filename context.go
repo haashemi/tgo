@@ -73,7 +73,7 @@ func (ctx *UpdateContext) GetMessage() *Message {
 
 func (ctx *UpdateContext) Send(msg Sendable) (*Message, error) {
 	if x, ok := msg.(ParseModeSettable); ok {
-		if x.GetParseMode() != ParseModeNone {
+		if x.GetParseMode() == ParseModeNone {
 			x.SetParseMode(ctx.bot.defaultParseMode)
 		}
 	}
@@ -84,7 +84,7 @@ func (ctx *UpdateContext) Send(msg Sendable) (*Message, error) {
 
 func (ctx *UpdateContext) Reply(msg Replyable) (*Message, error) {
 	if x, ok := msg.(ParseModeSettable); ok {
-		if x.GetParseMode() != ParseModeNone {
+		if x.GetParseMode() == ParseModeNone {
 			x.SetParseMode(ctx.bot.defaultParseMode)
 		}
 	}

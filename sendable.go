@@ -67,7 +67,7 @@ func (x *SendVoice) SetParseMode(mode ParseMode)     { x.ParseMode = mode }
 
 func (b *Bot) Send(msg Sendable) (*Message, error) {
 	if x, ok := msg.(ParseModeSettable); ok {
-		if x.GetParseMode() != ParseModeNone {
+		if x.GetParseMode() == ParseModeNone {
 			x.SetParseMode(b.defaultParseMode)
 		}
 	}
