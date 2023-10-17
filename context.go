@@ -3,6 +3,7 @@ package tgo
 import (
 	"errors"
 	"sync"
+	"time"
 )
 
 type Contextable interface {
@@ -80,6 +81,23 @@ func (ctx *UpdateContext) Send(msg Sendable) (*Message, error) {
 
 	msg.SetChatID(ctx.ChatID())
 	return msg.Send(ctx.bot.API)
+}
+
+func (ctx *UpdateContext) Ask(msg Sendable, timeout time.Duration) (question *Message, answer *UpdateContext, err error) {
+	if x, ok := msg.(ParseModeSettable); ok {
+		if x.GetParseMode() == ParseModeNone {
+			x.SetParseMode(ctx.bot.defaultParseMode)
+		}
+	}
+
+	msg.SetChatID(ctx.ChatID())
+	question, err = msg.Send(ctx.bot.API)
+	if err != nil {
+		return
+	}
+
+	answer, err = ctx.bot.waitForAnswer(question, timeout)
+	return
 }
 
 func (ctx *UpdateContext) Reply(msg Replyable) (*Message, error) {
