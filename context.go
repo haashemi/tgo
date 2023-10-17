@@ -71,6 +71,30 @@ func (ctx *UpdateContext) GetMessage() *Message {
 	return nil
 }
 
+func (ctx *UpdateContext) Send(msg Sendable) (*Message, error) {
+	if x, ok := msg.(ParseModeSettable); ok {
+		if x.GetParseMode() != ParseModeNone {
+			x.SetParseMode(ctx.bot.defaultParseMode)
+		}
+	}
+
+	msg.SetChatID(ctx.ChatID())
+	return msg.Send(ctx.bot.API)
+}
+
+func (ctx *UpdateContext) Reply(msg Replyable) (*Message, error) {
+	if x, ok := msg.(ParseModeSettable); ok {
+		if x.GetParseMode() != ParseModeNone {
+			x.SetParseMode(ctx.bot.defaultParseMode)
+		}
+	}
+
+	msg.SetChatID(ctx.ChatID())
+	msg.SetReplyToMessageId(ctx.MessageID())
+
+	return msg.Send(ctx.bot.API)
+}
+
 // Text returns the message's text or media caption or callback query's data
 func (ctx *UpdateContext) Text() string {
 	switch data := ctx.Contextable.(type) {
