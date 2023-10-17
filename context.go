@@ -87,16 +87,20 @@ func (ctx *UpdateContext) Text() string {
 
 // Delete deletes the message of that context
 func (ctx *UpdateContext) Delete() error {
-	_, err := ctx.bot.DeleteMessage(ChatID(ctx.ChatID()), ctx.MessageID())
+	_, err := ctx.bot.DeleteMessage(&DeleteMessage{ChatId: ID(ctx.ChatID()), MessageId: ctx.MessageID()})
 	return err
 }
 
 // Answer answers to callback queries sent from inline keyboards
-func (ctx *UpdateContext) Answer(options *AnswerCallbackQueryOptions) error {
+func (ctx *UpdateContext) Answer(options *AnswerCallbackQuery) error {
 	if ctx.CallbackQuery == nil {
 		return errors.New("context doesn't have CallbackQuery data")
+	} else if options == nil {
+		return errors.New("options couldn't be nil")
 	}
 
-	_, err := ctx.bot.AnswerCallbackQuery(ctx.CallbackQuery.Id, options)
+	options.CallbackQueryId = ctx.CallbackQuery.Id
+
+	_, err := ctx.bot.AnswerCallbackQuery(options)
 	return err
 }

@@ -1,40 +1,5 @@
 package tgo
 
-import (
-	"fmt"
-	"io"
-)
-
-// ChatID is just an any type.
-// It should be a username (string) or a user-id (integer).
-type ChatID any
-
-type ParseMode string
-
-const (
-	ParseModeNone       ParseMode = ""
-	ParseModeMarkdown   ParseMode = "Markdown"
-	ParseModeMarkdownV2 ParseMode = "MarkdownV2"
-	ParseModeHTML       ParseMode = "HTML"
-)
-
-type ReplyMarkup interface {
-	// IsReplyMarkup does nothing and is only used to enforce type-safety
-	IsReplyMarkup()
-}
-
-// IsReplyMarkup is an empty function used to implement ReplyMarkup
-func (ReplyKeyboardMarkup) IsReplyMarkup() {}
-
-// IsReplyMarkup is an empty function used to implement ReplyMarkup
-func (ReplyKeyboardRemove) IsReplyMarkup() {}
-
-// IsReplyMarkup is an empty function used to implement ReplyMarkup
-func (InlineKeyboardMarkup) IsReplyMarkup() {}
-
-// IsReplyMarkup is an empty function used to implement ReplyMarkup
-func (ForceReply) IsReplyMarkup() {}
-
 // SenderID returns the chat id of who sent the message
 func (m *Message) SenderID() int64 {
 	if m.From == nil {
@@ -102,31 +67,3 @@ func (q *CallbackQuery) MessageID() int64 {
 
 	return q.Message.MessageId
 }
-
-type InputFileNotUploadable string
-
-func FileFromID(fileID string) InputFile {
-	return InputFileNotUploadable(fileID)
-}
-
-func FileFromURL(url string) InputFile {
-	return InputFileNotUploadable(url)
-}
-
-func (InputFileNotUploadable) IsInputFile() {}
-
-type InputFileUploadable struct {
-	Name   string
-	Reader io.Reader
-}
-
-// MarshalJSON is a custom marshaller which be called with json.Marshal
-func (iFile *InputFileUploadable) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"attach://%s"`, iFile.Name)), nil
-}
-
-func FileFromReader(name string, reader io.Reader) InputFile {
-	return &InputFileUploadable{Name: name, Reader: reader}
-}
-
-func (InputFileUploadable) IsInputFile() {}

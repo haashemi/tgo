@@ -11,7 +11,7 @@ import (
 
 type Bot struct {
 	*User          // embedding all bot information directly to the Bot
-	*Client        // embedding the client to add all api methods to the bot
+	*API           // embedding the api to add all api methods to the bot
 	*DefaultRouter // embedding a default router to the Bot
 
 	asks   map[int64]chan<- Context
@@ -29,8 +29,8 @@ type Options struct {
 }
 
 func NewBot(token string, opts Options) (bot *Bot, err error) {
-	client := NewClient(token, opts.Host, opts.Client)
-	me, err := client.GetMe()
+	api := NewAPI(token, opts.Host, opts.Client)
+	me, err := api.GetMe()
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func NewBot(token string, opts Options) (bot *Bot, err error) {
 
 	bot = &Bot{
 		User:          me,
-		Client:        client,
+		API:           api,
 		DefaultRouter: defaultRouter,
 
 		asks: make(map[int64]chan<- Context),
@@ -76,7 +76,7 @@ func (bot *Bot) StartPolling() error {
 	var offset int64
 
 	for {
-		data, err := bot.GetUpdates(&GetUpdatesOptions{
+		data, err := bot.GetUpdates(&GetUpdates{
 			// ToDo: I have no idea if I'm getting the offset in the right way or not. But it works!
 			Offset: offset,
 
