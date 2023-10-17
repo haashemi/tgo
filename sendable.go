@@ -15,6 +15,23 @@ type ParseModeSettable interface {
 	SetParseMode(mode ParseMode)
 }
 
+type ParseMode string
+
+const (
+	ParseModeNone       ParseMode = ""
+	ParseModeMarkdown   ParseMode = "Markdown"
+	ParseModeMarkdownV2 ParseMode = "MarkdownV2"
+	ParseModeHTML       ParseMode = "HTML"
+)
+
+type Username string
+
+func (Username) IsChatID() {}
+
+type ID int64
+
+func (ID) IsChatID() {}
+
 func (x *SendAnimation) SetChatID(id int64) { x.ChatId = ID(id) }
 func (x *SendAudio) SetChatID(id int64)     { x.ChatId = ID(id) }
 func (x *SendContact) SetChatID(id int64)   { x.ChatId = ID(id) }

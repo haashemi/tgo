@@ -1,25 +1,6 @@
 package tgo
 
-import (
-	"io"
-)
-
-type ParseMode string
-
-const (
-	ParseModeNone       ParseMode = ""
-	ParseModeMarkdown   ParseMode = "Markdown"
-	ParseModeMarkdownV2 ParseMode = "MarkdownV2"
-	ParseModeHTML       ParseMode = "HTML"
-)
-
-type Username string
-
-func (Username) IsChatID() {}
-
-type ID int64
-
-func (ID) IsChatID() {}
+import "io"
 
 type InputFile struct {
 	Value  string
