@@ -14,6 +14,8 @@ type Bot struct {
 	*API           // embedding the api to add all api methods to the bot
 	*DefaultRouter // embedding a default router to the Bot
 
+	defaultParseMode ParseMode
+
 	asks   map[int64]chan<- Context
 	askMut sync.RWMutex
 
@@ -24,8 +26,9 @@ type Bot struct {
 }
 
 type Options struct {
-	Host   string
-	Client *http.Client
+	Host             string
+	Client           *http.Client
+	DefaultParseMode ParseMode
 }
 
 func NewBot(token string, opts Options) (bot *Bot, err error) {
@@ -41,6 +44,8 @@ func NewBot(token string, opts Options) (bot *Bot, err error) {
 		User:          me,
 		API:           api,
 		DefaultRouter: defaultRouter,
+
+		defaultParseMode: opts.DefaultParseMode,
 
 		asks: make(map[int64]chan<- Context),
 
