@@ -74,7 +74,7 @@ func getNestedMediaFields(all []Section, s Section) (fields []Field) {
 		for _, xs := range all {
 			if xs.Name == ft {
 				for _, xf := range xs.Fields {
-					if getType(xf.Name, xf.Type, xf.IsOptional) == "InputFile" {
+					if getType(xf.Name, xf.Type, xf.IsOptional) == "*InputFile" {
 						fields = append(fields, f)
 						break
 					}
