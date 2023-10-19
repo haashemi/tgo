@@ -26,7 +26,10 @@ type Update struct {
 	ChatJoinRequest    *ChatJoinRequest    `json:"chat_join_request,omitempty"`    // Optional. A request to join the chat has been sent. The bot must have the can_invite_users administrator right in the chat to receive these updates.
 }
 
-// getUpdates is used to receive incoming updates using long polling (wiki). Returns an Array of Update objects.// // Notes1. This method will not work if an outgoing webhook is set up.2. In order to avoid getting duplicate updates, recalculate offset after each server response.//
+// getUpdates is used to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
+//
+// Notes1. This method will not work if an outgoing webhook is set up.2. In order to avoid getting duplicate updates, recalculate offset after each server response.
+//
 type GetUpdates struct {
 	Offset         int64    `json:"offset,omitempty"`          // Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id. The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue. All previous updates will be forgotten.
 	Limit          int64    `json:"limit,omitempty"`           // Limits the number of updates to be retrieved. Values between 1-100 are accepted. Defaults to 100.
@@ -39,7 +42,12 @@ func (api *API) GetUpdates(payload *GetUpdates) ([]*Update, error) {
 	return callJson[[]*Update](api, "getUpdates", payload)
 }
 
-// setWebhook is used to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing a JSON-serialized Update. In case of an unsuccessful request, we will give up after a reasonable amount of attempts. Returns True on success.// If you'd like to make sure that the webhook was set by you, you can specify secret data in the parameter secret_token. If specified, the request will contain a header “X-Telegram-Bot-Api-Secret-Token” with the secret token as content.// // Notes1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.3. Ports currently supported for webhooks: 443, 80, 88, 8443.// If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks.//
+// setWebhook is used to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing a JSON-serialized Update. In case of an unsuccessful request, we will give up after a reasonable amount of attempts. Returns True on success.
+// If you'd like to make sure that the webhook was set by you, you can specify secret data in the parameter secret_token. If specified, the request will contain a header “X-Telegram-Bot-Api-Secret-Token” with the secret token as content.
+//
+// Notes1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.3. Ports currently supported for webhooks: 443, 80, 88, 8443.
+// If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks.
+//
 type SetWebhook struct {
 	Url                string     `json:"url"`                            // HTTPS URL to send updates to. Use an empty string to remove webhook integration
 	Certificate        *InputFile `json:"certificate,omitempty"`          // Upload your public key certificate so that the root certificate in use can be checked. See our self-signed guide for details.
@@ -503,7 +511,10 @@ type UserProfilePhotos struct {
 	Photos     [][]*PhotoSize `json:"photos"`      // Requested profile pictures (in up to 4 sizes each)
 }
 
-// File represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.// // The maximum file size to download is 20 MB//
+// File represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
+//
+// The maximum file size to download is 20 MB
+//
 type File struct {
 	FileId       string `json:"file_id"`             // Identifier for this file, which can be used to download or reuse the file
 	FileUniqueId string `json:"file_unique_id"`      // Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
@@ -528,7 +539,8 @@ type ReplyKeyboardMarkup struct {
 
 func (ReplyKeyboardMarkup) IsReplyMarkup() {}
 
-// KeyboardButton represents one button of the reply keyboard. For simple text buttons, String can be used instead of this object to specify the button text. The optional fields web_app, request_user, request_chat, request_contact, request_location, and request_poll are mutually exclusive.// Note: request_contact and request_location options will only work in Telegram versions released after 9 April, 2016. Older clients will display unsupported message.Note: request_poll option will only work in Telegram versions released after 23 January, 2020. Older clients will display unsupported message.Note: web_app option will only work in Telegram versions released after 16 April, 2022. Older clients will display unsupported message.Note: request_user and request_chat options will only work in Telegram versions released after 3 February, 2023. Older clients will display unsupported message.
+// KeyboardButton represents one button of the reply keyboard. For simple text buttons, String can be used instead of this object to specify the button text. The optional fields web_app, request_user, request_chat, request_contact, request_location, and request_poll are mutually exclusive.
+// Note: request_contact and request_location options will only work in Telegram versions released after 9 April, 2016. Older clients will display unsupported message.Note: request_poll option will only work in Telegram versions released after 23 January, 2020. Older clients will display unsupported message.Note: web_app option will only work in Telegram versions released after 16 April, 2022. Older clients will display unsupported message.Note: request_user and request_chat options will only work in Telegram versions released after 3 February, 2023. Older clients will display unsupported message.
 type KeyboardButton struct {
 	Text            string                     `json:"text"`                       // Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed
 	RequestUser     *KeyboardButtonRequestUser `json:"request_user,omitempty"`     // Optional. If specified, pressing the button will open a list of suitable users. Tapping on any user will send their identifier to the bot in a “user_shared” service message. Available in private chats only.
@@ -571,7 +583,8 @@ type ReplyKeyboardRemove struct {
 
 func (ReplyKeyboardRemove) IsReplyMarkup() {}
 
-// InlineKeyboardMarkup represents an inline keyboard that appears right next to the message it belongs to.// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will display unsupported message.
+// InlineKeyboardMarkup represents an inline keyboard that appears right next to the message it belongs to.
+// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will display unsupported message.
 type InlineKeyboardMarkup struct {
 	InlineKeyboard [][]*InlineKeyboardButton `json:"inline_keyboard"` // Array of button rows, each represented by an Array of InlineKeyboardButton objects
 }
@@ -592,7 +605,11 @@ type InlineKeyboardButton struct {
 	Pay                          bool                         `json:"pay,omitempty"`                              // Optional. Specify True, to send a Pay button.NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
 }
 
-// LoginUrl represents a parameter of the inline keyboard button used to automatically authorize a user. Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:// Telegram apps support these buttons as of version 5.7.// // Sample bot: @discussbot//
+// LoginUrl represents a parameter of the inline keyboard button used to automatically authorize a user. Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
+// Telegram apps support these buttons as of version 5.7.
+//
+// Sample bot: @discussbot
+//
 type LoginUrl struct {
 	Url                string `json:"url"`                            // An HTTPS URL to be opened with user authorization data added to the query string when the button is pressed. If the user refuses to provide authorization data, the original URL without information about the user will be opened. The data added is the same as described in Receiving authorization data.NOTE: You must always check the hash of the received data to verify the authentication and the integrity of the data as described in Checking authorization.
 	ForwardText        string `json:"forward_text,omitempty"`         // Optional. New text of the button in forwarded messages.
@@ -609,7 +626,10 @@ type SwitchInlineQueryChosenChat struct {
 	AllowChannelChats bool   `json:"allow_channel_chats,omitempty"` // Optional. True, if channel chats can be chosen
 }
 
-// CallbackQuery represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present.// // NOTE: After the user presses a callback button, Telegram clients will display a progress bar until you call answerCallbackQuery. It is, therefore, necessary to react by calling answerCallbackQuery even if no notification to the user is needed (e.g., without specifying any of the optional parameters).//
+// CallbackQuery represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present.
+//
+// NOTE: After the user presses a callback button, Telegram clients will display a progress bar until you call answerCallbackQuery. It is, therefore, necessary to react by calling answerCallbackQuery even if no notification to the user is needed (e.g., without specifying any of the optional parameters).
+//
 type CallbackQuery struct {
 	Id              string   `json:"id"`                          // Unique identifier for this query
 	From            User     `json:"from"`                        // Sender
@@ -620,7 +640,15 @@ type CallbackQuery struct {
 	GameShortName   string   `json:"game_short_name,omitempty"`   // Optional. Short name of a Game to be returned, serves as the unique identifier for the game
 }
 
-// Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode.// // Example: A poll bot for groups runs in privacy mode (only receives commands, replies to its messages and mentions). There could be two ways to create a new poll:// // Explain the user how to send a command with parameters (e.g. /newpoll question answer1 answer2). May be appealing for hardcore users but lacks modern day polish.// Guide the user through a step-by-step process. 'Please send me your question', 'Cool, now let's add the first answer option', 'Great. Keep adding answer options, then send /done when you're ready'.// // The last option is definitely more attractive. And if you use ForceReply in your bot's questions, it will receive the user's answers even if it only receives replies, commands and mentions - without any extra work for the user.//
+// Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode.
+//
+// Example: A poll bot for groups runs in privacy mode (only receives commands, replies to its messages and mentions). There could be two ways to create a new poll:
+//
+// Explain the user how to send a command with parameters (e.g. /newpoll question answer1 answer2). May be appealing for hardcore users but lacks modern day polish.
+// Guide the user through a step-by-step process. 'Please send me your question', 'Cool, now let's add the first answer option', 'Great. Keep adding answer options, then send /done when you're ready'.
+//
+// The last option is definitely more attractive. And if you use ForceReply in your bot's questions, it will receive the user's answers even if it only receives replies, commands and mentions - without any extra work for the user.
+//
 type ForceReply struct {
 	ForceReply            bool   `json:"force_reply"`                       // Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
 	InputFieldPlaceholder string `json:"input_field_placeholder,omitempty"` // Optional. The placeholder to be shown in the input field when the reply is active; 1-64 characters
@@ -669,7 +697,8 @@ type ChatAdministratorRights struct {
 	CanManageTopics     bool `json:"can_manage_topics,omitempty"`  // Optional. True, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only
 }
 
-// ChatMember contains information about one member of a chat. Currently, the following 6 types of chat members are supported:// ChatMemberOwner, ChatMemberAdministrator, ChatMemberMember, ChatMemberRestricted, ChatMemberLeft, ChatMemberBanned
+// ChatMember contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
+// ChatMemberOwner, ChatMemberAdministrator, ChatMemberMember, ChatMemberRestricted, ChatMemberLeft, ChatMemberBanned
 type ChatMember interface {
 	// IsChatMember does nothing and is only used to enforce type-safety
 	IsChatMember()
@@ -818,7 +847,8 @@ type BotCommand struct {
 	Description string `json:"description"` // Description of the command; 1-256 characters.
 }
 
-// BotCommandScope represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:// BotCommandScopeDefault, BotCommandScopeAllPrivateChats, BotCommandScopeAllGroupChats, BotCommandScopeAllChatAdministrators, BotCommandScopeChat, BotCommandScopeChatAdministrators, BotCommandScopeChatMember
+// BotCommandScope represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:
+// BotCommandScopeDefault, BotCommandScopeAllPrivateChats, BotCommandScopeAllGroupChats, BotCommandScopeAllChatAdministrators, BotCommandScopeChat, BotCommandScopeChatAdministrators, BotCommandScopeChatMember
 type BotCommandScope interface {
 	// IsBotCommandScope does nothing and is only used to enforce type-safety
 	IsBotCommandScope()
@@ -892,7 +922,9 @@ type BotShortDescription struct {
 	ShortDescription string `json:"short_description"` // The bot's short description
 }
 
-// MenuButton describes the bot's menu button in a private chat. It should be one of// MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault// If a menu button other than MenuButtonDefault is set for a private chat, then it is applied in the chat. Otherwise the default menu button is applied. By default, the menu button opens the list of bot commands.
+// MenuButton describes the bot's menu button in a private chat. It should be one of
+// MenuButtonCommands, MenuButtonWebApp, MenuButtonDefault
+// If a menu button other than MenuButtonDefault is set for a private chat, then it is applied in the chat. Otherwise the default menu button is applied. By default, the menu button opens the list of bot commands.
 type MenuButton interface {
 	// IsMenuButton does nothing and is only used to enforce type-safety
 	IsMenuButton()
@@ -927,7 +959,8 @@ type ResponseParameters struct {
 	RetryAfter      int64 `json:"retry_after,omitempty"`        // Optional. In case of exceeding flood control, the number of seconds left to wait before the request can be repeated
 }
 
-// InputMedia represents the content of a media message to be sent. It should be one of// InputMediaAnimation, InputMediaDocument, InputMediaAudio, InputMediaPhoto, InputMediaVideo
+// InputMedia represents the content of a media message to be sent. It should be one of
+// InputMediaAnimation, InputMediaDocument, InputMediaAudio, InputMediaPhoto, InputMediaVideo
 type InputMedia interface {
 	// IsInputMedia does nothing and is only used to enforce type-safety
 	IsInputMedia()
@@ -1242,7 +1275,8 @@ func (api *API) SendPhoto(payload *SendPhoto) (*Message, error) {
 	return callJson[*Message](api, "sendPhoto", payload)
 }
 
-// sendAudio is used to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.// For sending voice messages, use the sendVoice method instead.
+// sendAudio is used to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
+// For sending voice messages, use the sendVoice method instead.
 type SendAudio struct {
 	ChatId                   ChatID           `json:"chat_id"`                               // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageThreadId          int64            `json:"message_thread_id,omitempty"`           // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
@@ -1996,7 +2030,11 @@ func (api *API) SendDice(payload *SendDice) (*Message, error) {
 	return callJson[*Message](api, "sendDice", payload)
 }
 
-// Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns True on success.// // Example: The ImageBot needs some time to process a request and upload the image. Instead of sending a text message along the lines of “Retrieving image, please wait…”, the bot may use sendChatAction with action = upload_photo. The user will see a “sending photo” status for the bot.// // We only recommend using this method when a response from the bot will take a noticeable amount of time to arrive.
+// Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns True on success.
+//
+// Example: The ImageBot needs some time to process a request and upload the image. Instead of sending a text message along the lines of “Retrieving image, please wait…”, the bot may use sendChatAction with action = upload_photo. The user will see a “sending photo” status for the bot.
+//
+// We only recommend using this method when a response from the bot will take a noticeable amount of time to arrive.
 type SendChatAction struct {
 	ChatId          ChatID `json:"chat_id"`                     // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageThreadId int64  `json:"message_thread_id,omitempty"` // Unique identifier for the target message thread; supergroups only
@@ -2020,7 +2058,8 @@ func (api *API) GetUserProfilePhotos(payload *GetUserProfilePhotos) (*UserProfil
 	return callJson[*UserProfilePhotos](api, "getUserProfilePhotos", payload)
 }
 
-// getFile is used to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a File object is returned. The file can then be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile again.// Note: This function may not preserve the original file name and MIME type. You should save the file's MIME type and name (if available) when the File object is received.
+// getFile is used to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a File object is returned. The file can then be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile again.
+// Note: This function may not preserve the original file name and MIME type. You should save the file's MIME type and name (if available) when the File object is received.
 type GetFile struct {
 	FileId string `json:"file_id"` // File identifier to get information about
 }
@@ -2141,7 +2180,10 @@ func (api *API) SetChatPermissions(payload *SetChatPermissions) (bool, error) {
 	return callJson[bool](api, "setChatPermissions", payload)
 }
 
-// exportChatInviteLink is used to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.// // Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again.//
+// exportChatInviteLink is used to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.
+//
+// Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again.
+//
 type ExportChatInviteLink struct {
 	ChatId ChatID `json:"chat_id"` // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 }
@@ -2527,7 +2569,10 @@ func (api *API) UnpinAllGeneralForumTopicMessages(payload *UnpinAllGeneralForumT
 	return callJson[bool](api, "unpinAllGeneralForumTopicMessages", payload)
 }
 
-// answerCallbackQuery is used to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.// // Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.//
+// answerCallbackQuery is used to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
+//
+// Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
+//
 type AnswerCallbackQuery struct {
 	CallbackQueryId string `json:"callback_query_id"`    // Unique identifier for the query to be answered
 	Text            string `json:"text,omitempty"`       // Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters
@@ -3038,8 +3083,49 @@ type CreateNewStickerSet struct {
 	NeedsRepainting bool            `json:"needs_repainting,omitempty"` // Pass True if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only
 }
 
+func (x *CreateNewStickerSet) getFiles() map[string]*InputFile {
+	media := map[string]*InputFile{}
+
+	for idx, m := range x.Stickers {
+		for key, value := range m.getFiles() {
+			value.Value = fmt.Sprintf("%d.stickers.%s", idx, key)
+			media[value.Value] = value
+		}
+	}
+
+	return media
+}
+
+func (x *CreateNewStickerSet) getParams() (map[string]string, error) {
+	payload := map[string]string{}
+
+	payload["user_id"] = strconv.FormatInt(x.UserId, 10)
+	payload["name"] = x.Name
+	payload["title"] = x.Title
+	if bb, err := json.Marshal(x.Stickers); err != nil {
+		return nil, err
+	} else {
+		payload["stickers"] = string(bb)
+	}
+	payload["sticker_format"] = x.StickerFormat
+	if x.StickerType != "" {
+		payload["sticker_type"] = x.StickerType
+	}
+	if x.NeedsRepainting {
+		payload["needs_repainting"] = strconv.FormatBool(x.NeedsRepainting)
+	}
+	return payload, nil
+}
+
 // createNewStickerSet is used to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. Returns True on success.
 func (api *API) CreateNewStickerSet(payload *CreateNewStickerSet) (bool, error) {
+	if files := payload.getFiles(); len(files) != 0 {
+		params, err := payload.getParams()
+		if err != nil {
+			return false, err
+		}
+		return callMultipart[bool](api, "createNewStickerSet", params, files)
+	}
 	return callJson[bool](api, "createNewStickerSet", payload)
 }
 
@@ -3050,8 +3136,39 @@ type AddStickerToSet struct {
 	Sticker InputSticker `json:"sticker"` // A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set isn't changed.
 }
 
+func (x *AddStickerToSet) getFiles() map[string]*InputFile {
+	media := map[string]*InputFile{}
+
+	for key, value := range x.Sticker.getFiles() {
+		value.Value = "sticker." + key
+		media[value.Value] = value
+	}
+
+	return media
+}
+
+func (x *AddStickerToSet) getParams() (map[string]string, error) {
+	payload := map[string]string{}
+
+	payload["user_id"] = strconv.FormatInt(x.UserId, 10)
+	payload["name"] = x.Name
+	if bb, err := json.Marshal(x.Sticker); err != nil {
+		return nil, err
+	} else {
+		payload["sticker"] = string(bb)
+	}
+	return payload, nil
+}
+
 // addStickerToSet is used to add a new sticker to a set created by the bot. The format of the added sticker must match the format of the other stickers in the set. Emoji sticker sets can have up to 200 stickers. Animated and video sticker sets can have up to 50 stickers. Static sticker sets can have up to 120 stickers. Returns True on success.
 func (api *API) AddStickerToSet(payload *AddStickerToSet) (bool, error) {
+	if files := payload.getFiles(); len(files) != 0 {
+		params, err := payload.getParams()
+		if err != nil {
+			return false, err
+		}
+		return callMultipart[bool](api, "addStickerToSet", params, files)
+	}
 	return callJson[bool](api, "addStickerToSet", payload)
 }
 
@@ -3212,7 +3329,9 @@ type InlineQueryResultsButton struct {
 	StartParameter string      `json:"start_parameter,omitempty"` // Optional. Deep-linking parameter for the /start message sent to the bot when a user presses the button. 1-64 characters, only A-Z, a-z, 0-9, _ and - are allowed.Example: An inline bot that sends YouTube videos can ask the user to connect the bot to their YouTube account to adapt search results accordingly. To do this, it displays a 'Connect your YouTube account' button above the results, or even before showing any. The user presses the button, switches to a private chat with the bot and, in doing so, passes a start parameter that instructs the bot to return an OAuth link. Once done, the bot can offer a switch_inline button so that the user can easily return to the chat where they wanted to use the bot's inline capabilities.
 }
 
-// InlineQueryResult represents one result of an inline query. Telegram clients currently support results of the following 20 types:// InlineQueryResultCachedAudio, InlineQueryResultCachedDocument, InlineQueryResultCachedGif, InlineQueryResultCachedMpeg4Gif, InlineQueryResultCachedPhoto, InlineQueryResultCachedSticker, InlineQueryResultCachedVideo, InlineQueryResultCachedVoice, InlineQueryResultArticle, InlineQueryResultAudio, InlineQueryResultContact, InlineQueryResultGame, InlineQueryResultDocument, InlineQueryResultGif, InlineQueryResultLocation, InlineQueryResultMpeg4Gif, InlineQueryResultPhoto, InlineQueryResultVenue, InlineQueryResultVideo, InlineQueryResultVoice// Note: All URLs passed in inline query results will be available to end users and therefore must be assumed to be public.
+// InlineQueryResult represents one result of an inline query. Telegram clients currently support results of the following 20 types:
+// InlineQueryResultCachedAudio, InlineQueryResultCachedDocument, InlineQueryResultCachedGif, InlineQueryResultCachedMpeg4Gif, InlineQueryResultCachedPhoto, InlineQueryResultCachedSticker, InlineQueryResultCachedVideo, InlineQueryResultCachedVoice, InlineQueryResultArticle, InlineQueryResultAudio, InlineQueryResultContact, InlineQueryResultGame, InlineQueryResultDocument, InlineQueryResultGif, InlineQueryResultLocation, InlineQueryResultMpeg4Gif, InlineQueryResultPhoto, InlineQueryResultVenue, InlineQueryResultVideo, InlineQueryResultVoice
+// Note: All URLs passed in inline query results will be available to end users and therefore must be assumed to be public.
 type InlineQueryResult interface {
 	// IsInlineQueryResult does nothing and is only used to enforce type-safety
 	IsInlineQueryResult()
@@ -3294,7 +3413,10 @@ type InlineQueryResultMpeg4Gif struct {
 
 func (InlineQueryResultMpeg4Gif) IsInlineQueryResult() {}
 
-// Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.// // If an InlineQueryResultVideo message contains an embedded video (e.g., YouTube), you must replace its content using input_message_content.//
+// Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
+//
+// If an InlineQueryResultVideo message contains an embedded video (e.g., YouTube), you must replace its content using input_message_content.
+//
 type InlineQueryResultVideo struct {
 	Type                string                `json:"type"`                            // Type of the result, must be video
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -3315,7 +3437,8 @@ type InlineQueryResultVideo struct {
 
 func (InlineQueryResultVideo) IsInlineQueryResult() {}
 
-// Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
+// Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
+// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultAudio struct {
 	Type                string                `json:"type"`                            // Type of the result, must be audio
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -3332,7 +3455,8 @@ type InlineQueryResultAudio struct {
 
 func (InlineQueryResultAudio) IsInlineQueryResult() {}
 
-// Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message.// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
+// Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message.
+// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultVoice struct {
 	Type                string                `json:"type"`                            // Type of the result, must be voice
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -3348,7 +3472,8 @@ type InlineQueryResultVoice struct {
 
 func (InlineQueryResultVoice) IsInlineQueryResult() {}
 
-// Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method.// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
+// Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method.
+// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultDocument struct {
 	Type                string                `json:"type"`                            // Type of the result, must be document
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -3368,7 +3493,8 @@ type InlineQueryResultDocument struct {
 
 func (InlineQueryResultDocument) IsInlineQueryResult() {}
 
-// Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location.// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
+// Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location.
+// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultLocation struct {
 	Type                 string                `json:"type"`                             // Type of the result, must be location
 	Id                   string                `json:"id"`                               // Unique identifier for this result, 1-64 Bytes
@@ -3388,7 +3514,8 @@ type InlineQueryResultLocation struct {
 
 func (InlineQueryResultLocation) IsInlineQueryResult() {}
 
-// Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue.// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
+// Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue.
+// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultVenue struct {
 	Type                string                `json:"type"`                            // Type of the result, must be venue
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 Bytes
@@ -3409,7 +3536,8 @@ type InlineQueryResultVenue struct {
 
 func (InlineQueryResultVenue) IsInlineQueryResult() {}
 
-// Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact.// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
+// Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact.
+// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultContact struct {
 	Type                string                `json:"type"`                            // Type of the result, must be contact
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 Bytes
@@ -3426,7 +3554,8 @@ type InlineQueryResultContact struct {
 
 func (InlineQueryResultContact) IsInlineQueryResult() {}
 
-// Represents a Game.// Note: This will only work in Telegram versions released after October 1, 2016. Older clients will not display any inline results if a game result is among them.
+// Represents a Game.
+// Note: This will only work in Telegram versions released after October 1, 2016. Older clients will not display any inline results if a game result is among them.
 type InlineQueryResultGame struct {
 	Type          string                `json:"type"`                   // Type of the result, must be game
 	Id            string                `json:"id"`                     // Unique identifier for this result, 1-64 bytes
@@ -3482,7 +3611,8 @@ type InlineQueryResultCachedMpeg4Gif struct {
 
 func (InlineQueryResultCachedMpeg4Gif) IsInlineQueryResult() {}
 
-// Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker.// Note: This will only work in Telegram versions released after 9 April, 2016 for static stickers and after 06 July, 2019 for animated stickers. Older clients will ignore them.
+// Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker.
+// Note: This will only work in Telegram versions released after 9 April, 2016 for static stickers and after 06 July, 2019 for animated stickers. Older clients will ignore them.
 type InlineQueryResultCachedSticker struct {
 	Type                string                `json:"type"`                            // Type of the result, must be sticker
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -3493,7 +3623,8 @@ type InlineQueryResultCachedSticker struct {
 
 func (InlineQueryResultCachedSticker) IsInlineQueryResult() {}
 
-// Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file.// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
+// Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file.
+// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultCachedDocument struct {
 	Type                string                `json:"type"`                            // Type of the result, must be document
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -3525,7 +3656,8 @@ type InlineQueryResultCachedVideo struct {
 
 func (InlineQueryResultCachedVideo) IsInlineQueryResult() {}
 
-// Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message.// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
+// Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message.
+// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultCachedVoice struct {
 	Type                string                `json:"type"`                            // Type of the result, must be voice
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -3540,7 +3672,8 @@ type InlineQueryResultCachedVoice struct {
 
 func (InlineQueryResultCachedVoice) IsInlineQueryResult() {}
 
-// Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
+// Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
+// Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultCachedAudio struct {
 	Type                string                `json:"type"`                            // Type of the result, must be audio
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -3554,7 +3687,8 @@ type InlineQueryResultCachedAudio struct {
 
 func (InlineQueryResultCachedAudio) IsInlineQueryResult() {}
 
-// InputMessageContent represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:// InputTextMessageContent, InputLocationMessageContent, InputVenueMessageContent, InputContactMessageContent, InputInvoiceMessageContent
+// InputMessageContent represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:
+// InputTextMessageContent, InputLocationMessageContent, InputVenueMessageContent, InputContactMessageContent, InputInvoiceMessageContent
 type InputMessageContent interface {
 	// IsInputMessageContent does nothing and is only used to enforce type-safety
 	IsInputMessageContent()
@@ -3632,7 +3766,8 @@ type InputInvoiceMessageContent struct {
 
 func (InputInvoiceMessageContent) IsInputMessageContent() {}
 
-// Represents a result of an inline query that was chosen by the user and sent to their chat partner.// Note: It is necessary to enable inline feedback via @BotFather in order to receive these objects in updates.
+// Represents a result of an inline query that was chosen by the user and sent to their chat partner.
+// Note: It is necessary to enable inline feedback via @BotFather in order to receive these objects in updates.
 type ChosenInlineResult struct {
 	ResultId        string    `json:"result_id"`                   // The unique identifier for the result that was chosen
 	From            User      `json:"from"`                        // The user that chose the result
@@ -3853,7 +3988,8 @@ type EncryptedCredentials struct {
 	Secret string `json:"secret"` // Base64-encoded secret, encrypted with the bot's public RSA key, required for data decryption
 }
 
-// Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns True on success.// Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues.
+// Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns True on success.
+// Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues.
 type SetPassportDataErrors struct {
 	UserId int64                   `json:"user_id"` // User identifier
 	Errors []*PassportElementError `json:"errors"`  // A JSON-serialized array describing the errors
@@ -3864,7 +4000,8 @@ func (api *API) SetPassportDataErrors(payload *SetPassportDataErrors) (bool, err
 	return callJson[bool](api, "setPassportDataErrors", payload)
 }
 
-// PassportElementError represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:// PassportElementErrorDataField, PassportElementErrorFrontSide, PassportElementErrorReverseSide, PassportElementErrorSelfie, PassportElementErrorFile, PassportElementErrorFiles, PassportElementErrorTranslationFile, PassportElementErrorTranslationFiles, PassportElementErrorUnspecified
+// PassportElementError represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
+// PassportElementErrorDataField, PassportElementErrorFrontSide, PassportElementErrorReverseSide, PassportElementErrorSelfie, PassportElementErrorFile, PassportElementErrorFiles, PassportElementErrorTranslationFile, PassportElementErrorTranslationFiles, PassportElementErrorUnspecified
 type PassportElementError interface {
 	// IsPassportElementError does nothing and is only used to enforce type-safety
 	IsPassportElementError()
@@ -4007,7 +4144,10 @@ func (api *API) SetGameScore(payload *SetGameScore) (*Message, error) {
 	return callJson[*Message](api, "setGameScore", payload)
 }
 
-// getGameHighScores is used to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.// // This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change.//
+// getGameHighScores is used to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
+//
+// This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change.
+//
 type GetGameHighScores struct {
 	UserId          int64  `json:"user_id"`                     // Target user id
 	ChatId          int64  `json:"chat_id,omitempty"`           // Required if inline_message_id is not specified. Unique identifier for the target chat
@@ -4020,7 +4160,8 @@ func (api *API) GetGameHighScores(payload *GetGameHighScores) ([]*GameHighScore,
 	return callJson[[]*GameHighScore](api, "getGameHighScores", payload)
 }
 
-// GameHighScore represents one row of the high scores table for a game.// And that's about all we've got for now.If you've got any questions, please check out our Bot FAQ »
+// GameHighScore represents one row of the high scores table for a game.
+// And that's about all we've got for now.If you've got any questions, please check out our Bot FAQ »
 type GameHighScore struct {
 	Position int64 `json:"position"` // Position in high score table for the game
 	User     User  `json:"user"`     // User
