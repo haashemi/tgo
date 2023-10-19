@@ -11,7 +11,8 @@ import (
 {{ $sections := .Sections }}
 
 {{ range $section := $sections }}
-	{{range $desc := $section.Description -}}// {{ $desc }}{{end -}}
+	{{ range $desc := $section.Description }}
+	// {{ $desc }}{{ end -}}
 	{{ if $section.IsInterface }} {{/* INTERFACE */}}
 		type {{ upperFirstLetter $section.Name }} interface {	
 			// Is{{ $section.Name }} does nothing and is only used to enforce type-safety
