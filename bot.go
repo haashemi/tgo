@@ -10,7 +10,6 @@ import (
 )
 
 type Bot struct {
-	*User          // embedding all bot information directly to the Bot
 	*API           // embedding the api to add all api methods to the bot
 	*DefaultRouter // embedding a default router to the Bot
 
@@ -31,17 +30,12 @@ type Options struct {
 	DefaultParseMode ParseMode
 }
 
-func NewBot(token string, opts Options) (bot *Bot, err error) {
+func NewBot(token string, opts Options) (bot *Bot) {
 	api := NewAPI(token, opts.Host, opts.Client)
-	me, err := api.GetMe()
-	if err != nil {
-		return nil, err
-	}
 
 	defaultRouter := NewDefaultRouter()
 
-	bot = &Bot{
-		User:          me,
+	return &Bot{
 		API:           api,
 		DefaultRouter: defaultRouter,
 
@@ -51,8 +45,6 @@ func NewBot(token string, opts Options) (bot *Bot, err error) {
 
 		routers: []Router{defaultRouter},
 	}
-
-	return bot, nil
 }
 
 // GetSession returns the stored session as a sync.Map.

@@ -11,13 +11,10 @@ import (
 const BotToken = "bot_token"
 
 func main() {
-	bot, err := tgo.NewBot(BotToken, tgo.Options{
+	bot := tgo.NewBot(BotToken, tgo.Options{
 		// it will set this parse mode for all api call via bot.Send, ctx.Send, and ctx.Reply
 		DefaultParseMode: tgo.ParseModeHTML,
 	})
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
 
 	// It will call the handler when a new message gets received with text/caption of "hi"
 	bot.Handle(filters.And(filters.IsMessage(), filters.Text("hi")), Hi)
@@ -26,7 +23,12 @@ func main() {
 	// so, if no handlers gets used and the update is a new message, Echo will be called.
 	bot.Handle(filters.And(filters.IsMessage()), Echo)
 
-	log.Println("Bot is started as", bot.Username)
+	botInfo, err := bot.GetMe()
+	if err != nil {
+		log.Fatalln("Failed to fetch the bot info", err.Error())
+		return
+	}
+	log.Println("Bot is started as", botInfo.Username)
 
 	if err := bot.StartPolling(); err != nil {
 		log.Fatalln("Polling stopped >>", err.Error())
