@@ -95,7 +95,8 @@ import (
 
 		{{ if $isMethod }}
 			{{ $returnType := getType $section.Name (extractReturnType $section.Description) true }}
-			{{range $desc := $section.Description -}}// {{ $desc }}{{end}}
+			{{ range $desc := $section.Description }}
+			// {{ $desc }}{{ end }}
 			func (api *API) {{upperFirstLetter $section.Name}}({{ if $section.Fields -}}payload *{{upperFirstLetter $section.Name}}{{ end -}}) ({{ $returnType }}, error) {
 				{{ if $canBeMedia -}}
 				if files := payload.getFiles(); len(files) != 0 {
