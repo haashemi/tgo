@@ -6,10 +6,9 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"time"
 )
 
-//go:generate go run ./internal/gen
+//go:generate go run ./cmd
 
 const TelegramHost = "https://api.telegram.org"
 
@@ -30,7 +29,7 @@ func NewAPI(token, host string, client *http.Client) *API {
 	}
 
 	if client == nil {
-		client = &http.Client{Timeout: 30 * time.Second}
+		client = &http.Client{}
 	}
 
 	return &API{
