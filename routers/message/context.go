@@ -66,9 +66,17 @@ func (ctx *Context) Reply(msg tgo.Replyable) (*tgo.Message, error) {
 }
 
 // Ask asks a question from the message's sender and waits for the passed timeout for their response.
-func (ctx *Context) Ask(msg tgo.Sendable, timeout time.Duration) (question, answer *tgo.Message, err error) {
+func (ctx *Context) Ask(msg tgo.Sendable, timeout time.Duration) (question, answer *Context, err error) {
 	cid, sid := tgo.GetChatAndSenderID(ctx.Message)
-	return ctx.Bot.Ask(cid, sid, msg, timeout)
+
+	q, a, err := ctx.Bot.Ask(cid, sid, msg, timeout)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	question = &Context{Message: q, Bot: ctx.Bot}
+	answer = &Context{Message: a, Bot: ctx.Bot}
+	return question, answer, nil
 }
 
 // Delete deletes the received message.

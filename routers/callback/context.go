@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/haashemi/tgo"
+	"github.com/haashemi/tgo/routers/message"
 )
 
 type Context struct {
@@ -40,13 +41,20 @@ func (ctx *Context) Send(msg tgo.Sendable) (*tgo.Message, error) {
 }
 
 // Ask asks a question from the callback query sender and waits for the passed timeout for their response.
-func (ctx *Context) Ask(msg tgo.Sendable, timeout time.Duration) (question, answer *tgo.Message, err error) {
+func (ctx *Context) Ask(msg tgo.Sendable, timeout time.Duration) (question, answer *message.Context, err error) {
 	chatID := ctx.From.Id
 	if ctx.Message != nil {
 		chatID = ctx.Message.Chat.Id
 	}
 
-	return ctx.Bot.Ask(chatID, ctx.From.Id, msg, timeout)
+	q, a, err := ctx.Bot.Ask(chatID, ctx.From.Id, msg, timeout)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	question = &message.Context{Message: q, Bot: ctx.Bot}
+	answer = &message.Context{Message: a, Bot: ctx.Bot}
+	return question, answer, nil
 }
 
 // Answer answers to the sent callback query.
