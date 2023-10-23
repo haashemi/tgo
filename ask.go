@@ -65,6 +65,9 @@ func (bot *Bot) sendAnswerIfAsked(msg *Message) (sent bool) {
 }
 
 func (bot *Bot) Ask(chatId, userId int64, msg Sendable, timeout time.Duration) (question, answer *Message, err error) {
+	if msg.GetChatID() == nil {
+		msg.SetChatID(chatId)
+	}
 	question, err = bot.Send(msg)
 	if err != nil {
 		return nil, nil, err
