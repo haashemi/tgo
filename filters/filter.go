@@ -107,9 +107,11 @@ func Whitelist(IDs ...int64) tgo.Filter {
 
 		switch data := ExtractUpdate(update).(type) {
 		case *tgo.Message:
-			senderID = data.SenderID()
+			if data.From != nil {
+				senderID = data.From.Id
+			}
 		case *tgo.CallbackQuery:
-			senderID = data.SenderID()
+			senderID = data.From.Id
 		default:
 			// avoid unnecessary id comparisons.
 			return false
@@ -145,7 +147,10 @@ func Commands(prefix, botUsername string, cmds ...string) tgo.Filter {
 
 	return NewFilter(func(update *tgo.Update) bool {
 		if msg, ok := ExtractUpdate(update).(*tgo.Message); ok {
-			text := msg.String()
+			text := msg.Text
+			if text == "" {
+				text = msg.Caption
+			}
 
 			for _, cmd := range cmds {
 				if text == cmd || text == cmd+botUsername || strings.HasPrefix(text, cmd+" ") || strings.HasPrefix(text, cmd+botUsername+" ") {
