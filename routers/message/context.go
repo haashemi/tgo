@@ -69,14 +69,12 @@ func (ctx *Context) Reply(msg tgo.Replyable) (*tgo.Message, error) {
 func (ctx *Context) Ask(msg tgo.Sendable, timeout time.Duration) (question, answer *Context, err error) {
 	cid, sid := tgo.GetChatAndSenderID(ctx.Message)
 
-	q, a, err := ctx.Bot.Ask(cid, sid, msg, timeout)
-	if err != nil {
-		return nil, nil, err
-	}
+	rawQuestion, rawAnswer, err := ctx.Bot.Ask(cid, sid, msg, timeout)
 
-	question = &Context{Message: q, Bot: ctx.Bot}
-	answer = &Context{Message: a, Bot: ctx.Bot}
-	return question, answer, nil
+	question = &Context{Message: rawQuestion, Bot: ctx.Bot}
+	answer = &Context{Message: rawAnswer, Bot: ctx.Bot}
+
+	return question, answer, err
 }
 
 // Delete deletes the received message.

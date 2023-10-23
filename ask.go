@@ -71,9 +71,5 @@ func (bot *Bot) Ask(chatId, userId int64, msg Sendable, timeout time.Duration) (
 	}
 
 	answer, err = bot.waitForAnswer(GetAskUID(chatId, userId), timeout)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return question, answer, nil
+	return question, answer, err
 }

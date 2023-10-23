@@ -47,14 +47,12 @@ func (ctx *Context) Ask(msg tgo.Sendable, timeout time.Duration) (question, answ
 		chatID = ctx.Message.Chat.Id
 	}
 
-	q, a, err := ctx.Bot.Ask(chatID, ctx.From.Id, msg, timeout)
-	if err != nil {
-		return nil, nil, err
-	}
+	rawQuestion, rawAnswer, err := ctx.Bot.Ask(chatID, ctx.From.Id, msg, timeout)
 
-	question = &message.Context{Message: q, Bot: ctx.Bot}
-	answer = &message.Context{Message: a, Bot: ctx.Bot}
-	return question, answer, nil
+	question = &message.Context{Message: rawQuestion, Bot: ctx.Bot}
+	answer = &message.Context{Message: rawAnswer, Bot: ctx.Bot}
+
+	return question, answer, err
 }
 
 // Answer answers to the sent callback query.
