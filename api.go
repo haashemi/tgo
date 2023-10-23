@@ -12,6 +12,8 @@ import (
 
 const TelegramHost = "https://api.telegram.org"
 
+const TelegramDownloadHost = "https://api.telegram.org/file/bot"
+
 type httpResponse[T any] struct {
 	OK     bool `json:"ok"`
 	Result T    `json:"result,omitempty"`
@@ -20,6 +22,7 @@ type httpResponse[T any] struct {
 
 type API struct {
 	url    string
+	token  string
 	client *http.Client
 }
 
@@ -34,8 +37,13 @@ func NewAPI(token, host string, client *http.Client) *API {
 
 	return &API{
 		url:    host + "/bot" + token + "/",
+		token:  token,
 		client: client,
 	}
+}
+
+func (api *API) Download(filePath string) (*http.Response, error) {
+	return http.Get(TelegramDownloadHost + api.token + "/" + filePath)
 }
 
 func callJson[T any](a *API, method string, rawData any) (T, error) {
