@@ -6,6 +6,7 @@ import (
 
 	"github.com/haashemi/tgo"
 	"github.com/haashemi/tgo/filters"
+	"github.com/haashemi/tgo/routers/message"
 )
 
 const BotToken = "bot_token"
@@ -16,12 +17,17 @@ func main() {
 		DefaultParseMode: tgo.ParseModeHTML,
 	})
 
+	// initialize a new router to handle messages
+	messageRouter := message.NewRouter()
 	// It will call the handler when a new message gets received with text/caption of "hi"
-	bot.Handle(filters.And(filters.IsMessage(), filters.Text("hi")), Hi)
+	messageRouter.Handle(filters.And(filters.IsMessage(), filters.Text("hi")), Hi)
 
 	// Handlers are called in order (at the least in DefaultRouter, other routers may work differently)
 	// so, if no handlers gets used and the update is a new message, Echo will be called.
-	bot.Handle(filters.And(filters.IsMessage()), Echo)
+	messageRouter.Handle(filters.And(filters.IsMessage()), Echo)
+
+	// add our message router to the bot routers; so it will be triggered on updates.
+	bot.AddRouter(messageRouter)
 
 	botInfo, err := bot.GetMe()
 	if err != nil {
@@ -30,7 +36,9 @@ func main() {
 	}
 	log.Println("Bot is started as", botInfo.Username)
 
-	if err := bot.StartPolling(); err != nil {
+	// start the long-polling with the timeout of 30 seconds
+	// and only new messages are allowed as an update (to save traffic or whatever).
+	if err := bot.StartPolling(30, "message"); err != nil {
 		log.Fatalln("Polling stopped >>", err.Error())
 		return
 	}
@@ -38,7 +46,7 @@ func main() {
 }
 
 // Hi answers the hi message with a new hi!
-func Hi(ctx tgo.Context) {
+func Hi(ctx *message.Context) {
 	// Get sender's first name with getting the raw message
 	senderFirstName := ctx.Message.From.FirstName
 
@@ -52,7 +60,7 @@ func Hi(ctx tgo.Context) {
 }
 
 // Echo just echoes with text
-func Echo(ctx tgo.Context) {
+func Echo(ctx *message.Context) {
 	// get text or caption of the sent message and send it back!
-	ctx.Send(&tgo.SendMessage{Text: ctx.Text()})
+	ctx.Send(&tgo.SendMessage{Text: ctx.String()})
 }
