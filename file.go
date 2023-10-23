@@ -28,3 +28,7 @@ func FileFromURL(url string) *InputFile {
 func FileFromReader(name string, reader io.Reader) *InputFile {
 	return &InputFile{Value: name, Reader: reader}
 }
+
+func FileFromPath(path string) *InputFile {
+	return &InputFile{Value: "file://" + path}
+}
