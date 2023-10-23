@@ -1,6 +1,7 @@
 package tgo
 
 type Sendable interface {
+	GetChatID() ChatID
 	SetChatID(id int64)
 	Send(api *API) (*Message, error)
 }
@@ -31,6 +32,23 @@ func (Username) IsChatID() {}
 type ID int64
 
 func (ID) IsChatID() {}
+
+func (x *SendAnimation) GetChatID() ChatID { return x.ChatId }
+func (x *SendAudio) GetChatID() ChatID     { return x.ChatId }
+func (x *SendContact) GetChatID() ChatID   { return x.ChatId }
+func (x *SendDice) GetChatID() ChatID      { return x.ChatId }
+func (x *SendDocument) GetChatID() ChatID  { return x.ChatId }
+func (x *SendGame) GetChatID() ChatID      { return ID(x.ChatId) }
+func (x *SendInvoice) GetChatID() ChatID   { return x.ChatId }
+func (x *SendLocation) GetChatID() ChatID  { return x.ChatId }
+func (x *SendMessage) GetChatID() ChatID   { return x.ChatId }
+func (x *SendPhoto) GetChatID() ChatID     { return x.ChatId }
+func (x *SendPoll) GetChatID() ChatID      { return x.ChatId }
+func (x *SendSticker) GetChatID() ChatID   { return x.ChatId }
+func (x *SendVenue) GetChatID() ChatID     { return x.ChatId }
+func (x *SendVideo) GetChatID() ChatID     { return x.ChatId }
+func (x *SendVideoNote) GetChatID() ChatID { return x.ChatId }
+func (x *SendVoice) GetChatID() ChatID     { return x.ChatId }
 
 func (x *SendAnimation) SetChatID(id int64) { x.ChatId = ID(id) }
 func (x *SendAudio) SetChatID(id int64)     { x.ChatId = ID(id) }
@@ -99,10 +117,11 @@ func (x *SendVideo) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id 
 func (x *SendVideoNote) SetReplyToMessageId(id int64) { x.ReplyToMessageId = id }
 func (x *SendVoice) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id }
 
+// Send sends a message with the preferred ParseMode.
 func (b *Bot) Send(msg Sendable) (*Message, error) {
 	if x, ok := msg.(ParseModeSettable); ok {
 		if x.GetParseMode() == ParseModeNone {
-			x.SetParseMode(b.defaultParseMode)
+			x.SetParseMode(b.DefaultParseMode)
 		}
 	}
 
