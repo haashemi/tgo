@@ -12,8 +12,6 @@ import (
 
 const TelegramHost = "https://api.telegram.org"
 
-const TelegramDownloadHost = "https://api.telegram.org/file/bot"
-
 type httpResponse[T any] struct {
 	OK     bool `json:"ok"`
 	Result T    `json:"result,omitempty"`
@@ -21,7 +19,7 @@ type httpResponse[T any] struct {
 }
 
 type API struct {
-	url    string
+	host   string
 	token  string
 	client *http.Client
 }
@@ -36,14 +34,14 @@ func NewAPI(token, host string, client *http.Client) *API {
 	}
 
 	return &API{
-		url:    host + "/bot" + token + "/",
+		host:   host,
 		token:  token,
 		client: client,
 	}
 }
 
 func (api *API) Download(filePath string) (*http.Response, error) {
-	return http.Get(TelegramDownloadHost + api.token + "/" + filePath)
+	return http.Get(api.host + "/file/bot" + api.token + "/" + filePath)
 }
 
 func callJson[T any](a *API, method string, rawData any) (T, error) {
@@ -54,7 +52,7 @@ func callJson[T any](a *API, method string, rawData any) (T, error) {
 		return response.Result, err
 	}
 
-	resp, err := a.client.Post(a.url+method, "application/json", body)
+	resp, err := a.client.Post(a.host+"/bot"+a.token+"/"+method, "application/json", body)
 	if err != nil {
 		return response.Result, err
 	}
@@ -97,7 +95,7 @@ func callMultipart[T any](a *API, method string, params map[string]string, files
 
 	var response httpResponse[T]
 
-	resp, err := a.client.Post(a.url+method, m.FormDataContentType(), r)
+	resp, err := a.client.Post(a.host+"/bot"+a.token+"/"+method, m.FormDataContentType(), r)
 	if err != nil {
 		return response.Result, nil
 	}
