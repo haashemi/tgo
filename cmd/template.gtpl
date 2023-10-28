@@ -25,7 +25,7 @@ import (
 		{{ $isMethod := eq (index (lowerFirstLetter $section.Name) 0) (index $section.Name 0) -}}
 		{{ if or $section.Fields (not $isMethod) -}}
 			type {{ upperFirstLetter $section.Name }} struct { {{range $field := $section.Fields -}}
-				{{ snakeToPascal $field.Name }} {{ getType $field.Name $field.Type $field.IsOptional }} {{ getTag $field.Name $field.IsOptional }} // {{ $field.Description }} 
+				{{ snakeToPascal $field.Name }} {{ getType $field.Name $field.Type $field.IsOptional $sections }} {{ getTag $field.Name $field.IsOptional }} // {{ $field.Description }} 
 			{{end -}} }
 		{{ end }}
 
@@ -34,7 +34,7 @@ import (
 			func ({{ upperFirstLetter $section.Name }}) Is{{$implements}}() {}
 		{{ end -}}
 
-		{{ $inputFileFields := getMediaFields $section }}
+		{{ $inputFileFields := getMediaFields $section $sections }}
 		{{ $nestedInputFileFields := getNestedMediaFields $sections $section }}
 		{{ if or $inputFileFields $nestedInputFileFields }}
 			func (x *{{ upperFirstLetter $section.Name }}) getFiles() map[string]*InputFile {
@@ -49,7 +49,7 @@ import (
 				{{ end -}}
 
 				{{ range $field := $nestedInputFileFields -}}
-					{{ if isArray (getType $field.Name $field.Type $field.IsOptional) -}} 
+					{{ if isArray (getType $field.Name $field.Type $field.IsOptional $sections ) -}} 
 						for idx, m := range x.{{ snakeToPascal $field.Name }} {
 							for key, value := range m.getFiles() {
 								value.Value = fmt.Sprintf("%d.{{ $field.Name }}.%s", idx, key)
@@ -76,12 +76,12 @@ import (
 				payload := map[string]string{}
 
 				{{range $field := $section.Fields -}}
-					{{ $stringerField := getStringerMethod "x" $field.Name $field.Type $field.IsOptional -}}
+					{{ $stringerField := getStringerMethod "x" $field.Name $field.Type $field.IsOptional $sections  -}}
 					{{ if $stringerField -}}
 						{{ if not $field.IsOptional -}}
 							{{ $stringerField }}
 						{{ else -}} 
-							{{ $dv := getDefaultValue (getType $field.Name $field.Type $field.IsOptional) -}}
+							{{ $dv := getDefaultValue (getType $field.Name $field.Type $field.IsOptional $sections ) -}}
 							if x.{{snakeToPascal $field.Name }} {{ if not (eq $dv "false") -}}!= {{ $dv }}{{ end -}} {
 								{{ $stringerField }}
 							} 
@@ -94,7 +94,7 @@ import (
 		{{ end }}
 
 		{{ if $isMethod }}
-			{{ $returnType := getType $section.Name (extractReturnType $section.Description) true }}
+			{{ $returnType := getType $section.Name (extractReturnType $section.Description) true $sections  }}
 			{{ range $desc := $section.Description }}
 			// {{ $desc }}{{ end }}
 			func (api *API) {{upperFirstLetter $section.Name}}({{ if $section.Fields -}}payload *{{upperFirstLetter $section.Name}}{{ end -}}) ({{ $returnType }}, error) {

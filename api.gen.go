@@ -2402,8 +2402,8 @@ type GetChatAdministrators struct {
 }
 
 // getChatAdministrators is used to get a list of administrators in a chat, which aren't bots. Returns an Array of ChatMember objects.
-func (api *API) GetChatAdministrators(payload *GetChatAdministrators) ([]*ChatMember, error) {
-	return callJson[[]*ChatMember](api, "getChatAdministrators", payload)
+func (api *API) GetChatAdministrators(payload *GetChatAdministrators) ([]ChatMember, error) {
+	return callJson[[]ChatMember](api, "getChatAdministrators", payload)
 }
 
 // getChatMemberCount is used to get the number of members in a chat. Returns Int on success.
@@ -2423,8 +2423,8 @@ type GetChatMember struct {
 }
 
 // getChatMember is used to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success.
-func (api *API) GetChatMember(payload *GetChatMember) (*ChatMember, error) {
-	return callJson[*ChatMember](api, "getChatMember", payload)
+func (api *API) GetChatMember(payload *GetChatMember) (ChatMember, error) {
+	return callJson[ChatMember](api, "getChatMember", payload)
 }
 
 // setChatStickerSet is used to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success.
@@ -2608,9 +2608,9 @@ func (api *API) AnswerCallbackQuery(payload *AnswerCallbackQuery) (bool, error) 
 
 // setMyCommands is used to change the list of the bot's commands. See this manual for more details about bot commands. Returns True on success.
 type SetMyCommands struct {
-	Commands     []*BotCommand    `json:"commands"`                // A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
-	Scope        *BotCommandScope `json:"scope,omitempty"`         // A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault.
-	LanguageCode string           `json:"language_code,omitempty"` // A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+	Commands     []*BotCommand   `json:"commands"`                // A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+	Scope        BotCommandScope `json:"scope,omitempty"`         // A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault.
+	LanguageCode string          `json:"language_code,omitempty"` // A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
 }
 
 // setMyCommands is used to change the list of the bot's commands. See this manual for more details about bot commands. Returns True on success.
@@ -2620,8 +2620,8 @@ func (api *API) SetMyCommands(payload *SetMyCommands) (bool, error) {
 
 // deleteMyCommands is used to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success.
 type DeleteMyCommands struct {
-	Scope        *BotCommandScope `json:"scope,omitempty"`         // A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault.
-	LanguageCode string           `json:"language_code,omitempty"` // A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+	Scope        BotCommandScope `json:"scope,omitempty"`         // A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault.
+	LanguageCode string          `json:"language_code,omitempty"` // A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
 }
 
 // deleteMyCommands is used to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success.
@@ -2631,8 +2631,8 @@ func (api *API) DeleteMyCommands(payload *DeleteMyCommands) (bool, error) {
 
 // getMyCommands is used to get the current list of the bot's commands for the given scope and user language. Returns an Array of BotCommand objects. If commands aren't set, an empty list is returned.
 type GetMyCommands struct {
-	Scope        *BotCommandScope `json:"scope,omitempty"`         // A JSON-serialized object, describing scope of users. Defaults to BotCommandScopeDefault.
-	LanguageCode string           `json:"language_code,omitempty"` // A two-letter ISO 639-1 language code or an empty string
+	Scope        BotCommandScope `json:"scope,omitempty"`         // A JSON-serialized object, describing scope of users. Defaults to BotCommandScopeDefault.
+	LanguageCode string          `json:"language_code,omitempty"` // A two-letter ISO 639-1 language code or an empty string
 }
 
 // getMyCommands is used to get the current list of the bot's commands for the given scope and user language. Returns an Array of BotCommand objects. If commands aren't set, an empty list is returned.
@@ -2705,8 +2705,8 @@ func (api *API) GetMyShortDescription(payload *GetMyShortDescription) (*BotShort
 
 // setChatMenuButton is used to change the bot's menu button in a private chat, or the default menu button. Returns True on success.
 type SetChatMenuButton struct {
-	ChatId     int64       `json:"chat_id,omitempty"`     // Unique identifier for the target private chat. If not specified, default bot's menu button will be changed
-	MenuButton *MenuButton `json:"menu_button,omitempty"` // A JSON-serialized object for the bot's new menu button. Defaults to MenuButtonDefault
+	ChatId     int64      `json:"chat_id,omitempty"`     // Unique identifier for the target private chat. If not specified, default bot's menu button will be changed
+	MenuButton MenuButton `json:"menu_button,omitempty"` // A JSON-serialized object for the bot's new menu button. Defaults to MenuButtonDefault
 }
 
 // setChatMenuButton is used to change the bot's menu button in a private chat, or the default menu button. Returns True on success.
@@ -2720,8 +2720,8 @@ type GetChatMenuButton struct {
 }
 
 // getChatMenuButton is used to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success.
-func (api *API) GetChatMenuButton(payload *GetChatMenuButton) (*MenuButton, error) {
-	return callJson[*MenuButton](api, "getChatMenuButton", payload)
+func (api *API) GetChatMenuButton(payload *GetChatMenuButton) (MenuButton, error) {
+	return callJson[MenuButton](api, "getChatMenuButton", payload)
 }
 
 // setMyDefaultAdministratorRights is used to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels. These rights will be suggested to users, but they are free to modify the list before adding the bot. Returns True on success.
@@ -3330,7 +3330,7 @@ type InlineQuery struct {
 // answerInlineQuery is used to send answers to an inline query. On success, True is returned.No more than 50 results per query are allowed.
 type AnswerInlineQuery struct {
 	InlineQueryId string                    `json:"inline_query_id"`       // Unique identifier for the answered query
-	Results       []*InlineQueryResult      `json:"results"`               // A JSON-serialized array of results for the inline query
+	Results       []InlineQueryResult       `json:"results"`               // A JSON-serialized array of results for the inline query
 	CacheTime     int64                     `json:"cache_time,omitempty"`  // The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300.
 	IsPersonal    bool                      `json:"is_personal,omitempty"` // Pass True if results may be cached on the server side only for the user that sent the query. By default, results may be returned to any user who sends the same query.
 	NextOffset    string                    `json:"next_offset,omitempty"` // Pass the offset that a client should send in the next query with the same text to receive more results. Pass an empty string if there are no more results or if you don't support pagination. Offset length can't exceed 64 bytes.
@@ -3388,7 +3388,7 @@ type InlineQueryResultPhoto struct {
 	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
 	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the photo
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the photo
 }
 
 func (InlineQueryResultPhoto) IsInlineQueryResult() {}
@@ -3408,7 +3408,7 @@ type InlineQueryResultGif struct {
 	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
 	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the GIF animation
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the GIF animation
 }
 
 func (InlineQueryResultGif) IsInlineQueryResult() {}
@@ -3428,7 +3428,7 @@ type InlineQueryResultMpeg4Gif struct {
 	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
 	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video animation
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video animation
 }
 
 func (InlineQueryResultMpeg4Gif) IsInlineQueryResult() {}
@@ -3452,7 +3452,7 @@ type InlineQueryResultVideo struct {
 	VideoDuration       int64                 `json:"video_duration,omitempty"`        // Optional. Video duration in seconds
 	Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video. This field is required if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video. This field is required if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
 }
 
 func (InlineQueryResultVideo) IsInlineQueryResult() {}
@@ -3470,7 +3470,7 @@ type InlineQueryResultAudio struct {
 	Performer           string                `json:"performer,omitempty"`             // Optional. Performer
 	AudioDuration       int64                 `json:"audio_duration,omitempty"`        // Optional. Audio duration in seconds
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the audio
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the audio
 }
 
 func (InlineQueryResultAudio) IsInlineQueryResult() {}
@@ -3487,7 +3487,7 @@ type InlineQueryResultVoice struct {
 	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
 	VoiceDuration       int64                 `json:"voice_duration,omitempty"`        // Optional. Recording duration in seconds
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the voice recording
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the voice recording
 }
 
 func (InlineQueryResultVoice) IsInlineQueryResult() {}
@@ -3505,7 +3505,7 @@ type InlineQueryResultDocument struct {
 	MimeType            string                `json:"mime_type"`                       // MIME type of the content of the file, either “application/pdf” or “application/zip”
 	Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the file
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the file
 	ThumbnailUrl        string                `json:"thumbnail_url,omitempty"`         // Optional. URL of the thumbnail (JPEG only) for the file
 	ThumbnailWidth      int64                 `json:"thumbnail_width,omitempty"`       // Optional. Thumbnail width
 	ThumbnailHeight     int64                 `json:"thumbnail_height,omitempty"`      // Optional. Thumbnail height
@@ -3526,7 +3526,7 @@ type InlineQueryResultLocation struct {
 	Heading              int64                 `json:"heading,omitempty"`                // Optional. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
 	ProximityAlertRadius int64                 `json:"proximity_alert_radius,omitempty"` // Optional. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
 	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // Optional. Inline keyboard attached to the message
-	InputMessageContent  *InputMessageContent  `json:"input_message_content,omitempty"`  // Optional. Content of the message to be sent instead of the location
+	InputMessageContent  InputMessageContent   `json:"input_message_content,omitempty"`  // Optional. Content of the message to be sent instead of the location
 	ThumbnailUrl         string                `json:"thumbnail_url,omitempty"`          // Optional. Url of the thumbnail for the result
 	ThumbnailWidth       int64                 `json:"thumbnail_width,omitempty"`        // Optional. Thumbnail width
 	ThumbnailHeight      int64                 `json:"thumbnail_height,omitempty"`       // Optional. Thumbnail height
@@ -3548,7 +3548,7 @@ type InlineQueryResultVenue struct {
 	GooglePlaceId       string                `json:"google_place_id,omitempty"`       // Optional. Google Places identifier of the venue
 	GooglePlaceType     string                `json:"google_place_type,omitempty"`     // Optional. Google Places type of the venue. (See supported types.)
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the venue
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the venue
 	ThumbnailUrl        string                `json:"thumbnail_url,omitempty"`         // Optional. Url of the thumbnail for the result
 	ThumbnailWidth      int64                 `json:"thumbnail_width,omitempty"`       // Optional. Thumbnail width
 	ThumbnailHeight     int64                 `json:"thumbnail_height,omitempty"`      // Optional. Thumbnail height
@@ -3566,7 +3566,7 @@ type InlineQueryResultContact struct {
 	LastName            string                `json:"last_name,omitempty"`             // Optional. Contact's last name
 	Vcard               string                `json:"vcard,omitempty"`                 // Optional. Additional data about the contact in the form of a vCard, 0-2048 bytes
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the contact
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the contact
 	ThumbnailUrl        string                `json:"thumbnail_url,omitempty"`         // Optional. Url of the thumbnail for the result
 	ThumbnailWidth      int64                 `json:"thumbnail_width,omitempty"`       // Optional. Thumbnail width
 	ThumbnailHeight     int64                 `json:"thumbnail_height,omitempty"`      // Optional. Thumbnail height
@@ -3596,7 +3596,7 @@ type InlineQueryResultCachedPhoto struct {
 	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
 	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the photo
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the photo
 }
 
 func (InlineQueryResultCachedPhoto) IsInlineQueryResult() {}
@@ -3611,7 +3611,7 @@ type InlineQueryResultCachedGif struct {
 	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
 	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the GIF animation
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the GIF animation
 }
 
 func (InlineQueryResultCachedGif) IsInlineQueryResult() {}
@@ -3626,7 +3626,7 @@ type InlineQueryResultCachedMpeg4Gif struct {
 	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
 	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video animation
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video animation
 }
 
 func (InlineQueryResultCachedMpeg4Gif) IsInlineQueryResult() {}
@@ -3638,7 +3638,7 @@ type InlineQueryResultCachedSticker struct {
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
 	StickerFileId       string                `json:"sticker_file_id"`                 // A valid file identifier of the sticker
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the sticker
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the sticker
 }
 
 func (InlineQueryResultCachedSticker) IsInlineQueryResult() {}
@@ -3655,7 +3655,7 @@ type InlineQueryResultCachedDocument struct {
 	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the document caption. See formatting options for more details.
 	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the file
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the file
 }
 
 func (InlineQueryResultCachedDocument) IsInlineQueryResult() {}
@@ -3671,7 +3671,7 @@ type InlineQueryResultCachedVideo struct {
 	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
 	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video
 }
 
 func (InlineQueryResultCachedVideo) IsInlineQueryResult() {}
@@ -3687,7 +3687,7 @@ type InlineQueryResultCachedVoice struct {
 	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the voice message caption. See formatting options for more details.
 	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the voice message
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the voice message
 }
 
 func (InlineQueryResultCachedVoice) IsInlineQueryResult() {}
@@ -3702,7 +3702,7 @@ type InlineQueryResultCachedAudio struct {
 	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the audio caption. See formatting options for more details.
 	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
 	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent *InputMessageContent  `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the audio
+	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the audio
 }
 
 func (InlineQueryResultCachedAudio) IsInlineQueryResult() {}
@@ -4011,8 +4011,8 @@ type EncryptedCredentials struct {
 // Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns True on success.
 // Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues.
 type SetPassportDataErrors struct {
-	UserId int64                   `json:"user_id"` // User identifier
-	Errors []*PassportElementError `json:"errors"`  // A JSON-serialized array describing the errors
+	UserId int64                  `json:"user_id"` // User identifier
+	Errors []PassportElementError `json:"errors"`  // A JSON-serialized array describing the errors
 }
 
 // Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns True on success.

@@ -49,11 +49,11 @@ func extractReturnType(rawDesc []string) string {
 	return ""
 }
 
-func getType(key, s string, isOptional bool) string {
+func getType(key, s string, isOptional bool, sections []Section) string {
 	if exactType := strings.TrimPrefix(s, "Array of "); exactType != s {
-		return "[]" + getType(key, exactType, true)
+		return "[]" + getType(key, exactType, true, sections)
 	} else if exactType := strings.TrimPrefix(s, "array of "); exactType != s {
-		return "[]" + getType(key, exactType, true)
+		return "[]" + getType(key, exactType, true, sections)
 	}
 
 	switch key {
@@ -92,6 +92,12 @@ func getType(key, s string, isOptional bool) string {
 	// Other types, it should be a struct.
 	default:
 		if isOptional {
+			for _, x := range sections {
+				if x.Name == s && x.IsInterface {
+					return s
+				}
+			}
+
 			return "*" + s
 		}
 		return s
@@ -119,10 +125,10 @@ func getDefaultValue(t string) string {
 	}
 }
 
-func getStringerMethod(prefix, param, paramType string, isOptional bool) string {
+func getStringerMethod(prefix, param, paramType string, isOptional bool, sections []Section) string {
 	pascalCasedParam := snakeToPascal(param)
 
-	switch getType(param, paramType, isOptional) {
+	switch getType(param, paramType, isOptional, sections) {
 	case "*InputFile":
 		return ""
 	case "bool":

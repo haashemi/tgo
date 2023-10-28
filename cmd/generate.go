@@ -50,9 +50,9 @@ func getTag(name string, isOptional bool) string {
 	return fmt.Sprintf("`json:\"%s%s\"`", name, optionalField)
 }
 
-func getMediaFields(s Section) (fields []Field) {
+func getMediaFields(s Section, sections []Section) (fields []Field) {
 	for _, f := range s.Fields {
-		if strings.HasSuffix(getType(f.Name, f.Type, f.IsOptional), "InputFile") {
+		if strings.HasSuffix(getType(f.Name, f.Type, f.IsOptional, sections), "InputFile") {
 			fields = append(fields, f)
 		}
 	}
@@ -62,7 +62,7 @@ func getMediaFields(s Section) (fields []Field) {
 
 func getNestedMediaFields(all []Section, s Section) (fields []Field) {
 	for _, f := range s.Fields {
-		ft := getType(f.Name, f.Type, f.IsOptional)
+		ft := getType(f.Name, f.Type, f.IsOptional, all)
 		ft = strings.TrimPrefix(ft, "[]")
 		ft = strings.TrimPrefix(ft, "*")
 
@@ -74,7 +74,7 @@ func getNestedMediaFields(all []Section, s Section) (fields []Field) {
 		for _, xs := range all {
 			if xs.Name == ft {
 				for _, xf := range xs.Fields {
-					if getType(xf.Name, xf.Type, xf.IsOptional) == "*InputFile" {
+					if getType(xf.Name, xf.Type, xf.IsOptional, all) == "*InputFile" {
 						fields = append(fields, f)
 						break
 					}
