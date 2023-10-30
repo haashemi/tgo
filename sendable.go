@@ -1,5 +1,10 @@
 package tgo
 
+import (
+	"bytes"
+	"encoding/json"
+)
+
 type Sendable interface {
 	GetChatID() ChatID
 	SetChatID(id int64)
@@ -32,6 +37,18 @@ func (Username) IsChatID() {}
 type ID int64
 
 func (ID) IsChatID() {}
+
+func unmarshalChatID(data []byte) (ChatID, error) {
+	if bytes.HasPrefix(data, []byte("\"")) {
+		var username Username
+		err := json.Unmarshal(data, &username)
+		return username, err
+	} else {
+		var id ID
+		err := json.Unmarshal(data, &id)
+		return id, err
+	}
+}
 
 func (x *SendAnimation) GetChatID() ChatID { return x.ChatId }
 func (x *SendAudio) GetChatID() ChatID     { return x.ChatId }

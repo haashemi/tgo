@@ -12,6 +12,7 @@ type Section struct {
 	Name        string
 	Description []string
 	Fields      []Field
+	InterfaceOf []string
 	IsInterface bool
 }
 
@@ -68,6 +69,7 @@ func Parse(doc *goquery.Document) (data TemplateData) {
 					data.Implementers[t] = section.Name
 				}
 				if supportedTypes != nil {
+					section.InterfaceOf = supportedTypes
 					section.IsInterface = true
 				}
 			case s.Is("table"):

@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var returnTypePatterns = []*regexp.Regexp{
@@ -23,30 +26,12 @@ var returnTypePatterns = []*regexp.Regexp{
 	regexp.MustCompile(`(?P<type>[A-Za-z]+) on success`),
 }
 
-func extractReturnType(rawDesc []string) string {
-	var parts []string
-	for _, part := range strings.Split(strings.Join(rawDesc, ". "), ".") {
-		tP := strings.ToLower(part)
-		if strings.Contains(tP, "returns") || strings.Contains(tP, "returned") {
-			parts = append(parts, strings.TrimSpace(part))
-		}
-	}
+func isMethod(s string) bool {
+	return strings.ToLower(s)[0] == s[0]
+}
 
-	if parts == nil {
-		return ""
-	}
-	desc := strings.Join(parts, ". ")
-
-	for _, pattern := range returnTypePatterns {
-		matches := pattern.FindStringSubmatch(desc)
-		if len(matches) == 2 {
-			return matches[1]
-		} else if len(matches) > 2 {
-			return "json.RawMessage"
-		}
-	}
-
-	return ""
+func isArray(t string) bool {
+	return strings.HasPrefix(t, "[]")
 }
 
 func getType(key, s string, isOptional bool, sections []Section) string {
@@ -104,7 +89,37 @@ func getType(key, s string, isOptional bool, sections []Section) string {
 	}
 }
 
-func getDefaultValue(t string) string {
+func snakeToPascal(s string) string {
+	return strings.ReplaceAll(cases.Title(language.English).String(strings.ReplaceAll(s, "_", "  ")), " ", "")
+}
+
+func extractReturnType(rawDesc []string) string {
+	var parts []string
+	for _, part := range strings.Split(strings.Join(rawDesc, ". "), ".") {
+		tP := strings.ToLower(part)
+		if strings.Contains(tP, "returns") || strings.Contains(tP, "returned") {
+			parts = append(parts, strings.TrimSpace(part))
+		}
+	}
+
+	if parts == nil {
+		return ""
+	}
+	desc := strings.Join(parts, ". ")
+
+	for _, pattern := range returnTypePatterns {
+		matches := pattern.FindStringSubmatch(desc)
+		if len(matches) == 2 {
+			return matches[1]
+		} else if len(matches) > 2 {
+			return "json.RawMessage"
+		}
+	}
+
+	return ""
+}
+
+func defaultValueOfType(t string) string {
 	if strings.HasPrefix(t, "*") || strings.HasPrefix(t, "[]") {
 		return "nil"
 	}
@@ -125,27 +140,53 @@ func getDefaultValue(t string) string {
 	}
 }
 
-func getStringerMethod(prefix, param, paramType string, isOptional bool, sections []Section) string {
-	pascalCasedParam := snakeToPascal(param)
+func getNestedMediaFields(all []Section, s Section) (fields []Field) {
+	for _, f := range s.Fields {
+		ft := getType(f.Name, f.Type, f.IsOptional, all)
+		ft = strings.TrimPrefix(ft, "[]")
+		ft = strings.TrimPrefix(ft, "*")
 
-	switch getType(param, paramType, isOptional, sections) {
+		if ft == "InputMedia" {
+			fields = append(fields, f)
+			continue
+		}
+
+		for _, xs := range all {
+			if xs.Name == ft {
+				for _, xf := range xs.Fields {
+					if getType(xf.Name, xf.Type, xf.IsOptional, all) == "*InputFile" {
+						fields = append(fields, f)
+						break
+					}
+				}
+				break
+			}
+		}
+	}
+
+	return fields
+}
+
+// function naming level: INFINITY
+func stringifyTypeAndSetInMap(name, fieldName, pType string) string {
+	switch pType {
 	case "*InputFile":
 		return ""
 	case "bool":
-		return fmt.Sprintf(`payload["%s"] = strconv.FormatBool(%s.%s)`, param, prefix, pascalCasedParam)
+		return fmt.Sprintf(`payload["%s"] = strconv.FormatBool(x.%s)`, fieldName, name)
 	case "int64":
-		return fmt.Sprintf(`payload["%s"] = strconv.FormatInt(%s.%s, 10)`, param, prefix, pascalCasedParam)
+		return fmt.Sprintf(`payload["%s"] = strconv.FormatInt(x.%s, 10)`, fieldName, name)
 	case "float64":
-		return fmt.Sprintf(`payload["%s"] = fmt.Sprintf("%%f", %s.%s)`, param, prefix, pascalCasedParam)
+		return fmt.Sprintf(`payload["%s"] = fmt.Sprintf("%%f", x.%s)`, fieldName, name)
 	case "string":
-		return fmt.Sprintf(`payload["%s"] = %s.%s`, param, prefix, pascalCasedParam)
+		return fmt.Sprintf(`payload["%s"] = x.%s`, fieldName, name)
 	case "ParseMode":
-		return fmt.Sprintf(`payload["%s"] = string(%s.%s)`, param, prefix, pascalCasedParam)
+		return fmt.Sprintf(`payload["%s"] = string(x.%s)`, fieldName, name)
 	default:
-		return fmt.Sprintf(`if bb, err := json.Marshal(%s.%s); err != nil {
+		return fmt.Sprintf(`if bb, err := json.Marshal(x.%s); err != nil {
 			return nil, err
 		} else {
 			payload["%s"] = string(bb)
-		}`, prefix, pascalCasedParam, param)
+		}`, name, fieldName)
 	}
 }

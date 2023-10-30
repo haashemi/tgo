@@ -5,10 +5,27 @@ import (
 	"go/format"
 	"log"
 	"os"
+	"text/template"
 	"time"
 )
 
 const TelegramDocURL = "https://core.telegram.org/bots/api"
+
+type TemplateData struct {
+	Sections     []Section
+	Implementers map[string]string
+}
+
+var Template = template.Must(template.New("tgo").
+	Funcs(template.FuncMap{
+		"getInterfaceTemplate": getInterfaceTemplate,
+		"getTypeTemplate":      getTypeTemplate,
+		"getMethodTemplate":    getMethodTemplate,
+		"isMethod":             isMethod,
+		"isArray":              isArray,
+	}).
+	ParseFiles("./cmd/template.gtpl"),
+)
 
 func main() {
 	doc, err := Fetch()
@@ -18,21 +35,21 @@ func main() {
 	}
 
 	startTime := time.Now()
+
 	buf := bytes.NewBuffer(nil)
-	err = Template.ExecuteTemplate(buf, "template.gtpl", Parse(doc))
+	parsedDoc := Parse(doc)
+
+	err = Template.ExecuteTemplate(buf, "template.gtpl", parsedDoc)
 	if err != nil {
 		log.Fatalln("Failed to generate >", err)
 		return
 	}
 
-	mewB, err := format.Source(buf.Bytes())
-	if err != nil {
+	if mewB, err := format.Source(buf.Bytes()); err != nil {
 		os.WriteFile("api.gen.go", buf.Bytes(), os.ModePerm)
-		return
+	} else {
+		os.WriteFile("api.gen.go", mewB, os.ModePerm)
 	}
-	os.WriteFile("api.gen.go", mewB, os.ModePerm)
 
-	// bb, _ := json.MarshalIndent(Parse(doc), "", "    ")
-	// os.WriteFile("data.json", bb, os.ModePerm)
 	log.Println("generated in", time.Since(startTime))
 }

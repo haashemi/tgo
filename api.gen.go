@@ -3,6 +3,7 @@ package tgo
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 )
@@ -96,6 +97,7 @@ func (x *SetWebhook) getParams() (map[string]string, error) {
 	if x.SecretToken != "" {
 		payload["secret_token"] = x.SecretToken
 	}
+
 	return payload, nil
 }
 
@@ -125,8 +127,6 @@ type DeleteWebhook struct {
 func (api *API) DeleteWebhook(payload *DeleteWebhook) (bool, error) {
 	return callJson[bool](api, "deleteWebhook", payload)
 }
-
-// getWebhookInfo is used to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty.
 
 // getWebhookInfo is used to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty.
 func (api *API) GetWebhookInfo() (*WebhookInfo, error) {
@@ -712,6 +712,38 @@ type ChatMember interface {
 	IsChatMember()
 }
 
+func unmarshalChatMember(rawBytes json.RawMessage) (data ChatMember, err error) {
+	dataChatMemberOwner := &ChatMemberOwner{}
+	if err = json.Unmarshal(rawBytes, dataChatMemberOwner); err == nil {
+		return dataChatMemberOwner, nil
+	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
+		return nil, err
+	}
+
+	dataChatMemberAdministrator := &ChatMemberAdministrator{}
+	if err = json.Unmarshal(rawBytes, dataChatMemberAdministrator); err == nil {
+		return dataChatMemberAdministrator, nil
+	}
+	dataChatMemberMember := &ChatMemberMember{}
+	if err = json.Unmarshal(rawBytes, dataChatMemberMember); err == nil {
+		return dataChatMemberMember, nil
+	}
+	dataChatMemberRestricted := &ChatMemberRestricted{}
+	if err = json.Unmarshal(rawBytes, dataChatMemberRestricted); err == nil {
+		return dataChatMemberRestricted, nil
+	}
+	dataChatMemberLeft := &ChatMemberLeft{}
+	if err = json.Unmarshal(rawBytes, dataChatMemberLeft); err == nil {
+		return dataChatMemberLeft, nil
+	}
+	dataChatMemberBanned := &ChatMemberBanned{}
+	if err = json.Unmarshal(rawBytes, dataChatMemberBanned); err == nil {
+		return dataChatMemberBanned, nil
+	}
+
+	return nil, errors.New("unknown type bruh")
+}
+
 // Represents a chat member that owns the chat and has all administrator privileges.
 type ChatMemberOwner struct {
 	Status      string `json:"status"`                 // The member's status in the chat, always “creator”
@@ -807,6 +839,42 @@ type ChatMemberUpdated struct {
 	ViaChatFolderInviteLink bool            `json:"via_chat_folder_invite_link,omitempty"` // Optional. True, if the user joined the chat via a chat folder invite link
 }
 
+func (x *ChatMemberUpdated) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Chat                    Chat            `json:"chat"`                                  // Chat the user belongs to
+		From                    User            `json:"from"`                                  // Performer of the action, which resulted in the change
+		Date                    int64           `json:"date"`                                  // Date the change was done in Unix time
+		OldChatMember           json.RawMessage `json:"old_chat_member"`                       // Previous information about the chat member
+		NewChatMember           json.RawMessage `json:"new_chat_member"`                       // New information about the chat member
+		InviteLink              *ChatInviteLink `json:"invite_link,omitempty"`                 // Optional. Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
+		ViaChatFolderInviteLink bool            `json:"via_chat_folder_invite_link,omitempty"` // Optional. True, if the user joined the chat via a chat folder invite link
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalChatMember(raw.OldChatMember); err != nil {
+		return err
+	} else {
+		x.OldChatMember = data
+	}
+
+	if data, err := unmarshalChatMember(raw.NewChatMember); err != nil {
+		return err
+	} else {
+		x.NewChatMember = data
+	}
+	x.Chat = raw.Chat
+	x.From = raw.From
+	x.Date = raw.Date
+
+	x.InviteLink = raw.InviteLink
+	x.ViaChatFolderInviteLink = raw.ViaChatFolderInviteLink
+	return nil
+}
+
 // Represents a join request sent to a chat.
 type ChatJoinRequest struct {
 	Chat       Chat            `json:"chat"`                  // Chat to which the request was sent
@@ -862,6 +930,42 @@ type BotCommandScope interface {
 	IsBotCommandScope()
 }
 
+func unmarshalBotCommandScope(rawBytes json.RawMessage) (data BotCommandScope, err error) {
+	dataBotCommandScopeDefault := &BotCommandScopeDefault{}
+	if err = json.Unmarshal(rawBytes, dataBotCommandScopeDefault); err == nil {
+		return dataBotCommandScopeDefault, nil
+	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
+		return nil, err
+	}
+
+	dataBotCommandScopeAllPrivateChats := &BotCommandScopeAllPrivateChats{}
+	if err = json.Unmarshal(rawBytes, dataBotCommandScopeAllPrivateChats); err == nil {
+		return dataBotCommandScopeAllPrivateChats, nil
+	}
+	dataBotCommandScopeAllGroupChats := &BotCommandScopeAllGroupChats{}
+	if err = json.Unmarshal(rawBytes, dataBotCommandScopeAllGroupChats); err == nil {
+		return dataBotCommandScopeAllGroupChats, nil
+	}
+	dataBotCommandScopeAllChatAdministrators := &BotCommandScopeAllChatAdministrators{}
+	if err = json.Unmarshal(rawBytes, dataBotCommandScopeAllChatAdministrators); err == nil {
+		return dataBotCommandScopeAllChatAdministrators, nil
+	}
+	dataBotCommandScopeChat := &BotCommandScopeChat{}
+	if err = json.Unmarshal(rawBytes, dataBotCommandScopeChat); err == nil {
+		return dataBotCommandScopeChat, nil
+	}
+	dataBotCommandScopeChatAdministrators := &BotCommandScopeChatAdministrators{}
+	if err = json.Unmarshal(rawBytes, dataBotCommandScopeChatAdministrators); err == nil {
+		return dataBotCommandScopeChatAdministrators, nil
+	}
+	dataBotCommandScopeChatMember := &BotCommandScopeChatMember{}
+	if err = json.Unmarshal(rawBytes, dataBotCommandScopeChatMember); err == nil {
+		return dataBotCommandScopeChatMember, nil
+	}
+
+	return nil, errors.New("unknown type bruh")
+}
+
 // Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user.
 type BotCommandScopeDefault struct {
 	Type string `json:"type"` // Scope type, must be default
@@ -898,6 +1002,27 @@ type BotCommandScopeChat struct {
 
 func (BotCommandScopeChat) IsBotCommandScope() {}
 
+func (x *BotCommandScopeChat) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type   string          `json:"type"`    // Scope type, must be chat
+		ChatId json.RawMessage `json:"chat_id"` // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalChatID(raw.ChatId); err != nil {
+		return err
+	} else {
+		x.ChatId = data
+	}
+	x.Type = raw.Type
+
+	return nil
+}
+
 // Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat.
 type BotCommandScopeChatAdministrators struct {
 	Type   string `json:"type"`    // Scope type, must be chat_administrators
@@ -905,6 +1030,27 @@ type BotCommandScopeChatAdministrators struct {
 }
 
 func (BotCommandScopeChatAdministrators) IsBotCommandScope() {}
+
+func (x *BotCommandScopeChatAdministrators) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type   string          `json:"type"`    // Scope type, must be chat_administrators
+		ChatId json.RawMessage `json:"chat_id"` // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalChatID(raw.ChatId); err != nil {
+		return err
+	} else {
+		x.ChatId = data
+	}
+	x.Type = raw.Type
+
+	return nil
+}
 
 // Represents the scope of bot commands, covering a specific member of a group or supergroup chat.
 type BotCommandScopeChatMember struct {
@@ -914,6 +1060,29 @@ type BotCommandScopeChatMember struct {
 }
 
 func (BotCommandScopeChatMember) IsBotCommandScope() {}
+
+func (x *BotCommandScopeChatMember) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type   string          `json:"type"`    // Scope type, must be chat_member
+		ChatId json.RawMessage `json:"chat_id"` // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
+		UserId int64           `json:"user_id"` // Unique identifier of the target user
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalChatID(raw.ChatId); err != nil {
+		return err
+	} else {
+		x.ChatId = data
+	}
+	x.Type = raw.Type
+
+	x.UserId = raw.UserId
+	return nil
+}
 
 // BotName represents the bot's name.
 type BotName struct {
@@ -936,6 +1105,26 @@ type BotShortDescription struct {
 type MenuButton interface {
 	// IsMenuButton does nothing and is only used to enforce type-safety
 	IsMenuButton()
+}
+
+func unmarshalMenuButton(rawBytes json.RawMessage) (data MenuButton, err error) {
+	dataMenuButtonCommands := &MenuButtonCommands{}
+	if err = json.Unmarshal(rawBytes, dataMenuButtonCommands); err == nil {
+		return dataMenuButtonCommands, nil
+	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
+		return nil, err
+	}
+
+	dataMenuButtonWebApp := &MenuButtonWebApp{}
+	if err = json.Unmarshal(rawBytes, dataMenuButtonWebApp); err == nil {
+		return dataMenuButtonWebApp, nil
+	}
+	dataMenuButtonDefault := &MenuButtonDefault{}
+	if err = json.Unmarshal(rawBytes, dataMenuButtonDefault); err == nil {
+		return dataMenuButtonDefault, nil
+	}
+
+	return nil, errors.New("unknown type bruh")
 }
 
 // Represents a menu button, which opens the bot's list of commands.
@@ -976,6 +1165,34 @@ type InputMedia interface {
 	getFiles() map[string]*InputFile
 }
 
+func unmarshalInputMedia(rawBytes json.RawMessage) (data InputMedia, err error) {
+	dataInputMediaAnimation := &InputMediaAnimation{}
+	if err = json.Unmarshal(rawBytes, dataInputMediaAnimation); err == nil {
+		return dataInputMediaAnimation, nil
+	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
+		return nil, err
+	}
+
+	dataInputMediaDocument := &InputMediaDocument{}
+	if err = json.Unmarshal(rawBytes, dataInputMediaDocument); err == nil {
+		return dataInputMediaDocument, nil
+	}
+	dataInputMediaAudio := &InputMediaAudio{}
+	if err = json.Unmarshal(rawBytes, dataInputMediaAudio); err == nil {
+		return dataInputMediaAudio, nil
+	}
+	dataInputMediaPhoto := &InputMediaPhoto{}
+	if err = json.Unmarshal(rawBytes, dataInputMediaPhoto); err == nil {
+		return dataInputMediaPhoto, nil
+	}
+	dataInputMediaVideo := &InputMediaVideo{}
+	if err = json.Unmarshal(rawBytes, dataInputMediaVideo); err == nil {
+		return dataInputMediaVideo, nil
+	}
+
+	return nil, errors.New("unknown type bruh")
+}
+
 // Represents a photo to be sent.
 type InputMediaPhoto struct {
 	Type            string           `json:"type"`                       // Type of the result, must be photo
@@ -991,8 +1208,10 @@ func (InputMediaPhoto) IsInputMedia() {}
 func (x *InputMediaPhoto) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Media.IsUploadable() {
-		media["media"] = x.Media
+	if x.Media != nil {
+		if x.Media.IsUploadable() {
+			media["media"] = x.Media
+		}
 	}
 
 	return media
@@ -1018,8 +1237,10 @@ func (InputMediaVideo) IsInputMedia() {}
 func (x *InputMediaVideo) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Media.IsUploadable() {
-		media["media"] = x.Media
+	if x.Media != nil {
+		if x.Media.IsUploadable() {
+			media["media"] = x.Media
+		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
@@ -1049,8 +1270,10 @@ func (InputMediaAnimation) IsInputMedia() {}
 func (x *InputMediaAnimation) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Media.IsUploadable() {
-		media["media"] = x.Media
+	if x.Media != nil {
+		if x.Media.IsUploadable() {
+			media["media"] = x.Media
+		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
@@ -1079,8 +1302,10 @@ func (InputMediaAudio) IsInputMedia() {}
 func (x *InputMediaAudio) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Media.IsUploadable() {
-		media["media"] = x.Media
+	if x.Media != nil {
+		if x.Media.IsUploadable() {
+			media["media"] = x.Media
+		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
@@ -1107,8 +1332,10 @@ func (InputMediaDocument) IsInputMedia() {}
 func (x *InputMediaDocument) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Media.IsUploadable() {
-		media["media"] = x.Media
+	if x.Media != nil {
+		if x.Media.IsUploadable() {
+			media["media"] = x.Media
+		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
@@ -1120,20 +1347,14 @@ func (x *InputMediaDocument) getFiles() map[string]*InputFile {
 }
 
 // A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object.
-
-// A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object.
 func (api *API) GetMe() (*User, error) {
 	return callJson[*User](api, "getMe", nil)
 }
 
 // logOut is used to log out from the cloud Bot API server before launching the bot locally. You must log out the bot before running it locally, otherwise there is no guarantee that the bot will receive updates. After a successful call, you can immediately log in on a local server, but will not be able to log in back to the cloud Bot API server for 10 minutes. Returns True on success. Requires no parameters.
-
-// logOut is used to log out from the cloud Bot API server before launching the bot locally. You must log out the bot before running it locally, otherwise there is no guarantee that the bot will receive updates. After a successful call, you can immediately log in on a local server, but will not be able to log in back to the cloud Bot API server for 10 minutes. Returns True on success. Requires no parameters.
 func (api *API) LogOut() (bool, error) {
 	return callJson[bool](api, "logOut", nil)
 }
-
-// close is used to close the bot instance before moving it from one local server to another. You need to delete the webhook before calling this method to ensure that the bot isn't launched again after server restart. The method will return error 429 in the first 10 minutes after the bot is launched. Returns True on success. Requires no parameters.
 
 // close is used to close the bot instance before moving it from one local server to another. You need to delete the webhook before calling this method to ensure that the bot isn't launched again after server restart. The method will return error 429 in the first 10 minutes after the bot is launched. Returns True on success. Requires no parameters.
 func (api *API) Close() (bool, error) {
@@ -1215,8 +1436,10 @@ type SendPhoto struct {
 func (x *SendPhoto) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Photo.IsUploadable() {
-		media["photo"] = x.Photo
+	if x.Photo != nil {
+		if x.Photo.IsUploadable() {
+			media["photo"] = x.Photo
+		}
 	}
 
 	return media
@@ -1268,6 +1491,7 @@ func (x *SendPhoto) getParams() (map[string]string, error) {
 			payload["reply_markup"] = string(bb)
 		}
 	}
+
 	return payload, nil
 }
 
@@ -1306,8 +1530,10 @@ type SendAudio struct {
 func (x *SendAudio) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Audio.IsUploadable() {
-		media["audio"] = x.Audio
+	if x.Audio != nil {
+		if x.Audio.IsUploadable() {
+			media["audio"] = x.Audio
+		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
@@ -1370,6 +1596,7 @@ func (x *SendAudio) getParams() (map[string]string, error) {
 			payload["reply_markup"] = string(bb)
 		}
 	}
+
 	return payload, nil
 }
 
@@ -1406,8 +1633,10 @@ type SendDocument struct {
 func (x *SendDocument) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Document.IsUploadable() {
-		media["document"] = x.Document
+	if x.Document != nil {
+		if x.Document.IsUploadable() {
+			media["document"] = x.Document
+		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
@@ -1464,6 +1693,7 @@ func (x *SendDocument) getParams() (map[string]string, error) {
 			payload["reply_markup"] = string(bb)
 		}
 	}
+
 	return payload, nil
 }
 
@@ -1503,8 +1733,10 @@ type SendVideo struct {
 func (x *SendVideo) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Video.IsUploadable() {
-		media["video"] = x.Video
+	if x.Video != nil {
+		if x.Video.IsUploadable() {
+			media["video"] = x.Video
+		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
@@ -1573,6 +1805,7 @@ func (x *SendVideo) getParams() (map[string]string, error) {
 			payload["reply_markup"] = string(bb)
 		}
 	}
+
 	return payload, nil
 }
 
@@ -1611,8 +1844,10 @@ type SendAnimation struct {
 func (x *SendAnimation) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Animation.IsUploadable() {
-		media["animation"] = x.Animation
+	if x.Animation != nil {
+		if x.Animation.IsUploadable() {
+			media["animation"] = x.Animation
+		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
@@ -1678,6 +1913,7 @@ func (x *SendAnimation) getParams() (map[string]string, error) {
 			payload["reply_markup"] = string(bb)
 		}
 	}
+
 	return payload, nil
 }
 
@@ -1712,8 +1948,10 @@ type SendVoice struct {
 func (x *SendVoice) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Voice.IsUploadable() {
-		media["voice"] = x.Voice
+	if x.Voice != nil {
+		if x.Voice.IsUploadable() {
+			media["voice"] = x.Voice
+		}
 	}
 
 	return media
@@ -1765,6 +2003,7 @@ func (x *SendVoice) getParams() (map[string]string, error) {
 			payload["reply_markup"] = string(bb)
 		}
 	}
+
 	return payload, nil
 }
 
@@ -1798,8 +2037,10 @@ type SendVideoNote struct {
 func (x *SendVideoNote) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.VideoNote.IsUploadable() {
-		media["video_note"] = x.VideoNote
+	if x.VideoNote != nil {
+		if x.VideoNote.IsUploadable() {
+			media["video_note"] = x.VideoNote
+		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
@@ -1846,6 +2087,7 @@ func (x *SendVideoNote) getParams() (map[string]string, error) {
 			payload["reply_markup"] = string(bb)
 		}
 	}
+
 	return payload, nil
 }
 
@@ -1877,8 +2119,7 @@ func (x *SendMediaGroup) getFiles() map[string]*InputFile {
 
 	for idx, m := range x.Media {
 		for key, value := range m.getFiles() {
-			value.Value = fmt.Sprintf("%d.media.%s", idx, key)
-			media[value.Value] = value
+			media[fmt.Sprintf("%d.media.%s", idx, key)] = value
 		}
 	}
 
@@ -1913,6 +2154,7 @@ func (x *SendMediaGroup) getParams() (map[string]string, error) {
 	if x.AllowSendingWithoutReply {
 		payload["allow_sending_without_reply"] = strconv.FormatBool(x.AllowSendingWithoutReply)
 	}
+
 	return payload, nil
 }
 
@@ -2281,8 +2523,10 @@ type SetChatPhoto struct {
 func (x *SetChatPhoto) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Photo.IsUploadable() {
-		media["photo"] = x.Photo
+	if x.Photo != nil {
+		if x.Photo.IsUploadable() {
+			media["photo"] = x.Photo
+		}
 	}
 
 	return media
@@ -2296,6 +2540,7 @@ func (x *SetChatPhoto) getParams() (map[string]string, error) {
 	} else {
 		payload["chat_id"] = string(bb)
 	}
+
 	return payload, nil
 }
 
@@ -2447,8 +2692,6 @@ type DeleteChatStickerSet struct {
 func (api *API) DeleteChatStickerSet(payload *DeleteChatStickerSet) (bool, error) {
 	return callJson[bool](api, "deleteChatStickerSet", payload)
 }
-
-// getForumTopicIconStickers is used to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of Sticker objects.
 
 // getForumTopicIconStickers is used to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of Sticker objects.
 func (api *API) GetForumTopicIconStickers() ([]*Sticker, error) {
@@ -2791,8 +3034,7 @@ func (x *EditMessageMedia) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
 	for key, value := range x.Media.getFiles() {
-		value.Value = "media." + key
-		media[value.Value] = value
+		media["media."+key] = value
 	}
 
 	return media
@@ -2826,6 +3068,7 @@ func (x *EditMessageMedia) getParams() (map[string]string, error) {
 			payload["reply_markup"] = string(bb)
 		}
 	}
+
 	return payload, nil
 }
 
@@ -2957,8 +3200,10 @@ type InputSticker struct {
 func (x *InputSticker) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Sticker.IsUploadable() {
-		media["sticker"] = x.Sticker
+	if x.Sticker != nil {
+		if x.Sticker.IsUploadable() {
+			media["sticker"] = x.Sticker
+		}
 	}
 
 	return media
@@ -2980,8 +3225,10 @@ type SendSticker struct {
 func (x *SendSticker) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Sticker.IsUploadable() {
-		media["sticker"] = x.Sticker
+	if x.Sticker != nil {
+		if x.Sticker.IsUploadable() {
+			media["sticker"] = x.Sticker
+		}
 	}
 
 	return media
@@ -3020,6 +3267,7 @@ func (x *SendSticker) getParams() (map[string]string, error) {
 			payload["reply_markup"] = string(bb)
 		}
 	}
+
 	return payload, nil
 }
 
@@ -3065,8 +3313,10 @@ type UploadStickerFile struct {
 func (x *UploadStickerFile) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	if x.Sticker.IsUploadable() {
-		media["sticker"] = x.Sticker
+	if x.Sticker != nil {
+		if x.Sticker.IsUploadable() {
+			media["sticker"] = x.Sticker
+		}
 	}
 
 	return media
@@ -3077,6 +3327,7 @@ func (x *UploadStickerFile) getParams() (map[string]string, error) {
 
 	payload["user_id"] = strconv.FormatInt(x.UserId, 10)
 	payload["sticker_format"] = x.StickerFormat
+
 	return payload, nil
 }
 
@@ -3108,8 +3359,7 @@ func (x *CreateNewStickerSet) getFiles() map[string]*InputFile {
 
 	for idx, m := range x.Stickers {
 		for key, value := range m.getFiles() {
-			value.Value = fmt.Sprintf("%d.stickers.%s", idx, key)
-			media[value.Value] = value
+			media[fmt.Sprintf("%d.stickers.%s", idx, key)] = value
 		}
 	}
 
@@ -3134,6 +3384,7 @@ func (x *CreateNewStickerSet) getParams() (map[string]string, error) {
 	if x.NeedsRepainting {
 		payload["needs_repainting"] = strconv.FormatBool(x.NeedsRepainting)
 	}
+
 	return payload, nil
 }
 
@@ -3160,8 +3411,7 @@ func (x *AddStickerToSet) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
 	for key, value := range x.Sticker.getFiles() {
-		value.Value = "sticker." + key
-		media[value.Value] = value
+		media["sticker."+key] = value
 	}
 
 	return media
@@ -3177,6 +3427,7 @@ func (x *AddStickerToSet) getParams() (map[string]string, error) {
 	} else {
 		payload["sticker"] = string(bb)
 	}
+
 	return payload, nil
 }
 
@@ -3281,6 +3532,7 @@ func (x *SetStickerSetThumbnail) getParams() (map[string]string, error) {
 
 	payload["name"] = x.Name
 	payload["user_id"] = strconv.FormatInt(x.UserId, 10)
+
 	return payload, nil
 }
 
@@ -3357,6 +3609,94 @@ type InlineQueryResult interface {
 	IsInlineQueryResult()
 }
 
+func unmarshalInlineQueryResult(rawBytes json.RawMessage) (data InlineQueryResult, err error) {
+	dataInlineQueryResultCachedAudio := &InlineQueryResultCachedAudio{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedAudio); err == nil {
+		return dataInlineQueryResultCachedAudio, nil
+	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
+		return nil, err
+	}
+
+	dataInlineQueryResultCachedDocument := &InlineQueryResultCachedDocument{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedDocument); err == nil {
+		return dataInlineQueryResultCachedDocument, nil
+	}
+	dataInlineQueryResultCachedGif := &InlineQueryResultCachedGif{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedGif); err == nil {
+		return dataInlineQueryResultCachedGif, nil
+	}
+	dataInlineQueryResultCachedMpeg4Gif := &InlineQueryResultCachedMpeg4Gif{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedMpeg4Gif); err == nil {
+		return dataInlineQueryResultCachedMpeg4Gif, nil
+	}
+	dataInlineQueryResultCachedPhoto := &InlineQueryResultCachedPhoto{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedPhoto); err == nil {
+		return dataInlineQueryResultCachedPhoto, nil
+	}
+	dataInlineQueryResultCachedSticker := &InlineQueryResultCachedSticker{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedSticker); err == nil {
+		return dataInlineQueryResultCachedSticker, nil
+	}
+	dataInlineQueryResultCachedVideo := &InlineQueryResultCachedVideo{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedVideo); err == nil {
+		return dataInlineQueryResultCachedVideo, nil
+	}
+	dataInlineQueryResultCachedVoice := &InlineQueryResultCachedVoice{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedVoice); err == nil {
+		return dataInlineQueryResultCachedVoice, nil
+	}
+	dataInlineQueryResultArticle := &InlineQueryResultArticle{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultArticle); err == nil {
+		return dataInlineQueryResultArticle, nil
+	}
+	dataInlineQueryResultAudio := &InlineQueryResultAudio{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultAudio); err == nil {
+		return dataInlineQueryResultAudio, nil
+	}
+	dataInlineQueryResultContact := &InlineQueryResultContact{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultContact); err == nil {
+		return dataInlineQueryResultContact, nil
+	}
+	dataInlineQueryResultGame := &InlineQueryResultGame{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultGame); err == nil {
+		return dataInlineQueryResultGame, nil
+	}
+	dataInlineQueryResultDocument := &InlineQueryResultDocument{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultDocument); err == nil {
+		return dataInlineQueryResultDocument, nil
+	}
+	dataInlineQueryResultGif := &InlineQueryResultGif{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultGif); err == nil {
+		return dataInlineQueryResultGif, nil
+	}
+	dataInlineQueryResultLocation := &InlineQueryResultLocation{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultLocation); err == nil {
+		return dataInlineQueryResultLocation, nil
+	}
+	dataInlineQueryResultMpeg4Gif := &InlineQueryResultMpeg4Gif{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultMpeg4Gif); err == nil {
+		return dataInlineQueryResultMpeg4Gif, nil
+	}
+	dataInlineQueryResultPhoto := &InlineQueryResultPhoto{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultPhoto); err == nil {
+		return dataInlineQueryResultPhoto, nil
+	}
+	dataInlineQueryResultVenue := &InlineQueryResultVenue{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultVenue); err == nil {
+		return dataInlineQueryResultVenue, nil
+	}
+	dataInlineQueryResultVideo := &InlineQueryResultVideo{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultVideo); err == nil {
+		return dataInlineQueryResultVideo, nil
+	}
+	dataInlineQueryResultVoice := &InlineQueryResultVoice{}
+	if err = json.Unmarshal(rawBytes, dataInlineQueryResultVoice); err == nil {
+		return dataInlineQueryResultVoice, nil
+	}
+
+	return nil, errors.New("unknown type bruh")
+}
+
 // Represents a link to an article or web page.
 type InlineQueryResultArticle struct {
 	Type                string                `json:"type"`                       // Type of the result, must be article
@@ -3373,6 +3713,45 @@ type InlineQueryResultArticle struct {
 }
 
 func (InlineQueryResultArticle) IsInlineQueryResult() {}
+
+func (x *InlineQueryResultArticle) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                       // Type of the result, must be article
+		Id                  string                `json:"id"`                         // Unique identifier for this result, 1-64 Bytes
+		Title               string                `json:"title"`                      // Title of the result
+		InputMessageContent json.RawMessage       `json:"input_message_content"`      // Content of the message to be sent
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`     // Optional. Inline keyboard attached to the message
+		Url                 string                `json:"url,omitempty"`              // Optional. URL of the result
+		HideUrl             bool                  `json:"hide_url,omitempty"`         // Optional. Pass True if you don't want the URL to be shown in the message
+		Description         string                `json:"description,omitempty"`      // Optional. Short description of the result
+		ThumbnailUrl        string                `json:"thumbnail_url,omitempty"`    // Optional. Url of the thumbnail for the result
+		ThumbnailWidth      int64                 `json:"thumbnail_width,omitempty"`  // Optional. Thumbnail width
+		ThumbnailHeight     int64                 `json:"thumbnail_height,omitempty"` // Optional. Thumbnail height
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.Title = raw.Title
+
+	x.ReplyMarkup = raw.ReplyMarkup
+	x.Url = raw.Url
+	x.HideUrl = raw.HideUrl
+	x.Description = raw.Description
+	x.ThumbnailUrl = raw.ThumbnailUrl
+	x.ThumbnailWidth = raw.ThumbnailWidth
+	x.ThumbnailHeight = raw.ThumbnailHeight
+	return nil
+}
 
 // Represents a link to a photo. By default, this photo will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
 type InlineQueryResultPhoto struct {
@@ -3392,6 +3771,49 @@ type InlineQueryResultPhoto struct {
 }
 
 func (InlineQueryResultPhoto) IsInlineQueryResult() {}
+
+func (x *InlineQueryResultPhoto) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be photo
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		PhotoUrl            string                `json:"photo_url"`                       // A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB
+		ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the thumbnail for the photo
+		PhotoWidth          int64                 `json:"photo_width,omitempty"`           // Optional. Width of the photo
+		PhotoHeight         int64                 `json:"photo_height,omitempty"`          // Optional. Height of the photo
+		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
+		Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the photo
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.PhotoUrl = raw.PhotoUrl
+	x.ThumbnailUrl = raw.ThumbnailUrl
+	x.PhotoWidth = raw.PhotoWidth
+	x.PhotoHeight = raw.PhotoHeight
+	x.Title = raw.Title
+	x.Description = raw.Description
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
 
 // Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
 type InlineQueryResultGif struct {
@@ -3413,6 +3835,51 @@ type InlineQueryResultGif struct {
 
 func (InlineQueryResultGif) IsInlineQueryResult() {}
 
+func (x *InlineQueryResultGif) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be gif
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		GifUrl              string                `json:"gif_url"`                         // A valid URL for the GIF file. File size must not exceed 1MB
+		GifWidth            int64                 `json:"gif_width,omitempty"`             // Optional. Width of the GIF
+		GifHeight           int64                 `json:"gif_height,omitempty"`            // Optional. Height of the GIF
+		GifDuration         int64                 `json:"gif_duration,omitempty"`          // Optional. Duration of the GIF in seconds
+		ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+		ThumbnailMimeType   string                `json:"thumbnail_mime_type,omitempty"`   // Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
+		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the GIF animation
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.GifUrl = raw.GifUrl
+	x.GifWidth = raw.GifWidth
+	x.GifHeight = raw.GifHeight
+	x.GifDuration = raw.GifDuration
+	x.ThumbnailUrl = raw.ThumbnailUrl
+	x.ThumbnailMimeType = raw.ThumbnailMimeType
+	x.Title = raw.Title
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
+
 // Represents a link to a video animation (H.264/MPEG-4 AVC video without sound). By default, this animated MPEG-4 file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
 type InlineQueryResultMpeg4Gif struct {
 	Type                string                `json:"type"`                            // Type of the result, must be mpeg4_gif
@@ -3432,6 +3899,51 @@ type InlineQueryResultMpeg4Gif struct {
 }
 
 func (InlineQueryResultMpeg4Gif) IsInlineQueryResult() {}
+
+func (x *InlineQueryResultMpeg4Gif) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be mpeg4_gif
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		Mpeg4Url            string                `json:"mpeg4_url"`                       // A valid URL for the MPEG4 file. File size must not exceed 1MB
+		Mpeg4Width          int64                 `json:"mpeg4_width,omitempty"`           // Optional. Video width
+		Mpeg4Height         int64                 `json:"mpeg4_height,omitempty"`          // Optional. Video height
+		Mpeg4Duration       int64                 `json:"mpeg4_duration,omitempty"`        // Optional. Video duration in seconds
+		ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+		ThumbnailMimeType   string                `json:"thumbnail_mime_type,omitempty"`   // Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
+		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video animation
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.Mpeg4Url = raw.Mpeg4Url
+	x.Mpeg4Width = raw.Mpeg4Width
+	x.Mpeg4Height = raw.Mpeg4Height
+	x.Mpeg4Duration = raw.Mpeg4Duration
+	x.ThumbnailUrl = raw.ThumbnailUrl
+	x.ThumbnailMimeType = raw.ThumbnailMimeType
+	x.Title = raw.Title
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
 
 // Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
 //
@@ -3457,6 +3969,53 @@ type InlineQueryResultVideo struct {
 
 func (InlineQueryResultVideo) IsInlineQueryResult() {}
 
+func (x *InlineQueryResultVideo) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be video
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		VideoUrl            string                `json:"video_url"`                       // A valid URL for the embedded video player or video file
+		MimeType            string                `json:"mime_type"`                       // MIME type of the content of the video URL, “text/html” or “video/mp4”
+		ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the thumbnail (JPEG only) for the video
+		Title               string                `json:"title"`                           // Title for the result
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		VideoWidth          int64                 `json:"video_width,omitempty"`           // Optional. Video width
+		VideoHeight         int64                 `json:"video_height,omitempty"`          // Optional. Video height
+		VideoDuration       int64                 `json:"video_duration,omitempty"`        // Optional. Video duration in seconds
+		Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video. This field is required if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.VideoUrl = raw.VideoUrl
+	x.MimeType = raw.MimeType
+	x.ThumbnailUrl = raw.ThumbnailUrl
+	x.Title = raw.Title
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.VideoWidth = raw.VideoWidth
+	x.VideoHeight = raw.VideoHeight
+	x.VideoDuration = raw.VideoDuration
+	x.Description = raw.Description
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
+
 // Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
 // Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultAudio struct {
@@ -3475,6 +4034,45 @@ type InlineQueryResultAudio struct {
 
 func (InlineQueryResultAudio) IsInlineQueryResult() {}
 
+func (x *InlineQueryResultAudio) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be audio
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		AudioUrl            string                `json:"audio_url"`                       // A valid URL for the audio file
+		Title               string                `json:"title"`                           // Title
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the audio caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		Performer           string                `json:"performer,omitempty"`             // Optional. Performer
+		AudioDuration       int64                 `json:"audio_duration,omitempty"`        // Optional. Audio duration in seconds
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the audio
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.AudioUrl = raw.AudioUrl
+	x.Title = raw.Title
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.Performer = raw.Performer
+	x.AudioDuration = raw.AudioDuration
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
+
 // Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message.
 // Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultVoice struct {
@@ -3491,6 +4089,43 @@ type InlineQueryResultVoice struct {
 }
 
 func (InlineQueryResultVoice) IsInlineQueryResult() {}
+
+func (x *InlineQueryResultVoice) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be voice
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		VoiceUrl            string                `json:"voice_url"`                       // A valid URL for the voice recording
+		Title               string                `json:"title"`                           // Recording title
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the voice message caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		VoiceDuration       int64                 `json:"voice_duration,omitempty"`        // Optional. Recording duration in seconds
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the voice recording
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.VoiceUrl = raw.VoiceUrl
+	x.Title = raw.Title
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.VoiceDuration = raw.VoiceDuration
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
 
 // Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method.
 // Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
@@ -3513,6 +4148,51 @@ type InlineQueryResultDocument struct {
 
 func (InlineQueryResultDocument) IsInlineQueryResult() {}
 
+func (x *InlineQueryResultDocument) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be document
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		Title               string                `json:"title"`                           // Title for the result
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the document to be sent, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the document caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		DocumentUrl         string                `json:"document_url"`                    // A valid URL for the file
+		MimeType            string                `json:"mime_type"`                       // MIME type of the content of the file, either “application/pdf” or “application/zip”
+		Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the file
+		ThumbnailUrl        string                `json:"thumbnail_url,omitempty"`         // Optional. URL of the thumbnail (JPEG only) for the file
+		ThumbnailWidth      int64                 `json:"thumbnail_width,omitempty"`       // Optional. Thumbnail width
+		ThumbnailHeight     int64                 `json:"thumbnail_height,omitempty"`      // Optional. Thumbnail height
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.Title = raw.Title
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.DocumentUrl = raw.DocumentUrl
+	x.MimeType = raw.MimeType
+	x.Description = raw.Description
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	x.ThumbnailUrl = raw.ThumbnailUrl
+	x.ThumbnailWidth = raw.ThumbnailWidth
+	x.ThumbnailHeight = raw.ThumbnailHeight
+	return nil
+}
+
 // Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location.
 // Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultLocation struct {
@@ -3533,6 +4213,51 @@ type InlineQueryResultLocation struct {
 }
 
 func (InlineQueryResultLocation) IsInlineQueryResult() {}
+
+func (x *InlineQueryResultLocation) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                 string                `json:"type"`                             // Type of the result, must be location
+		Id                   string                `json:"id"`                               // Unique identifier for this result, 1-64 Bytes
+		Latitude             float64               `json:"latitude"`                         // Location latitude in degrees
+		Longitude            float64               `json:"longitude"`                        // Location longitude in degrees
+		Title                string                `json:"title"`                            // Location title
+		HorizontalAccuracy   float64               `json:"horizontal_accuracy,omitempty"`    // Optional. The radius of uncertainty for the location, measured in meters; 0-1500
+		LivePeriod           int64                 `json:"live_period,omitempty"`            // Optional. Period in seconds for which the location can be updated, should be between 60 and 86400.
+		Heading              int64                 `json:"heading,omitempty"`                // Optional. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
+		ProximityAlertRadius int64                 `json:"proximity_alert_radius,omitempty"` // Optional. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
+		ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // Optional. Inline keyboard attached to the message
+		InputMessageContent  json.RawMessage       `json:"input_message_content,omitempty"`  // Optional. Content of the message to be sent instead of the location
+		ThumbnailUrl         string                `json:"thumbnail_url,omitempty"`          // Optional. Url of the thumbnail for the result
+		ThumbnailWidth       int64                 `json:"thumbnail_width,omitempty"`        // Optional. Thumbnail width
+		ThumbnailHeight      int64                 `json:"thumbnail_height,omitempty"`       // Optional. Thumbnail height
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.Latitude = raw.Latitude
+	x.Longitude = raw.Longitude
+	x.Title = raw.Title
+	x.HorizontalAccuracy = raw.HorizontalAccuracy
+	x.LivePeriod = raw.LivePeriod
+	x.Heading = raw.Heading
+	x.ProximityAlertRadius = raw.ProximityAlertRadius
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	x.ThumbnailUrl = raw.ThumbnailUrl
+	x.ThumbnailWidth = raw.ThumbnailWidth
+	x.ThumbnailHeight = raw.ThumbnailHeight
+	return nil
+}
 
 // Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue.
 // Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
@@ -3556,6 +4281,53 @@ type InlineQueryResultVenue struct {
 
 func (InlineQueryResultVenue) IsInlineQueryResult() {}
 
+func (x *InlineQueryResultVenue) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be venue
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 Bytes
+		Latitude            float64               `json:"latitude"`                        // Latitude of the venue location in degrees
+		Longitude           float64               `json:"longitude"`                       // Longitude of the venue location in degrees
+		Title               string                `json:"title"`                           // Title of the venue
+		Address             string                `json:"address"`                         // Address of the venue
+		FoursquareId        string                `json:"foursquare_id,omitempty"`         // Optional. Foursquare identifier of the venue if known
+		FoursquareType      string                `json:"foursquare_type,omitempty"`       // Optional. Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
+		GooglePlaceId       string                `json:"google_place_id,omitempty"`       // Optional. Google Places identifier of the venue
+		GooglePlaceType     string                `json:"google_place_type,omitempty"`     // Optional. Google Places type of the venue. (See supported types.)
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the venue
+		ThumbnailUrl        string                `json:"thumbnail_url,omitempty"`         // Optional. Url of the thumbnail for the result
+		ThumbnailWidth      int64                 `json:"thumbnail_width,omitempty"`       // Optional. Thumbnail width
+		ThumbnailHeight     int64                 `json:"thumbnail_height,omitempty"`      // Optional. Thumbnail height
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.Latitude = raw.Latitude
+	x.Longitude = raw.Longitude
+	x.Title = raw.Title
+	x.Address = raw.Address
+	x.FoursquareId = raw.FoursquareId
+	x.FoursquareType = raw.FoursquareType
+	x.GooglePlaceId = raw.GooglePlaceId
+	x.GooglePlaceType = raw.GooglePlaceType
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	x.ThumbnailUrl = raw.ThumbnailUrl
+	x.ThumbnailWidth = raw.ThumbnailWidth
+	x.ThumbnailHeight = raw.ThumbnailHeight
+	return nil
+}
+
 // Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact.
 // Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultContact struct {
@@ -3573,6 +4345,45 @@ type InlineQueryResultContact struct {
 }
 
 func (InlineQueryResultContact) IsInlineQueryResult() {}
+
+func (x *InlineQueryResultContact) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be contact
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 Bytes
+		PhoneNumber         string                `json:"phone_number"`                    // Contact's phone number
+		FirstName           string                `json:"first_name"`                      // Contact's first name
+		LastName            string                `json:"last_name,omitempty"`             // Optional. Contact's last name
+		Vcard               string                `json:"vcard,omitempty"`                 // Optional. Additional data about the contact in the form of a vCard, 0-2048 bytes
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the contact
+		ThumbnailUrl        string                `json:"thumbnail_url,omitempty"`         // Optional. Url of the thumbnail for the result
+		ThumbnailWidth      int64                 `json:"thumbnail_width,omitempty"`       // Optional. Thumbnail width
+		ThumbnailHeight     int64                 `json:"thumbnail_height,omitempty"`      // Optional. Thumbnail height
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.PhoneNumber = raw.PhoneNumber
+	x.FirstName = raw.FirstName
+	x.LastName = raw.LastName
+	x.Vcard = raw.Vcard
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	x.ThumbnailUrl = raw.ThumbnailUrl
+	x.ThumbnailWidth = raw.ThumbnailWidth
+	x.ThumbnailHeight = raw.ThumbnailHeight
+	return nil
+}
 
 // Represents a Game.
 // Note: This will only work in Telegram versions released after October 1, 2016. Older clients will not display any inline results if a game result is among them.
@@ -3601,6 +4412,43 @@ type InlineQueryResultCachedPhoto struct {
 
 func (InlineQueryResultCachedPhoto) IsInlineQueryResult() {}
 
+func (x *InlineQueryResultCachedPhoto) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be photo
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		PhotoFileId         string                `json:"photo_file_id"`                   // A valid file identifier of the photo
+		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
+		Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the photo
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.PhotoFileId = raw.PhotoFileId
+	x.Title = raw.Title
+	x.Description = raw.Description
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
+
 // Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with specified content instead of the animation.
 type InlineQueryResultCachedGif struct {
 	Type                string                `json:"type"`                            // Type of the result, must be gif
@@ -3615,6 +4463,41 @@ type InlineQueryResultCachedGif struct {
 }
 
 func (InlineQueryResultCachedGif) IsInlineQueryResult() {}
+
+func (x *InlineQueryResultCachedGif) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be gif
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		GifFileId           string                `json:"gif_file_id"`                     // A valid file identifier for the GIF file
+		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the GIF animation
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.GifFileId = raw.GifFileId
+	x.Title = raw.Title
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
 
 // Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers. By default, this animated MPEG-4 file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
 type InlineQueryResultCachedMpeg4Gif struct {
@@ -3631,6 +4514,41 @@ type InlineQueryResultCachedMpeg4Gif struct {
 
 func (InlineQueryResultCachedMpeg4Gif) IsInlineQueryResult() {}
 
+func (x *InlineQueryResultCachedMpeg4Gif) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be mpeg4_gif
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		Mpeg4FileId         string                `json:"mpeg4_file_id"`                   // A valid file identifier for the MPEG4 file
+		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video animation
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.Mpeg4FileId = raw.Mpeg4FileId
+	x.Title = raw.Title
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
+
 // Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker.
 // Note: This will only work in Telegram versions released after 9 April, 2016 for static stickers and after 06 July, 2019 for animated stickers. Older clients will ignore them.
 type InlineQueryResultCachedSticker struct {
@@ -3642,6 +4560,33 @@ type InlineQueryResultCachedSticker struct {
 }
 
 func (InlineQueryResultCachedSticker) IsInlineQueryResult() {}
+
+func (x *InlineQueryResultCachedSticker) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be sticker
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		StickerFileId       string                `json:"sticker_file_id"`                 // A valid file identifier of the sticker
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the sticker
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.StickerFileId = raw.StickerFileId
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
 
 // Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file.
 // Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
@@ -3660,6 +4605,43 @@ type InlineQueryResultCachedDocument struct {
 
 func (InlineQueryResultCachedDocument) IsInlineQueryResult() {}
 
+func (x *InlineQueryResultCachedDocument) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be document
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		Title               string                `json:"title"`                           // Title for the result
+		DocumentFileId      string                `json:"document_file_id"`                // A valid file identifier for the file
+		Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the document to be sent, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the document caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the file
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.Title = raw.Title
+	x.DocumentFileId = raw.DocumentFileId
+	x.Description = raw.Description
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
+
 // Represents a link to a video file stored on the Telegram servers. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
 type InlineQueryResultCachedVideo struct {
 	Type                string                `json:"type"`                            // Type of the result, must be video
@@ -3675,6 +4657,43 @@ type InlineQueryResultCachedVideo struct {
 }
 
 func (InlineQueryResultCachedVideo) IsInlineQueryResult() {}
+
+func (x *InlineQueryResultCachedVideo) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be video
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		VideoFileId         string                `json:"video_file_id"`                   // A valid file identifier for the video file
+		Title               string                `json:"title"`                           // Title for the result
+		Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.VideoFileId = raw.VideoFileId
+	x.Title = raw.Title
+	x.Description = raw.Description
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
 
 // Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message.
 // Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
@@ -3692,6 +4711,41 @@ type InlineQueryResultCachedVoice struct {
 
 func (InlineQueryResultCachedVoice) IsInlineQueryResult() {}
 
+func (x *InlineQueryResultCachedVoice) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be voice
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		VoiceFileId         string                `json:"voice_file_id"`                   // A valid file identifier for the voice message
+		Title               string                `json:"title"`                           // Voice message title
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the voice message caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the voice message
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.VoiceFileId = raw.VoiceFileId
+	x.Title = raw.Title
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
+
 // Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
 // Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them.
 type InlineQueryResultCachedAudio struct {
@@ -3707,11 +4761,72 @@ type InlineQueryResultCachedAudio struct {
 
 func (InlineQueryResultCachedAudio) IsInlineQueryResult() {}
 
+func (x *InlineQueryResultCachedAudio) UnmarshalJson(rawBytes []byte) (err error) {
+	type temp struct {
+		Type                string                `json:"type"`                            // Type of the result, must be audio
+		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
+		AudioFileId         string                `json:"audio_file_id"`                   // A valid file identifier for the audio file
+		Caption             string                `json:"caption,omitempty"`               // Optional. Caption, 0-1024 characters after entities parsing
+		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the audio caption. See formatting options for more details.
+		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
+		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the audio
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalInputMessageContent(raw.InputMessageContent); err != nil {
+		return err
+	} else {
+		x.InputMessageContent = data
+	}
+	x.Type = raw.Type
+	x.Id = raw.Id
+	x.AudioFileId = raw.AudioFileId
+	x.Caption = raw.Caption
+	x.ParseMode = raw.ParseMode
+	x.CaptionEntities = raw.CaptionEntities
+	x.ReplyMarkup = raw.ReplyMarkup
+
+	return nil
+}
+
 // InputMessageContent represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:
 // InputTextMessageContent, InputLocationMessageContent, InputVenueMessageContent, InputContactMessageContent, InputInvoiceMessageContent
 type InputMessageContent interface {
 	// IsInputMessageContent does nothing and is only used to enforce type-safety
 	IsInputMessageContent()
+}
+
+func unmarshalInputMessageContent(rawBytes json.RawMessage) (data InputMessageContent, err error) {
+	dataInputTextMessageContent := &InputTextMessageContent{}
+	if err = json.Unmarshal(rawBytes, dataInputTextMessageContent); err == nil {
+		return dataInputTextMessageContent, nil
+	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
+		return nil, err
+	}
+
+	dataInputLocationMessageContent := &InputLocationMessageContent{}
+	if err = json.Unmarshal(rawBytes, dataInputLocationMessageContent); err == nil {
+		return dataInputLocationMessageContent, nil
+	}
+	dataInputVenueMessageContent := &InputVenueMessageContent{}
+	if err = json.Unmarshal(rawBytes, dataInputVenueMessageContent); err == nil {
+		return dataInputVenueMessageContent, nil
+	}
+	dataInputContactMessageContent := &InputContactMessageContent{}
+	if err = json.Unmarshal(rawBytes, dataInputContactMessageContent); err == nil {
+		return dataInputContactMessageContent, nil
+	}
+	dataInputInvoiceMessageContent := &InputInvoiceMessageContent{}
+	if err = json.Unmarshal(rawBytes, dataInputInvoiceMessageContent); err == nil {
+		return dataInputInvoiceMessageContent, nil
+	}
+
+	return nil, errors.New("unknown type bruh")
 }
 
 // Represents the content of a text message to be sent as the result of an inline query.
@@ -4026,6 +5141,50 @@ func (api *API) SetPassportDataErrors(payload *SetPassportDataErrors) (bool, err
 type PassportElementError interface {
 	// IsPassportElementError does nothing and is only used to enforce type-safety
 	IsPassportElementError()
+}
+
+func unmarshalPassportElementError(rawBytes json.RawMessage) (data PassportElementError, err error) {
+	dataPassportElementErrorDataField := &PassportElementErrorDataField{}
+	if err = json.Unmarshal(rawBytes, dataPassportElementErrorDataField); err == nil {
+		return dataPassportElementErrorDataField, nil
+	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
+		return nil, err
+	}
+
+	dataPassportElementErrorFrontSide := &PassportElementErrorFrontSide{}
+	if err = json.Unmarshal(rawBytes, dataPassportElementErrorFrontSide); err == nil {
+		return dataPassportElementErrorFrontSide, nil
+	}
+	dataPassportElementErrorReverseSide := &PassportElementErrorReverseSide{}
+	if err = json.Unmarshal(rawBytes, dataPassportElementErrorReverseSide); err == nil {
+		return dataPassportElementErrorReverseSide, nil
+	}
+	dataPassportElementErrorSelfie := &PassportElementErrorSelfie{}
+	if err = json.Unmarshal(rawBytes, dataPassportElementErrorSelfie); err == nil {
+		return dataPassportElementErrorSelfie, nil
+	}
+	dataPassportElementErrorFile := &PassportElementErrorFile{}
+	if err = json.Unmarshal(rawBytes, dataPassportElementErrorFile); err == nil {
+		return dataPassportElementErrorFile, nil
+	}
+	dataPassportElementErrorFiles := &PassportElementErrorFiles{}
+	if err = json.Unmarshal(rawBytes, dataPassportElementErrorFiles); err == nil {
+		return dataPassportElementErrorFiles, nil
+	}
+	dataPassportElementErrorTranslationFile := &PassportElementErrorTranslationFile{}
+	if err = json.Unmarshal(rawBytes, dataPassportElementErrorTranslationFile); err == nil {
+		return dataPassportElementErrorTranslationFile, nil
+	}
+	dataPassportElementErrorTranslationFiles := &PassportElementErrorTranslationFiles{}
+	if err = json.Unmarshal(rawBytes, dataPassportElementErrorTranslationFiles); err == nil {
+		return dataPassportElementErrorTranslationFiles, nil
+	}
+	dataPassportElementErrorUnspecified := &PassportElementErrorUnspecified{}
+	if err = json.Unmarshal(rawBytes, dataPassportElementErrorUnspecified); err == nil {
+		return dataPassportElementErrorUnspecified, nil
+	}
+
+	return nil, errors.New("unknown type bruh")
 }
 
 // Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.
