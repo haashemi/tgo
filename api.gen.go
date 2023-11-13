@@ -741,7 +741,7 @@ func unmarshalChatMember(rawBytes json.RawMessage) (data ChatMember, err error) 
 		return dataChatMemberBanned, nil
 	}
 
-	return nil, errors.New("unknown type bruh")
+	return nil, errors.New("unknown type")
 }
 
 // Represents a chat member that owns the chat and has all administrator privileges.
@@ -839,7 +839,11 @@ type ChatMemberUpdated struct {
 	ViaChatFolderInviteLink bool            `json:"via_chat_folder_invite_link,omitempty"` // Optional. True, if the user joined the chat via a chat folder invite link
 }
 
-func (x *ChatMemberUpdated) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *ChatMemberUpdated) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Chat                    Chat            `json:"chat"`                                  // Chat the user belongs to
 		From                    User            `json:"from"`                                  // Performer of the action, which resulted in the change
@@ -963,7 +967,7 @@ func unmarshalBotCommandScope(rawBytes json.RawMessage) (data BotCommandScope, e
 		return dataBotCommandScopeChatMember, nil
 	}
 
-	return nil, errors.New("unknown type bruh")
+	return nil, errors.New("unknown type")
 }
 
 // Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user.
@@ -1002,7 +1006,11 @@ type BotCommandScopeChat struct {
 
 func (BotCommandScopeChat) IsBotCommandScope() {}
 
-func (x *BotCommandScopeChat) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *BotCommandScopeChat) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type   string          `json:"type"`    // Scope type, must be chat
 		ChatId json.RawMessage `json:"chat_id"` // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
@@ -1031,7 +1039,11 @@ type BotCommandScopeChatAdministrators struct {
 
 func (BotCommandScopeChatAdministrators) IsBotCommandScope() {}
 
-func (x *BotCommandScopeChatAdministrators) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *BotCommandScopeChatAdministrators) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type   string          `json:"type"`    // Scope type, must be chat_administrators
 		ChatId json.RawMessage `json:"chat_id"` // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
@@ -1061,7 +1073,11 @@ type BotCommandScopeChatMember struct {
 
 func (BotCommandScopeChatMember) IsBotCommandScope() {}
 
-func (x *BotCommandScopeChatMember) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *BotCommandScopeChatMember) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type   string          `json:"type"`    // Scope type, must be chat_member
 		ChatId json.RawMessage `json:"chat_id"` // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
@@ -1124,7 +1140,7 @@ func unmarshalMenuButton(rawBytes json.RawMessage) (data MenuButton, err error) 
 		return dataMenuButtonDefault, nil
 	}
 
-	return nil, errors.New("unknown type bruh")
+	return nil, errors.New("unknown type")
 }
 
 // Represents a menu button, which opens the bot's list of commands.
@@ -1190,7 +1206,7 @@ func unmarshalInputMedia(rawBytes json.RawMessage) (data InputMedia, err error) 
 		return dataInputMediaVideo, nil
 	}
 
-	return nil, errors.New("unknown type bruh")
+	return nil, errors.New("unknown type")
 }
 
 // Represents a photo to be sent.
@@ -3694,7 +3710,7 @@ func unmarshalInlineQueryResult(rawBytes json.RawMessage) (data InlineQueryResul
 		return dataInlineQueryResultVoice, nil
 	}
 
-	return nil, errors.New("unknown type bruh")
+	return nil, errors.New("unknown type")
 }
 
 // Represents a link to an article or web page.
@@ -3714,7 +3730,11 @@ type InlineQueryResultArticle struct {
 
 func (InlineQueryResultArticle) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultArticle) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultArticle) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                       // Type of the result, must be article
 		Id                  string                `json:"id"`                         // Unique identifier for this result, 1-64 Bytes
@@ -3772,7 +3792,11 @@ type InlineQueryResultPhoto struct {
 
 func (InlineQueryResultPhoto) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultPhoto) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultPhoto) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be photo
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -3835,7 +3859,11 @@ type InlineQueryResultGif struct {
 
 func (InlineQueryResultGif) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultGif) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultGif) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be gif
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -3900,7 +3928,11 @@ type InlineQueryResultMpeg4Gif struct {
 
 func (InlineQueryResultMpeg4Gif) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultMpeg4Gif) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultMpeg4Gif) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be mpeg4_gif
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -3969,7 +4001,11 @@ type InlineQueryResultVideo struct {
 
 func (InlineQueryResultVideo) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultVideo) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultVideo) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be video
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4034,7 +4070,11 @@ type InlineQueryResultAudio struct {
 
 func (InlineQueryResultAudio) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultAudio) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultAudio) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be audio
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4090,7 +4130,11 @@ type InlineQueryResultVoice struct {
 
 func (InlineQueryResultVoice) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultVoice) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultVoice) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be voice
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4148,7 +4192,11 @@ type InlineQueryResultDocument struct {
 
 func (InlineQueryResultDocument) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultDocument) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultDocument) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be document
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4214,7 +4262,11 @@ type InlineQueryResultLocation struct {
 
 func (InlineQueryResultLocation) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultLocation) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultLocation) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                 string                `json:"type"`                             // Type of the result, must be location
 		Id                   string                `json:"id"`                               // Unique identifier for this result, 1-64 Bytes
@@ -4281,7 +4333,11 @@ type InlineQueryResultVenue struct {
 
 func (InlineQueryResultVenue) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultVenue) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultVenue) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be venue
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 Bytes
@@ -4346,7 +4402,11 @@ type InlineQueryResultContact struct {
 
 func (InlineQueryResultContact) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultContact) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultContact) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be contact
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 Bytes
@@ -4412,7 +4472,11 @@ type InlineQueryResultCachedPhoto struct {
 
 func (InlineQueryResultCachedPhoto) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultCachedPhoto) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultCachedPhoto) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be photo
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4464,7 +4528,11 @@ type InlineQueryResultCachedGif struct {
 
 func (InlineQueryResultCachedGif) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultCachedGif) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultCachedGif) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be gif
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4514,7 +4582,11 @@ type InlineQueryResultCachedMpeg4Gif struct {
 
 func (InlineQueryResultCachedMpeg4Gif) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultCachedMpeg4Gif) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultCachedMpeg4Gif) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be mpeg4_gif
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4561,7 +4633,11 @@ type InlineQueryResultCachedSticker struct {
 
 func (InlineQueryResultCachedSticker) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultCachedSticker) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultCachedSticker) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be sticker
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4605,7 +4681,11 @@ type InlineQueryResultCachedDocument struct {
 
 func (InlineQueryResultCachedDocument) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultCachedDocument) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultCachedDocument) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be document
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4658,7 +4738,11 @@ type InlineQueryResultCachedVideo struct {
 
 func (InlineQueryResultCachedVideo) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultCachedVideo) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultCachedVideo) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be video
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4711,7 +4795,11 @@ type InlineQueryResultCachedVoice struct {
 
 func (InlineQueryResultCachedVoice) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultCachedVoice) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultCachedVoice) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be voice
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4761,7 +4849,11 @@ type InlineQueryResultCachedAudio struct {
 
 func (InlineQueryResultCachedAudio) IsInlineQueryResult() {}
 
-func (x *InlineQueryResultCachedAudio) UnmarshalJson(rawBytes []byte) (err error) {
+func (x *InlineQueryResultCachedAudio) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
 	type temp struct {
 		Type                string                `json:"type"`                            // Type of the result, must be audio
 		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4826,7 +4918,7 @@ func unmarshalInputMessageContent(rawBytes json.RawMessage) (data InputMessageCo
 		return dataInputInvoiceMessageContent, nil
 	}
 
-	return nil, errors.New("unknown type bruh")
+	return nil, errors.New("unknown type")
 }
 
 // Represents the content of a text message to be sent as the result of an inline query.
@@ -5184,7 +5276,7 @@ func unmarshalPassportElementError(rawBytes json.RawMessage) (data PassportEleme
 		return dataPassportElementErrorUnspecified, nil
 	}
 
-	return nil, errors.New("unknown type bruh")
+	return nil, errors.New("unknown type")
 }
 
 // Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.

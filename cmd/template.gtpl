@@ -29,7 +29,7 @@
 					else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
 						return nil, err
 					}
-				{{end-}}
+				{{ end }}
 			{{ end }}
 
 			return nil, errors.New("unknown type")
@@ -48,9 +48,9 @@
 	{{end}}
 
 	{{ if .ContainsInterface }}
-		func (x *{{ .Name }}) UnmarshalJson(rawBytes []byte) (err error) {
+		func (x *{{ .Name }}) UnmarshalJSON(rawBytes []byte) (err error) {
 			if len(rawBytes) == 0 {
-				return nil, nil
+				return nil
 			}
 
 			type temp struct {
