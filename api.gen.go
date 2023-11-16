@@ -5444,7 +5444,6 @@ func (api *API) GetGameHighScores(payload *GetGameHighScores) ([]*GameHighScore,
 }
 
 // GameHighScore represents one row of the high scores table for a game.
-// And that's about all we've got for now.If you've got any questions, please check out our Bot FAQ »
 type GameHighScore struct {
 	Position int64 `json:"position"` // Position in high score table for the game
 	User     User  `json:"user"`     // User

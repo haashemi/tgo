@@ -56,7 +56,7 @@ func Parse(doc *goquery.Document) (data TemplateData) {
 			return
 		}
 
-		s.NextUntil("h3,h4").Each(func(i int, s *goquery.Selection) {
+		s.NextUntil("h3,h4,hr").Each(func(i int, s *goquery.Selection) {
 			switch {
 			case s.Is("p"), s.Is("blockquote"):
 				section.Description = append(section.Description, strings.Split(s.Text(), "\n")...)
