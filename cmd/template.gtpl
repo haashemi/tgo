@@ -172,10 +172,26 @@
 				if err != nil {
 				return {{ .EmptyReturnValue }}, err
 				}
-				return callMultipart[{{ .ReturnType }}](api, "{{.MethodName}}", params, files)
+				{{ if .ReturnsInterface -}}
+					resp, err := callMultipart[json.RawMessage](api, "{{.MethodName}}", params, files)
+					if err != nil {
+						return nil, err
+					}
+					return unmarshal{{ .ReturnType }}(resp)
+				{{ else -}}
+					return callMultipart[{{ .ReturnType }}](api, "{{.MethodName}}", params, files)
+				{{ end -}}
 			}
 		{{ end -}}
-		return callJson[{{ .ReturnType }}](api, "{{.MethodName}}", {{ if .Fields -}}payload{{ else -}}nil{{ end -}})
+		{{ if .ReturnsInterface -}}
+			resp, err := callJson[json.RawMessage](api, "{{.MethodName}}", {{ if .Fields -}}payload{{ else -}}nil{{ end -}})
+			if err != nil {
+				return nil, err
+			}
+			return unmarshal{{ .ReturnType }}(resp)
+		{{ else -}}
+			return callJson[{{ .ReturnType }}](api, "{{.MethodName}}", {{ if .Fields -}}payload{{ else -}}nil{{ end -}})
+		{{ end -}}
 	}
 {{ end }}
 

@@ -77,16 +77,24 @@ func getType(key, s string, isOptional bool, sections []Section) string {
 	// Other types, it should be a struct.
 	default:
 		if isOptional {
-			for _, x := range sections {
-				if x.Name == s && x.IsInterface {
-					return s
-				}
+			if isInterface(s, sections) {
+				return s
 			}
 
 			return "*" + s
 		}
 		return s
 	}
+}
+
+func isInterface(typeName string, sections []Section) bool {
+	for _, section := range sections {
+		if section.Name == typeName && section.IsInterface {
+			return true
+		}
+	}
+
+	return false
 }
 
 func snakeToPascal(s string) string {

@@ -2685,7 +2685,11 @@ type GetChatMember struct {
 
 // getChatMember is used to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success.
 func (api *API) GetChatMember(payload *GetChatMember) (ChatMember, error) {
-	return callJson[ChatMember](api, "getChatMember", payload)
+	resp, err := callJson[json.RawMessage](api, "getChatMember", payload)
+	if err != nil {
+		return nil, err
+	}
+	return unmarshalChatMember(resp)
 }
 
 // setChatStickerSet is used to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success.
@@ -2980,7 +2984,11 @@ type GetChatMenuButton struct {
 
 // getChatMenuButton is used to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success.
 func (api *API) GetChatMenuButton(payload *GetChatMenuButton) (MenuButton, error) {
-	return callJson[MenuButton](api, "getChatMenuButton", payload)
+	resp, err := callJson[json.RawMessage](api, "getChatMenuButton", payload)
+	if err != nil {
+		return nil, err
+	}
+	return unmarshalMenuButton(resp)
 }
 
 // setMyDefaultAdministratorRights is used to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels. These rights will be suggested to users, but they are free to modify the list before adding the bot. Returns True on success.

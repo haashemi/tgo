@@ -9,6 +9,7 @@ type MethodTemplate struct {
 	Name                  string
 	MethodName            string
 	ReturnType            string
+	ReturnsInterface      bool
 	Description           string
 	EmptyReturnValue      string
 	Fields                []MethodField
@@ -64,6 +65,7 @@ func getMethodTemplate(section Section, sections []Section) MethodTemplate {
 		Name:                  strings.ToUpper(string(section.Name[0])) + section.Name[1:],
 		MethodName:            section.Name,
 		ReturnType:            returnType,
+		ReturnsInterface:      isInterface(returnType, sections),
 		Description:           "// " + strings.Join(section.Description, "\n// "),
 		EmptyReturnValue:      defaultValueOfType(returnType),
 		Fields:                fields,
