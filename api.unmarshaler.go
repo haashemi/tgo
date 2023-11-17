@@ -57,12 +57,34 @@ func unmarshalMenuButton(rawBytes json.RawMessage) (data MenuButton, err error) 
 	return data, err
 }
 
-// ToDo: how the hell should I find out what type it is ???????
+// Note: I have no idea if it's implemented in a good way or not.
 func unmarshalInputMessageContent(rawBytes json.RawMessage) (data InputMessageContent, err error) {
-	// data = &InputTextMessageContent{}
-	// data = &InputLocationMessageContent{}
-	// data = &InputVenueMessageContent{}
-	// data = &InputContactMessageContent{}
-	// data = &InputInvoiceMessageContent{}
-	return nil, errors.New("work in progress. sorry")
+	var temp struct {
+		MessageText *string  `json:"message_text,omitempty"`
+		Latitude    *float64 `json:"latitude,omitempty"`
+		Address     *string  `json:"address,omitempty"`
+		PhoneNumber *string  `json:"phone_number,omitempty"`
+		Description *string  `json:"description,omitempty"`
+	}
+	if err = json.Unmarshal(rawBytes, &temp); err != nil {
+		return nil, err
+	}
+
+	switch {
+	case temp.MessageText != nil:
+		data = &InputTextMessageContent{}
+	case temp.Address != nil:
+		data = &InputVenueMessageContent{}
+	case temp.Latitude != nil:
+		data = &InputLocationMessageContent{}
+	case temp.PhoneNumber != nil:
+		data = &InputContactMessageContent{}
+	case temp.Description != nil:
+		data = &InputInvoiceMessageContent{}
+	default:
+		return nil, errors.New("unknown type")
+	}
+
+	err = json.Unmarshal(rawBytes, data)
+	return data, err
 }
