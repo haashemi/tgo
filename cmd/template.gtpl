@@ -4,7 +4,6 @@
 
 	import (
 		"fmt"
-		"errors"
 		"strconv"
 		"encoding/json"
 	)
@@ -18,6 +17,8 @@
 
 		{{ if eq .Name "InputMedia" }}getFiles() map[string]*InputFile{{ end }}
 	}
+
+	{{/*  Due to lack of knowledge and its complexity, I decided to write this functuon by hand.
 
 	{{ if .InterfaceOf }}
 		func unmarshal{{.Name}}(rawBytes json.RawMessage) (data {{.Name}}, err error) {
@@ -35,6 +36,7 @@
 			return nil, errors.New("unknown type")
 		}
 	{{ end }}
+	*/}}
 {{ end }}
 
 {{ define "type" }}

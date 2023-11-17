@@ -3,7 +3,6 @@ package tgo
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strconv"
 )
@@ -712,38 +711,6 @@ type ChatMember interface {
 	IsChatMember()
 }
 
-func unmarshalChatMember(rawBytes json.RawMessage) (data ChatMember, err error) {
-	dataChatMemberOwner := &ChatMemberOwner{}
-	if err = json.Unmarshal(rawBytes, dataChatMemberOwner); err == nil {
-		return dataChatMemberOwner, nil
-	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
-		return nil, err
-	}
-
-	dataChatMemberAdministrator := &ChatMemberAdministrator{}
-	if err = json.Unmarshal(rawBytes, dataChatMemberAdministrator); err == nil {
-		return dataChatMemberAdministrator, nil
-	}
-	dataChatMemberMember := &ChatMemberMember{}
-	if err = json.Unmarshal(rawBytes, dataChatMemberMember); err == nil {
-		return dataChatMemberMember, nil
-	}
-	dataChatMemberRestricted := &ChatMemberRestricted{}
-	if err = json.Unmarshal(rawBytes, dataChatMemberRestricted); err == nil {
-		return dataChatMemberRestricted, nil
-	}
-	dataChatMemberLeft := &ChatMemberLeft{}
-	if err = json.Unmarshal(rawBytes, dataChatMemberLeft); err == nil {
-		return dataChatMemberLeft, nil
-	}
-	dataChatMemberBanned := &ChatMemberBanned{}
-	if err = json.Unmarshal(rawBytes, dataChatMemberBanned); err == nil {
-		return dataChatMemberBanned, nil
-	}
-
-	return nil, errors.New("unknown type")
-}
-
 // Represents a chat member that owns the chat and has all administrator privileges.
 type ChatMemberOwner struct {
 	Status      string `json:"status"`                 // The member's status in the chat, always “creator”
@@ -934,42 +901,6 @@ type BotCommandScope interface {
 	IsBotCommandScope()
 }
 
-func unmarshalBotCommandScope(rawBytes json.RawMessage) (data BotCommandScope, err error) {
-	dataBotCommandScopeDefault := &BotCommandScopeDefault{}
-	if err = json.Unmarshal(rawBytes, dataBotCommandScopeDefault); err == nil {
-		return dataBotCommandScopeDefault, nil
-	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
-		return nil, err
-	}
-
-	dataBotCommandScopeAllPrivateChats := &BotCommandScopeAllPrivateChats{}
-	if err = json.Unmarshal(rawBytes, dataBotCommandScopeAllPrivateChats); err == nil {
-		return dataBotCommandScopeAllPrivateChats, nil
-	}
-	dataBotCommandScopeAllGroupChats := &BotCommandScopeAllGroupChats{}
-	if err = json.Unmarshal(rawBytes, dataBotCommandScopeAllGroupChats); err == nil {
-		return dataBotCommandScopeAllGroupChats, nil
-	}
-	dataBotCommandScopeAllChatAdministrators := &BotCommandScopeAllChatAdministrators{}
-	if err = json.Unmarshal(rawBytes, dataBotCommandScopeAllChatAdministrators); err == nil {
-		return dataBotCommandScopeAllChatAdministrators, nil
-	}
-	dataBotCommandScopeChat := &BotCommandScopeChat{}
-	if err = json.Unmarshal(rawBytes, dataBotCommandScopeChat); err == nil {
-		return dataBotCommandScopeChat, nil
-	}
-	dataBotCommandScopeChatAdministrators := &BotCommandScopeChatAdministrators{}
-	if err = json.Unmarshal(rawBytes, dataBotCommandScopeChatAdministrators); err == nil {
-		return dataBotCommandScopeChatAdministrators, nil
-	}
-	dataBotCommandScopeChatMember := &BotCommandScopeChatMember{}
-	if err = json.Unmarshal(rawBytes, dataBotCommandScopeChatMember); err == nil {
-		return dataBotCommandScopeChatMember, nil
-	}
-
-	return nil, errors.New("unknown type")
-}
-
 // Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user.
 type BotCommandScopeDefault struct {
 	Type string `json:"type"` // Scope type, must be default
@@ -1123,26 +1054,6 @@ type MenuButton interface {
 	IsMenuButton()
 }
 
-func unmarshalMenuButton(rawBytes json.RawMessage) (data MenuButton, err error) {
-	dataMenuButtonCommands := &MenuButtonCommands{}
-	if err = json.Unmarshal(rawBytes, dataMenuButtonCommands); err == nil {
-		return dataMenuButtonCommands, nil
-	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
-		return nil, err
-	}
-
-	dataMenuButtonWebApp := &MenuButtonWebApp{}
-	if err = json.Unmarshal(rawBytes, dataMenuButtonWebApp); err == nil {
-		return dataMenuButtonWebApp, nil
-	}
-	dataMenuButtonDefault := &MenuButtonDefault{}
-	if err = json.Unmarshal(rawBytes, dataMenuButtonDefault); err == nil {
-		return dataMenuButtonDefault, nil
-	}
-
-	return nil, errors.New("unknown type")
-}
-
 // Represents a menu button, which opens the bot's list of commands.
 type MenuButtonCommands struct {
 	Type string `json:"type"` // Type of the button, must be commands
@@ -1179,34 +1090,6 @@ type InputMedia interface {
 	IsInputMedia()
 
 	getFiles() map[string]*InputFile
-}
-
-func unmarshalInputMedia(rawBytes json.RawMessage) (data InputMedia, err error) {
-	dataInputMediaAnimation := &InputMediaAnimation{}
-	if err = json.Unmarshal(rawBytes, dataInputMediaAnimation); err == nil {
-		return dataInputMediaAnimation, nil
-	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
-		return nil, err
-	}
-
-	dataInputMediaDocument := &InputMediaDocument{}
-	if err = json.Unmarshal(rawBytes, dataInputMediaDocument); err == nil {
-		return dataInputMediaDocument, nil
-	}
-	dataInputMediaAudio := &InputMediaAudio{}
-	if err = json.Unmarshal(rawBytes, dataInputMediaAudio); err == nil {
-		return dataInputMediaAudio, nil
-	}
-	dataInputMediaPhoto := &InputMediaPhoto{}
-	if err = json.Unmarshal(rawBytes, dataInputMediaPhoto); err == nil {
-		return dataInputMediaPhoto, nil
-	}
-	dataInputMediaVideo := &InputMediaVideo{}
-	if err = json.Unmarshal(rawBytes, dataInputMediaVideo); err == nil {
-		return dataInputMediaVideo, nil
-	}
-
-	return nil, errors.New("unknown type")
 }
 
 // Represents a photo to be sent.
@@ -3633,94 +3516,6 @@ type InlineQueryResult interface {
 	IsInlineQueryResult()
 }
 
-func unmarshalInlineQueryResult(rawBytes json.RawMessage) (data InlineQueryResult, err error) {
-	dataInlineQueryResultCachedAudio := &InlineQueryResultCachedAudio{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedAudio); err == nil {
-		return dataInlineQueryResultCachedAudio, nil
-	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
-		return nil, err
-	}
-
-	dataInlineQueryResultCachedDocument := &InlineQueryResultCachedDocument{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedDocument); err == nil {
-		return dataInlineQueryResultCachedDocument, nil
-	}
-	dataInlineQueryResultCachedGif := &InlineQueryResultCachedGif{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedGif); err == nil {
-		return dataInlineQueryResultCachedGif, nil
-	}
-	dataInlineQueryResultCachedMpeg4Gif := &InlineQueryResultCachedMpeg4Gif{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedMpeg4Gif); err == nil {
-		return dataInlineQueryResultCachedMpeg4Gif, nil
-	}
-	dataInlineQueryResultCachedPhoto := &InlineQueryResultCachedPhoto{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedPhoto); err == nil {
-		return dataInlineQueryResultCachedPhoto, nil
-	}
-	dataInlineQueryResultCachedSticker := &InlineQueryResultCachedSticker{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedSticker); err == nil {
-		return dataInlineQueryResultCachedSticker, nil
-	}
-	dataInlineQueryResultCachedVideo := &InlineQueryResultCachedVideo{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedVideo); err == nil {
-		return dataInlineQueryResultCachedVideo, nil
-	}
-	dataInlineQueryResultCachedVoice := &InlineQueryResultCachedVoice{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultCachedVoice); err == nil {
-		return dataInlineQueryResultCachedVoice, nil
-	}
-	dataInlineQueryResultArticle := &InlineQueryResultArticle{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultArticle); err == nil {
-		return dataInlineQueryResultArticle, nil
-	}
-	dataInlineQueryResultAudio := &InlineQueryResultAudio{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultAudio); err == nil {
-		return dataInlineQueryResultAudio, nil
-	}
-	dataInlineQueryResultContact := &InlineQueryResultContact{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultContact); err == nil {
-		return dataInlineQueryResultContact, nil
-	}
-	dataInlineQueryResultGame := &InlineQueryResultGame{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultGame); err == nil {
-		return dataInlineQueryResultGame, nil
-	}
-	dataInlineQueryResultDocument := &InlineQueryResultDocument{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultDocument); err == nil {
-		return dataInlineQueryResultDocument, nil
-	}
-	dataInlineQueryResultGif := &InlineQueryResultGif{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultGif); err == nil {
-		return dataInlineQueryResultGif, nil
-	}
-	dataInlineQueryResultLocation := &InlineQueryResultLocation{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultLocation); err == nil {
-		return dataInlineQueryResultLocation, nil
-	}
-	dataInlineQueryResultMpeg4Gif := &InlineQueryResultMpeg4Gif{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultMpeg4Gif); err == nil {
-		return dataInlineQueryResultMpeg4Gif, nil
-	}
-	dataInlineQueryResultPhoto := &InlineQueryResultPhoto{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultPhoto); err == nil {
-		return dataInlineQueryResultPhoto, nil
-	}
-	dataInlineQueryResultVenue := &InlineQueryResultVenue{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultVenue); err == nil {
-		return dataInlineQueryResultVenue, nil
-	}
-	dataInlineQueryResultVideo := &InlineQueryResultVideo{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultVideo); err == nil {
-		return dataInlineQueryResultVideo, nil
-	}
-	dataInlineQueryResultVoice := &InlineQueryResultVoice{}
-	if err = json.Unmarshal(rawBytes, dataInlineQueryResultVoice); err == nil {
-		return dataInlineQueryResultVoice, nil
-	}
-
-	return nil, errors.New("unknown type")
-}
-
 // Represents a link to an article or web page.
 type InlineQueryResultArticle struct {
 	Type                string                `json:"type"`                       // Type of the result, must be article
@@ -4901,34 +4696,6 @@ type InputMessageContent interface {
 	IsInputMessageContent()
 }
 
-func unmarshalInputMessageContent(rawBytes json.RawMessage) (data InputMessageContent, err error) {
-	dataInputTextMessageContent := &InputTextMessageContent{}
-	if err = json.Unmarshal(rawBytes, dataInputTextMessageContent); err == nil {
-		return dataInputTextMessageContent, nil
-	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
-		return nil, err
-	}
-
-	dataInputLocationMessageContent := &InputLocationMessageContent{}
-	if err = json.Unmarshal(rawBytes, dataInputLocationMessageContent); err == nil {
-		return dataInputLocationMessageContent, nil
-	}
-	dataInputVenueMessageContent := &InputVenueMessageContent{}
-	if err = json.Unmarshal(rawBytes, dataInputVenueMessageContent); err == nil {
-		return dataInputVenueMessageContent, nil
-	}
-	dataInputContactMessageContent := &InputContactMessageContent{}
-	if err = json.Unmarshal(rawBytes, dataInputContactMessageContent); err == nil {
-		return dataInputContactMessageContent, nil
-	}
-	dataInputInvoiceMessageContent := &InputInvoiceMessageContent{}
-	if err = json.Unmarshal(rawBytes, dataInputInvoiceMessageContent); err == nil {
-		return dataInputInvoiceMessageContent, nil
-	}
-
-	return nil, errors.New("unknown type")
-}
-
 // Represents the content of a text message to be sent as the result of an inline query.
 type InputTextMessageContent struct {
 	MessageText           string           `json:"message_text"`                       // Text of the message to be sent, 1-4096 characters
@@ -5241,50 +5008,6 @@ func (api *API) SetPassportDataErrors(payload *SetPassportDataErrors) (bool, err
 type PassportElementError interface {
 	// IsPassportElementError does nothing and is only used to enforce type-safety
 	IsPassportElementError()
-}
-
-func unmarshalPassportElementError(rawBytes json.RawMessage) (data PassportElementError, err error) {
-	dataPassportElementErrorDataField := &PassportElementErrorDataField{}
-	if err = json.Unmarshal(rawBytes, dataPassportElementErrorDataField); err == nil {
-		return dataPassportElementErrorDataField, nil
-	} else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
-		return nil, err
-	}
-
-	dataPassportElementErrorFrontSide := &PassportElementErrorFrontSide{}
-	if err = json.Unmarshal(rawBytes, dataPassportElementErrorFrontSide); err == nil {
-		return dataPassportElementErrorFrontSide, nil
-	}
-	dataPassportElementErrorReverseSide := &PassportElementErrorReverseSide{}
-	if err = json.Unmarshal(rawBytes, dataPassportElementErrorReverseSide); err == nil {
-		return dataPassportElementErrorReverseSide, nil
-	}
-	dataPassportElementErrorSelfie := &PassportElementErrorSelfie{}
-	if err = json.Unmarshal(rawBytes, dataPassportElementErrorSelfie); err == nil {
-		return dataPassportElementErrorSelfie, nil
-	}
-	dataPassportElementErrorFile := &PassportElementErrorFile{}
-	if err = json.Unmarshal(rawBytes, dataPassportElementErrorFile); err == nil {
-		return dataPassportElementErrorFile, nil
-	}
-	dataPassportElementErrorFiles := &PassportElementErrorFiles{}
-	if err = json.Unmarshal(rawBytes, dataPassportElementErrorFiles); err == nil {
-		return dataPassportElementErrorFiles, nil
-	}
-	dataPassportElementErrorTranslationFile := &PassportElementErrorTranslationFile{}
-	if err = json.Unmarshal(rawBytes, dataPassportElementErrorTranslationFile); err == nil {
-		return dataPassportElementErrorTranslationFile, nil
-	}
-	dataPassportElementErrorTranslationFiles := &PassportElementErrorTranslationFiles{}
-	if err = json.Unmarshal(rawBytes, dataPassportElementErrorTranslationFiles); err == nil {
-		return dataPassportElementErrorTranslationFiles, nil
-	}
-	dataPassportElementErrorUnspecified := &PassportElementErrorUnspecified{}
-	if err = json.Unmarshal(rawBytes, dataPassportElementErrorUnspecified); err == nil {
-		return dataPassportElementErrorUnspecified, nil
-	}
-
-	return nil, errors.New("unknown type")
 }
 
 // Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.
