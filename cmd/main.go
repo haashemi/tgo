@@ -24,7 +24,7 @@ var Template = template.Must(template.New("tgo").
 		"isMethod":             isMethod,
 		"isArray":              isArray,
 	}).
-	ParseFiles("./cmd/template.gtpl"),
+	ParseFiles("./cmd/template.gotmpl"),
 )
 
 func main() {
@@ -39,7 +39,7 @@ func main() {
 	buf := bytes.NewBuffer(nil)
 	parsedDoc := Parse(doc)
 
-	err = Template.ExecuteTemplate(buf, "template.gtpl", parsedDoc)
+	err = Template.ExecuteTemplate(buf, "template.gotmpl", parsedDoc)
 	if err != nil {
 		log.Fatalln("Failed to generate >", err)
 		return
