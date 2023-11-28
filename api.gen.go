@@ -2,8 +2,8 @@
 package tgo
 
 import (
+	//"fmt"
 	"encoding/json"
-	"fmt"
 	"strconv"
 )
 
@@ -1109,7 +1109,7 @@ func (x *InputMediaPhoto) getFiles() map[string]*InputFile {
 
 	if x.Media != nil {
 		if x.Media.IsUploadable() {
-			media["media"] = x.Media
+			media[x.Media.Value] = x.Media
 		}
 	}
 
@@ -1138,12 +1138,12 @@ func (x *InputMediaVideo) getFiles() map[string]*InputFile {
 
 	if x.Media != nil {
 		if x.Media.IsUploadable() {
-			media["media"] = x.Media
+			media[x.Media.Value] = x.Media
 		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
-			media["thumbnail"] = x.Thumbnail
+			media[x.Thumbnail.Value] = x.Thumbnail
 		}
 	}
 
@@ -1171,12 +1171,12 @@ func (x *InputMediaAnimation) getFiles() map[string]*InputFile {
 
 	if x.Media != nil {
 		if x.Media.IsUploadable() {
-			media["media"] = x.Media
+			media[x.Media.Value] = x.Media
 		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
-			media["thumbnail"] = x.Thumbnail
+			media[x.Thumbnail.Value] = x.Thumbnail
 		}
 	}
 
@@ -1203,12 +1203,12 @@ func (x *InputMediaAudio) getFiles() map[string]*InputFile {
 
 	if x.Media != nil {
 		if x.Media.IsUploadable() {
-			media["media"] = x.Media
+			media[x.Media.Value] = x.Media
 		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
-			media["thumbnail"] = x.Thumbnail
+			media[x.Thumbnail.Value] = x.Thumbnail
 		}
 	}
 
@@ -1233,12 +1233,12 @@ func (x *InputMediaDocument) getFiles() map[string]*InputFile {
 
 	if x.Media != nil {
 		if x.Media.IsUploadable() {
-			media["media"] = x.Media
+			media[x.Media.Value] = x.Media
 		}
 	}
 	if x.Thumbnail != nil {
 		if x.Thumbnail.IsUploadable() {
-			media["thumbnail"] = x.Thumbnail
+			media[x.Thumbnail.Value] = x.Thumbnail
 		}
 	}
 
@@ -2016,9 +2016,9 @@ type SendMediaGroup struct {
 func (x *SendMediaGroup) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	for idx, m := range x.Media {
+	for _, m := range x.Media {
 		for key, value := range m.getFiles() {
-			media[fmt.Sprintf("%d.media.%s", idx, key)] = value
+			media[key] = value
 		}
 	}
 
@@ -2941,7 +2941,7 @@ func (x *EditMessageMedia) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
 	for key, value := range x.Media.getFiles() {
-		media["media."+key] = value
+		media[key] = value
 	}
 
 	return media
@@ -3109,7 +3109,7 @@ func (x *InputSticker) getFiles() map[string]*InputFile {
 
 	if x.Sticker != nil {
 		if x.Sticker.IsUploadable() {
-			media["sticker"] = x.Sticker
+			media[x.Sticker.Value] = x.Sticker
 		}
 	}
 
@@ -3264,9 +3264,9 @@ type CreateNewStickerSet struct {
 func (x *CreateNewStickerSet) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
-	for idx, m := range x.Stickers {
+	for _, m := range x.Stickers {
 		for key, value := range m.getFiles() {
-			media[fmt.Sprintf("%d.stickers.%s", idx, key)] = value
+			media[key] = value
 		}
 	}
 
@@ -3318,7 +3318,7 @@ func (x *AddStickerToSet) getFiles() map[string]*InputFile {
 	media := map[string]*InputFile{}
 
 	for key, value := range x.Sticker.getFiles() {
-		media["sticker."+key] = value
+		media[key] = value
 	}
 
 	return media

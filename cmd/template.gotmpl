@@ -3,7 +3,7 @@
 	package tgo
 
 	import (
-		"fmt"
+		//"fmt"
 		"strconv"
 		"encoding/json"
 	)
@@ -89,7 +89,7 @@
 				{{ if $field.IsInputFile -}}
 					if x.{{ $field.Name }} != nil {
 						if x.{{ $field.Name }}.IsUploadable() {
-							media["{{ $field.FieldName }}"] = x.{{ $field.Name }}
+							media[x.{{ $field.Name }}.Value] = x.{{ $field.Name }}
 						}
 					}
 				{{ end -}}
@@ -124,9 +124,9 @@
 
 			{{ range $field := .NestedInputFileFields -}}
 				{{ if isArray $field.Type -}} 
-					for idx, m := range x.{{ $field.Name }} {
+					for _, m := range x.{{ $field.Name }} {
 						for key, value := range m.getFiles() {
-							media[fmt.Sprintf("%d.{{ $field.FieldName }}.%s", idx, key)] = value
+							media[key] = value
 						}            
 					}
 				{{ else -}}
@@ -135,7 +135,7 @@
 					{{ end -}}
 					
 						for key, value := range x.{{ $field.Name }}.getFiles() {
-							media["{{ $field.FieldName }}."+key] = value
+							media[key] = value
 						}
 					
 					{{ if $field.IsOptional -}} 
