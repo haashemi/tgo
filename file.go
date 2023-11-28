@@ -14,7 +14,10 @@ func (ifu *InputFile) IsUploadable() bool {
 }
 
 func (ifu *InputFile) MarshalJSON() ([]byte, error) {
-	return []byte(`"attach://` + ifu.Value + `"`), nil
+	if ifu.Reader != nil {
+		return []byte(`"attach://` + ifu.Value + `"`), nil
+	}
+	return []byte(`"` + ifu.Value + `"`), nil
 }
 
 func FileFromID(fileID string) *InputFile {
