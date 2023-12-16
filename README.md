@@ -143,7 +143,7 @@ mr.Handle(myFilter1, myHandler1)
 mr.Handle(myFilter2, myHandler2)
 
 mrPrivate := messages.NewRouter(mySecurityMiddleware)
-mr.Handle(myFilter, myPrivateHandler)
+mrPrivate.Handle(myFilter, myPrivateHandler)
 
 cr := callback.NewRouter()
 cr.Handle(myFilter3, myCallbackHandler)
