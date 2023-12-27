@@ -41,7 +41,7 @@ func NewAPI(token, host string, client *http.Client) *API {
 }
 
 func (api *API) Download(filePath string) (*http.Response, error) {
-	return http.Get(api.host + "/file/bot" + api.token + "/" + filePath)
+	return api.client.Get(api.host + "/file/bot" + api.token + "/" + filePath)
 }
 
 func callJson[T any](a *API, method string, rawData any) (T, error) {
