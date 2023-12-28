@@ -18,12 +18,17 @@ type httpResponse[T any] struct {
 	*Error
 }
 
+// API is a telegram bot API client instance.
 type API struct {
 	host   string
 	token  string
 	client *http.Client
 }
 
+// NewAPI creates a new instance of the Telegram API client.
+// It takes a token, an optional host (default is "https://api.telegram.org"),
+// and an optional http.Client (default is a new http.Client instance).
+// It returns a pointer to the API struct.
 func NewAPI(token, host string, client *http.Client) *API {
 	if host == "" {
 		host = TelegramHost
@@ -40,6 +45,9 @@ func NewAPI(token, host string, client *http.Client) *API {
 	}
 }
 
+// Download downloads a file from the Telegram server.
+// It takes the filePath obtained from GetFile and returns an http.Response
+// and an error. Please note that the filePath is not the same as the fileID.
 func (api *API) Download(filePath string) (*http.Response, error) {
 	return api.client.Get(api.host + "/file/bot" + api.token + "/" + filePath)
 }

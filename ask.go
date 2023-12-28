@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// GetChatAndSenderID extracts and returns the chat ID and sender ID from a given message.
 func GetChatAndSenderID(msg *Message) (chatID, senderID int64) {
 	chatID = msg.Chat.Id
 
@@ -20,10 +21,13 @@ func GetChatAndSenderID(msg *Message) (chatID, senderID int64) {
 	return chatID, senderID
 }
 
+// GetAskUID returns a unique identifier for the ask operation based on the chat ID and sender ID.
 func GetAskUID(chatID, senderID int64) string {
 	return fmt.Sprintf("ask:%d:%d", chatID, senderID)
 }
 
+// waitForAnswer waits for an answer from the given UID within the specified timeout duration.
+// It returns the received answer message or an error if the timeout is exceeded.
 func (bot *Bot) waitForAnswer(uid string, timeout time.Duration) (*Message, error) {
 	waiter := make(chan *Message, 1)
 
@@ -51,6 +55,8 @@ func (bot *Bot) waitForAnswer(uid string, timeout time.Duration) (*Message, erro
 	}
 }
 
+// sendAnswerIfAsked sends the message into the asks channel if it was a response to an ask.
+// It returns true if the messsage was the response to an ask or false otherwise.
 func (bot *Bot) sendAnswerIfAsked(msg *Message) (sent bool) {
 	bot.askMut.RLock()
 	receiver, ok := bot.asks[GetAskUID(GetChatAndSenderID(msg))]
@@ -64,6 +70,8 @@ func (bot *Bot) sendAnswerIfAsked(msg *Message) (sent bool) {
 	return false
 }
 
+// Ask sends a question message to the specified chat and waits for an answer within the given timeout duration.
+// It returns the question message, the received answer message, and any error that occurred.
 func (bot *Bot) Ask(chatId, userId int64, msg Sendable, timeout time.Duration) (question, answer *Message, err error) {
 	if msg.GetChatID() == nil {
 		msg.SetChatID(chatId)
