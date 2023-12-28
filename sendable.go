@@ -5,29 +5,44 @@ import (
 	"encoding/json"
 )
 
+// Sendable is an interface that represents any object that can be sent using an API client.
 type Sendable interface {
+	// GetChatID returns the chat ID associated with the sendable object.
 	GetChatID() ChatID
+
+	// SetChatID sets the chat ID for the sendable object.
 	SetChatID(id int64)
+
+	// Send sends the sendable object using the provided API client.
+	// It returns the sent message and any error encountered.
 	Send(api *API) (*Message, error)
 }
 
+// Replyable is an interface that represents any object that can be replied to.
 type Replyable interface {
 	Sendable
 	SetReplyToMessageId(id int64)
 }
 
+// ParseModeSettable is an interface that represents any object that can have its ParseMode set
+// Or in other words, messages with captions.
 type ParseModeSettable interface {
 	GetParseMode() ParseMode
 	SetParseMode(mode ParseMode)
 }
 
+// ParseMode is a type that represents the parse mode of a message. eg. Markdown, HTML, etc.
 type ParseMode string
 
 const (
-	ParseModeNone       ParseMode = ""
-	ParseModeMarkdown   ParseMode = "Markdown"
+	// does not parse the message
+	ParseModeNone ParseMode = ""
+	// parses the message as Markdown
+	ParseModeMarkdown ParseMode = "Markdown"
+	// parses the message as Markdown but using telegram's V2 markdown
 	ParseModeMarkdownV2 ParseMode = "MarkdownV2"
-	ParseModeHTML       ParseMode = "HTML"
+	// parses the message as HTML
+	ParseModeHTML ParseMode = "HTML"
 )
 
 type Username string
