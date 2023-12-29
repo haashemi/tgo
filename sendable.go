@@ -132,22 +132,54 @@ func (x *SendPhoto) SetParseMode(mode ParseMode)     { x.ParseMode = mode }
 func (x *SendVideo) SetParseMode(mode ParseMode)     { x.ParseMode = mode }
 func (x *SendVoice) SetParseMode(mode ParseMode)     { x.ParseMode = mode }
 
-func (x *SendAnimation) SetReplyToMessageId(id int64) { x.ReplyToMessageId = id }
-func (x *SendAudio) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id }
-func (x *SendContact) SetReplyToMessageId(id int64)   { x.ReplyToMessageId = id }
-func (x *SendDice) SetReplyToMessageId(id int64)      { x.ReplyToMessageId = id }
-func (x *SendDocument) SetReplyToMessageId(id int64)  { x.ReplyToMessageId = id }
-func (x *SendGame) SetReplyToMessageId(id int64)      { x.ReplyToMessageId = id }
-func (x *SendInvoice) SetReplyToMessageId(id int64)   { x.ReplyToMessageId = id }
-func (x *SendLocation) SetReplyToMessageId(id int64)  { x.ReplyToMessageId = id }
-func (x *SendMessage) SetReplyToMessageId(id int64)   { x.ReplyToMessageId = id }
-func (x *SendPhoto) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id }
-func (x *SendPoll) SetReplyToMessageId(id int64)      { x.ReplyToMessageId = id }
-func (x *SendSticker) SetReplyToMessageId(id int64)   { x.ReplyToMessageId = id }
-func (x *SendVenue) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id }
-func (x *SendVideo) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id }
-func (x *SendVideoNote) SetReplyToMessageId(id int64) { x.ReplyToMessageId = id }
-func (x *SendVoice) SetReplyToMessageId(id int64)     { x.ReplyToMessageId = id }
+func (x *SendAnimation) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendAudio) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendContact) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendDice) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendDocument) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendGame) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendInvoice) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendLocation) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendMessage) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendPhoto) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendPoll) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendSticker) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendVenue) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendVideo) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendVideoNote) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+func (x *SendVoice) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
 
 // Send sends a message with the preferred ParseMode.
 func (b *Bot) Send(msg Sendable) (*Message, error) {
