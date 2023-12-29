@@ -31,7 +31,12 @@ func (ctx *Context) Session() *sync.Map {
 func (ctx *Context) Send(msg tgo.Sendable) (*tgo.Message, error) {
 	if msg.GetChatID() == nil {
 		if ctx.Message != nil {
-			msg.SetChatID(ctx.Message.Chat.Id)
+			switch ctxMsg := ctx.Message.(type) {
+			case *tgo.InaccessibleMessage:
+				msg.SetChatID(ctxMsg.Chat.Id)
+			case *tgo.Message:
+				msg.SetChatID(ctxMsg.Chat.Id)
+			}
 		} else {
 			msg.SetChatID(ctx.From.Id)
 		}
@@ -44,7 +49,12 @@ func (ctx *Context) Send(msg tgo.Sendable) (*tgo.Message, error) {
 func (ctx *Context) Ask(msg tgo.Sendable, timeout time.Duration) (question, answer *message.Context, err error) {
 	chatID := ctx.From.Id
 	if ctx.Message != nil {
-		chatID = ctx.Message.Chat.Id
+		switch ctxMsg := ctx.Message.(type) {
+		case *tgo.InaccessibleMessage:
+			chatID = ctxMsg.Chat.Id
+		case *tgo.Message:
+			chatID = ctxMsg.Chat.Id
+		}
 	}
 
 	rawQuestion, rawAnswer, err := ctx.Bot.Ask(chatID, ctx.From.Id, msg, timeout)
