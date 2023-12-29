@@ -13,6 +13,7 @@ var returnTypePatterns = []*regexp.Regexp{
 	regexp.MustCompile(`Returns the [a-z ]+ as ?a? (?P<type>[A-Za-z]+) `),
 	regexp.MustCompile(`Returns the uploaded (?P<type>[A-Za-z]+)`),
 	regexp.MustCompile(`Returns the (?P<type>[A-Za-z]+)`),
+	regexp.MustCompile(`On success, an (?P<type>array of [A-Za-z]+) of the sent messages is returned`),
 	regexp.MustCompile(`On success, the stopped (?P<type>[A-Za-z]+) is`),
 	regexp.MustCompile(`On success, returns a (?P<type>[A-Za-z]+) object`),
 	regexp.MustCompile(`On success, (?P<type>[A-Za-z]+) is returned`),
