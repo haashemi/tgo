@@ -5,6 +5,50 @@ import (
 	"errors"
 )
 
+func unmarshalMaybeInaccessibleMessage(rawBytes json.RawMessage) (data MaybeInaccessibleMessage, err error) {
+	var temp struct {
+		Date int64 `json:"date"`
+	}
+	if err = json.Unmarshal(rawBytes, &temp); err != nil {
+		return nil, err
+	}
+
+	switch temp.Date {
+	case 0:
+		data = &InaccessibleMessage{}
+	default:
+		data = &Message{}
+	}
+
+	err = json.Unmarshal(rawBytes, data)
+	return data, err
+}
+
+func unmarshalMessageOrigin(rawBytes json.RawMessage) (data MessageOrigin, err error) {
+	var temp struct {
+		Type string `json:"type"`
+	}
+	if err = json.Unmarshal(rawBytes, &temp); err != nil {
+		return nil, err
+	}
+
+	switch temp.Type {
+	case "user":
+		data = &MessageOriginUser{}
+	case "hidden_user":
+		data = &MessageOriginHiddenUser{}
+	case "chat":
+		data = &MessageOriginChat{}
+	case "channel":
+		data = &MessageOriginChannel{}
+	default:
+		return nil, errors.New("unknown type")
+	}
+
+	err = json.Unmarshal(rawBytes, data)
+	return data, err
+}
+
 func unmarshalChatMember(rawBytes json.RawMessage) (data ChatMember, err error) {
 	var temp struct {
 		Status string `json:"status"`
@@ -34,6 +78,27 @@ func unmarshalChatMember(rawBytes json.RawMessage) (data ChatMember, err error) 
 	return data, err
 }
 
+func unmarshalReactionType(rawBytes json.RawMessage) (data ReactionType, err error) {
+	var temp struct {
+		Type string `json:"type"`
+	}
+	if err = json.Unmarshal(rawBytes, &temp); err != nil {
+		return nil, err
+	}
+
+	switch temp.Type {
+	case "emoji":
+		data = &ReactionTypeEmoji{}
+	case "custom_emoji":
+		data = &ReactionTypeCustomEmoji{}
+	default:
+		return nil, errors.New("unknown type")
+	}
+
+	err = json.Unmarshal(rawBytes, data)
+	return data, err
+}
+
 func unmarshalMenuButton(rawBytes json.RawMessage) (data MenuButton, err error) {
 	var temp struct {
 		Type string `json:"type"`
@@ -49,6 +114,29 @@ func unmarshalMenuButton(rawBytes json.RawMessage) (data MenuButton, err error) 
 		data = &MenuButtonWebApp{}
 	case "default":
 		data = &MenuButtonDefault{}
+	default:
+		return nil, errors.New("unknown type")
+	}
+
+	err = json.Unmarshal(rawBytes, data)
+	return data, err
+}
+
+func unmarshalChatBoostSource(rawBytes json.RawMessage) (data ChatBoostSource, err error) {
+	var temp struct {
+		Source string `json:"source"`
+	}
+	if err = json.Unmarshal(rawBytes, &temp); err != nil {
+		return nil, err
+	}
+
+	switch temp.Source {
+	case "premium":
+		data = &ChatBoostSourcePremium{}
+	case "gift_code":
+		data = &ChatBoostSourceGiftCode{}
+	case "giveaway":
+		data = &ChatBoostSourceGiveaway{}
 	default:
 		return nil, errors.New("unknown type")
 	}
