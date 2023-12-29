@@ -164,4 +164,4 @@ err := bot.StartPolling(30, "message", "callback_query")
 1. Open an issue and describe what you're gonna do.
 2. Fork, Clone, and do a Pull Request!
 
-We are in our beta stage and there are a lot of thing to do. With that being said, all type of contributions are highly appreciated whatever it would be adding new features, fixing bugs, writing tests or docs, improving the current docs' grammars, or even fixing the typos!
+All type of contributions are highly appreciated whatever it would be adding new features, fixing bugs, writing tests or docs, improving the current docs' grammars, or even fixing the typos!
