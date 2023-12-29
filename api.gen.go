@@ -1,4 +1,3 @@
-// CODE GENERATED. DO NOT EDIT.
 package tgo
 
 import (
