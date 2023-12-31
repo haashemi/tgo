@@ -6,6 +6,10 @@ import (
 )
 
 func unmarshalMaybeInaccessibleMessage(rawBytes json.RawMessage) (data MaybeInaccessibleMessage, err error) {
+	if len(rawBytes) == 0 {
+		return nil, nil
+	}
+
 	var temp struct {
 		Date int64 `json:"date"`
 	}
@@ -25,6 +29,10 @@ func unmarshalMaybeInaccessibleMessage(rawBytes json.RawMessage) (data MaybeInac
 }
 
 func unmarshalMessageOrigin(rawBytes json.RawMessage) (data MessageOrigin, err error) {
+	if len(rawBytes) == 0 {
+		return nil, nil
+	}
+
 	var temp struct {
 		Type string `json:"type"`
 	}
@@ -50,6 +58,10 @@ func unmarshalMessageOrigin(rawBytes json.RawMessage) (data MessageOrigin, err e
 }
 
 func unmarshalChatMember(rawBytes json.RawMessage) (data ChatMember, err error) {
+	if len(rawBytes) == 0 {
+		return nil, nil
+	}
+
 	var temp struct {
 		Status string `json:"status"`
 	}
@@ -79,6 +91,10 @@ func unmarshalChatMember(rawBytes json.RawMessage) (data ChatMember, err error) 
 }
 
 func unmarshalReactionType(rawBytes json.RawMessage) (data ReactionType, err error) {
+	if len(rawBytes) == 0 {
+		return nil, nil
+	}
+
 	var temp struct {
 		Type string `json:"type"`
 	}
@@ -100,6 +116,10 @@ func unmarshalReactionType(rawBytes json.RawMessage) (data ReactionType, err err
 }
 
 func unmarshalMenuButton(rawBytes json.RawMessage) (data MenuButton, err error) {
+	if len(rawBytes) == 0 {
+		return nil, nil
+	}
+
 	var temp struct {
 		Type string `json:"type"`
 	}
@@ -123,6 +143,10 @@ func unmarshalMenuButton(rawBytes json.RawMessage) (data MenuButton, err error) 
 }
 
 func unmarshalChatBoostSource(rawBytes json.RawMessage) (data ChatBoostSource, err error) {
+	if len(rawBytes) == 0 {
+		return nil, nil
+	}
+
 	var temp struct {
 		Source string `json:"source"`
 	}
@@ -147,6 +171,10 @@ func unmarshalChatBoostSource(rawBytes json.RawMessage) (data ChatBoostSource, e
 
 // Note: I have no idea if it's implemented in a good way or not.
 func unmarshalInputMessageContent(rawBytes json.RawMessage) (data InputMessageContent, err error) {
+	if len(rawBytes) == 0 {
+		return nil, nil
+	}
+
 	var temp struct {
 		MessageText *string  `json:"message_text,omitempty"`
 		Latitude    *float64 `json:"latitude,omitempty"`
