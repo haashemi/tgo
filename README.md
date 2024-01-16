@@ -78,7 +78,7 @@ photo := tgo.FileFromID("telegram-file-id")
 photo = tgo.FileFromURL("https://cataas.com/cat")
 
 // Local file path, used when you ran telegram-bot-api locally.
-photo = tgo.FileFromPath("/home/tgo/my-nsfw-image.png")
+photo = tgo.FileFromPath("/home/tgo/my-image.png")
 
 // When you want to upload and image by yourself,
 // which is something that you'll usually do.
@@ -96,7 +96,7 @@ It happens when you want to ask a question from the user and wait a few seconds 
 
 ```go
 // the question we want to ask.
-var msg tgo.Sendable = &tgo.SendMessage{ Text: "How old are you, cutie?" }
+var msg tgo.Sendable = &tgo.SendMessage{ Text: "Do you like tgo?" }
 
 // Here, we'll ask the question from the user (userId) in the chat (chatId)
 // and wait for their response for 30 seconds.
