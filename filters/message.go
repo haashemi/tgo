@@ -45,6 +45,10 @@ func Commands(botUsername string, cmds ...string) tgo.Filter {
 				text = msg.Caption
 			}
 
+			// As the commands are already lowercased,
+			// the text itself should get lowercased too.
+			text = strings.ToLower(text)
+
 			for _, cmd := range cmds {
 				// valid cases are:
 				// /command
