@@ -2,7 +2,7 @@ package filters
 
 import "github.com/haashemi/tgo"
 
-func ExtractUpdate(update *tgo.Update) any {
+func extractUpdate(update *tgo.Update) any {
 	switch {
 	case update.Message != nil:
 		return update.Message
@@ -37,8 +37,8 @@ func ExtractUpdate(update *tgo.Update) any {
 	return nil
 }
 
-func ExtractUpdateText(update *tgo.Update) string {
-	switch data := ExtractUpdate(update).(type) {
+func extractUpdateText(update *tgo.Update) string {
+	switch data := extractUpdate(update).(type) {
 	case *tgo.Message:
 		if data.Caption != "" {
 			return data.Caption
