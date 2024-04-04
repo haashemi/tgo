@@ -61,12 +61,17 @@ func getMethodTemplate(section Section, sections []Section) MethodTemplate {
 	nestedInputFileFields, _ := NewMethodFields(getNestedMediaFields(sections, section), sections)
 	returnType := getType("", extractReturnType(section.Description), true, sections)
 
+	desc := strings.Join(section.Description, "\n// ")
+	if desc != "" {
+		desc = "// " + desc
+	}
+
 	mt := MethodTemplate{
 		Name:                  strings.ToUpper(string(section.Name[0])) + section.Name[1:],
 		MethodName:            section.Name,
 		ReturnType:            returnType,
 		ReturnsInterface:      isInterface(returnType, sections),
-		Description:           "// " + strings.Join(section.Description, "\n// "),
+		Description:           desc,
 		EmptyReturnValue:      defaultValueOfType(returnType),
 		Fields:                fields,
 		InputFileFields:       inputFileFields,

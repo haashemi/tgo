@@ -72,9 +72,14 @@ func NewTypeFields(fields []Field, sections []Section) (newFields []TypeField, c
 func getTypeTemplate(section Section, sections []Section, implementers map[string]string) TypeTemplate {
 	fields, containsInterface, containsInputFile := NewTypeFields(section.Fields, sections)
 
+	desc := strings.Join(section.Description, "\n// ")
+	if desc != "" {
+		desc = "// " + desc
+	}
+
 	return TypeTemplate{
 		Name:              section.Name,
-		Description:       "// " + strings.Join(section.Description, "\n// "),
+		Description:       desc,
 		Implements:        implementers[section.Name],
 		Fields:            fields,
 		ContainsInterface: containsInterface,

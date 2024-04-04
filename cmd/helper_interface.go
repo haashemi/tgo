@@ -9,9 +9,14 @@ type InterfaceTemplate struct {
 }
 
 func getInterfaceTemplate(section Section, sections []Section) InterfaceTemplate {
+	desc := strings.Join(section.Description, "\n// ")
+	if desc != "" {
+		desc = "// " + desc
+	}
+
 	return InterfaceTemplate{
 		Name:        section.Name,
-		Description: "// " + strings.Join(section.Description, "\n// "),
+		Description: desc,
 		InterfaceOf: section.InterfaceOf,
 	}
 }
