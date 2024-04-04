@@ -95,8 +95,10 @@ func Parse(doc *goquery.Document) (data TemplateData) {
 		})
 
 		// Normalize the description
-		section.Description[0] = strings.Replace(section.Description[0], "This object", section.Name, 1)
-		section.Description[0] = strings.Replace(section.Description[0], "Use this method to", section.Name+" is used to", 1)
+		if len(section.Description) != 0 {
+			section.Description[0] = strings.Replace(section.Description[0], "This object", section.Name, 1)
+			section.Description[0] = strings.Replace(section.Description[0], "Use this method to", section.Name+" is used to", 1)
+		}
 
 		data.Sections = append(data.Sections, section)
 	})
