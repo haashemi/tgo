@@ -8,25 +8,29 @@ import (
 
 // Update represents an incoming update.At most one of the optional parameters can be present in any given update.
 type Update struct {
-	UpdateId             int64                        `json:"update_id"`                        // The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
-	Message              *Message                     `json:"message,omitempty"`                // Optional. New incoming message of any kind - text, photo, sticker, etc.
-	EditedMessage        *Message                     `json:"edited_message,omitempty"`         // Optional. New version of a message that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
-	ChannelPost          *Message                     `json:"channel_post,omitempty"`           // Optional. New incoming channel post of any kind - text, photo, sticker, etc.
-	EditedChannelPost    *Message                     `json:"edited_channel_post,omitempty"`    // Optional. New version of a channel post that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
-	MessageReaction      *MessageReactionUpdated      `json:"message_reaction,omitempty"`       // Optional. A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify "message_reaction" in the list of allowed_updates to receive these updates. The update isn't received for reactions set by bots.
-	MessageReactionCount *MessageReactionCountUpdated `json:"message_reaction_count,omitempty"` // Optional. Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify "message_reaction_count" in the list of allowed_updates to receive these updates. The updates are grouped and can be sent with delay up to a few minutes.
-	InlineQuery          *InlineQuery                 `json:"inline_query,omitempty"`           // Optional. New incoming inline query
-	ChosenInlineResult   *ChosenInlineResult          `json:"chosen_inline_result,omitempty"`   // Optional. The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the feedback collecting for details on how to enable these updates for your bot.
-	CallbackQuery        *CallbackQuery               `json:"callback_query,omitempty"`         // Optional. New incoming callback query
-	ShippingQuery        *ShippingQuery               `json:"shipping_query,omitempty"`         // Optional. New incoming shipping query. Only for invoices with flexible price
-	PreCheckoutQuery     *PreCheckoutQuery            `json:"pre_checkout_query,omitempty"`     // Optional. New incoming pre-checkout query. Contains full information about checkout
-	Poll                 *Poll                        `json:"poll,omitempty"`                   // Optional. New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot
-	PollAnswer           *PollAnswer                  `json:"poll_answer,omitempty"`            // Optional. A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were sent by the bot itself.
-	MyChatMember         *ChatMemberUpdated           `json:"my_chat_member,omitempty"`         // Optional. The bot's chat member status was updated in a chat. For private chats, this update is received only when the bot is blocked or unblocked by the user.
-	ChatMember           *ChatMemberUpdated           `json:"chat_member,omitempty"`            // Optional. A chat member's status was updated in a chat. The bot must be an administrator in the chat and must explicitly specify "chat_member" in the list of allowed_updates to receive these updates.
-	ChatJoinRequest      *ChatJoinRequest             `json:"chat_join_request,omitempty"`      // Optional. A request to join the chat has been sent. The bot must have the can_invite_users administrator right in the chat to receive these updates.
-	ChatBoost            *ChatBoostUpdated            `json:"chat_boost,omitempty"`             // Optional. A chat boost was added or changed. The bot must be an administrator in the chat to receive these updates.
-	RemovedChatBoost     *ChatBoostRemoved            `json:"removed_chat_boost,omitempty"`     // Optional. A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates.
+	UpdateId                int64                        `json:"update_id"`                           // The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
+	Message                 *Message                     `json:"message,omitempty"`                   // Optional. New incoming message of any kind - text, photo, sticker, etc.
+	EditedMessage           *Message                     `json:"edited_message,omitempty"`            // Optional. New version of a message that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
+	ChannelPost             *Message                     `json:"channel_post,omitempty"`              // Optional. New incoming channel post of any kind - text, photo, sticker, etc.
+	EditedChannelPost       *Message                     `json:"edited_channel_post,omitempty"`       // Optional. New version of a channel post that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
+	BusinessConnection      *BusinessConnection          `json:"business_connection,omitempty"`       // Optional. The bot was connected to or disconnected from a business account, or a user edited an existing connection with the bot
+	BusinessMessage         *Message                     `json:"business_message,omitempty"`          // Optional. New non-service message from a connected business account
+	EditedBusinessMessage   *Message                     `json:"edited_business_message,omitempty"`   // Optional. New version of a message from a connected business account
+	DeletedBusinessMessages *BusinessMessagesDeleted     `json:"deleted_business_messages,omitempty"` // Optional. Messages were deleted from a connected business account
+	MessageReaction         *MessageReactionUpdated      `json:"message_reaction,omitempty"`          // Optional. A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify "message_reaction" in the list of allowed_updates to receive these updates. The update isn't received for reactions set by bots.
+	MessageReactionCount    *MessageReactionCountUpdated `json:"message_reaction_count,omitempty"`    // Optional. Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify "message_reaction_count" in the list of allowed_updates to receive these updates. The updates are grouped and can be sent with delay up to a few minutes.
+	InlineQuery             *InlineQuery                 `json:"inline_query,omitempty"`              // Optional. New incoming inline query
+	ChosenInlineResult      *ChosenInlineResult          `json:"chosen_inline_result,omitempty"`      // Optional. The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the feedback collecting for details on how to enable these updates for your bot.
+	CallbackQuery           *CallbackQuery               `json:"callback_query,omitempty"`            // Optional. New incoming callback query
+	ShippingQuery           *ShippingQuery               `json:"shipping_query,omitempty"`            // Optional. New incoming shipping query. Only for invoices with flexible price
+	PreCheckoutQuery        *PreCheckoutQuery            `json:"pre_checkout_query,omitempty"`        // Optional. New incoming pre-checkout query. Contains full information about checkout
+	Poll                    *Poll                        `json:"poll,omitempty"`                      // Optional. New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot
+	PollAnswer              *PollAnswer                  `json:"poll_answer,omitempty"`               // Optional. A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were sent by the bot itself.
+	MyChatMember            *ChatMemberUpdated           `json:"my_chat_member,omitempty"`            // Optional. The bot's chat member status was updated in a chat. For private chats, this update is received only when the bot is blocked or unblocked by the user.
+	ChatMember              *ChatMemberUpdated           `json:"chat_member,omitempty"`               // Optional. A chat member's status was updated in a chat. The bot must be an administrator in the chat and must explicitly specify "chat_member" in the list of allowed_updates to receive these updates.
+	ChatJoinRequest         *ChatJoinRequest             `json:"chat_join_request,omitempty"`         // Optional. A request to join the chat has been sent. The bot must have the can_invite_users administrator right in the chat to receive these updates.
+	ChatBoost               *ChatBoostUpdated            `json:"chat_boost,omitempty"`                // Optional. A chat boost was added or changed. The bot must be an administrator in the chat to receive these updates.
+	RemovedChatBoost        *ChatBoostRemoved            `json:"removed_chat_boost,omitempty"`        // Optional. A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates.
 }
 
 // getUpdates is used to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
@@ -161,47 +165,53 @@ type User struct {
 	CanJoinGroups           bool   `json:"can_join_groups,omitempty"`             // Optional. True, if the bot can be invited to groups. Returned only in getMe.
 	CanReadAllGroupMessages bool   `json:"can_read_all_group_messages,omitempty"` // Optional. True, if privacy mode is disabled for the bot. Returned only in getMe.
 	SupportsInlineQueries   bool   `json:"supports_inline_queries,omitempty"`     // Optional. True, if the bot supports inline queries. Returned only in getMe.
+	CanConnectToBusiness    bool   `json:"can_connect_to_business,omitempty"`     // Optional. True, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in getMe.
 }
 
 // Chat represents a chat.
 type Chat struct {
-	Id                                 int64            `json:"id"`                                                // Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-	Type                               string           `json:"type"`                                              // Type of chat, can be either “private”, “group”, “supergroup” or “channel”
-	Title                              string           `json:"title,omitempty"`                                   // Optional. Title, for supergroups, channels and group chats
-	Username                           string           `json:"username,omitempty"`                                // Optional. Username, for private chats, supergroups and channels if available
-	FirstName                          string           `json:"first_name,omitempty"`                              // Optional. First name of the other party in a private chat
-	LastName                           string           `json:"last_name,omitempty"`                               // Optional. Last name of the other party in a private chat
-	IsForum                            bool             `json:"is_forum,omitempty"`                                // Optional. True, if the supergroup chat is a forum (has topics enabled)
-	Photo                              *ChatPhoto       `json:"photo,omitempty"`                                   // Optional. Chat photo. Returned only in getChat.
-	ActiveUsernames                    []string         `json:"active_usernames,omitempty"`                        // Optional. If non-empty, the list of all active chat usernames; for private chats, supergroups and channels. Returned only in getChat.
-	AvailableReactions                 []ReactionType   `json:"available_reactions,omitempty"`                     // Optional. List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed. Returned only in getChat.
-	AccentColorId                      int64            `json:"accent_color_id,omitempty"`                         // Optional. Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details. Returned only in getChat. Always returned in getChat.
-	BackgroundCustomEmojiId            string           `json:"background_custom_emoji_id,omitempty"`              // Optional. Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background. Returned only in getChat.
-	ProfileAccentColorId               int64            `json:"profile_accent_color_id,omitempty"`                 // Optional. Identifier of the accent color for the chat's profile background. See profile accent colors for more details. Returned only in getChat.
-	ProfileBackgroundCustomEmojiId     string           `json:"profile_background_custom_emoji_id,omitempty"`      // Optional. Custom emoji identifier of the emoji chosen by the chat for its profile background. Returned only in getChat.
-	EmojiStatusCustomEmojiId           string           `json:"emoji_status_custom_emoji_id,omitempty"`            // Optional. Custom emoji identifier of the emoji status of the chat or the other party in a private chat. Returned only in getChat.
-	EmojiStatusExpirationDate          int64            `json:"emoji_status_expiration_date,omitempty"`            // Optional. Expiration date of the emoji status of the chat or the other party in a private chat, in Unix time, if any. Returned only in getChat.
-	Bio                                string           `json:"bio,omitempty"`                                     // Optional. Bio of the other party in a private chat. Returned only in getChat.
-	HasPrivateForwards                 bool             `json:"has_private_forwards,omitempty"`                    // Optional. True, if privacy settings of the other party in the private chat allows to use tg://user?id=<user_id> links only in chats with the user. Returned only in getChat.
-	HasRestrictedVoiceAndVideoMessages bool             `json:"has_restricted_voice_and_video_messages,omitempty"` // Optional. True, if the privacy settings of the other party restrict sending voice and video note messages in the private chat. Returned only in getChat.
-	JoinToSendMessages                 bool             `json:"join_to_send_messages,omitempty"`                   // Optional. True, if users need to join the supergroup before they can send messages. Returned only in getChat.
-	JoinByRequest                      bool             `json:"join_by_request,omitempty"`                         // Optional. True, if all users directly joining the supergroup need to be approved by supergroup administrators. Returned only in getChat.
-	Description                        string           `json:"description,omitempty"`                             // Optional. Description, for groups, supergroups and channel chats. Returned only in getChat.
-	InviteLink                         string           `json:"invite_link,omitempty"`                             // Optional. Primary invite link, for groups, supergroups and channel chats. Returned only in getChat.
-	PinnedMessage                      *Message         `json:"pinned_message,omitempty"`                          // Optional. The most recent pinned message (by sending date). Returned only in getChat.
-	Permissions                        *ChatPermissions `json:"permissions,omitempty"`                             // Optional. Default chat member permissions, for groups and supergroups. Returned only in getChat.
-	SlowModeDelay                      int64            `json:"slow_mode_delay,omitempty"`                         // Optional. For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds. Returned only in getChat.
-	UnrestrictBoostCount               int64            `json:"unrestrict_boost_count,omitempty"`                  // Optional. For supergroups, the minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions. Returned only in getChat.
-	MessageAutoDeleteTime              int64            `json:"message_auto_delete_time,omitempty"`                // Optional. The time after which all messages sent to the chat will be automatically deleted; in seconds. Returned only in getChat.
-	HasAggressiveAntiSpamEnabled       bool             `json:"has_aggressive_anti_spam_enabled,omitempty"`        // Optional. True, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators. Returned only in getChat.
-	HasHiddenMembers                   bool             `json:"has_hidden_members,omitempty"`                      // Optional. True, if non-administrators can only get the list of bots and administrators in the chat. Returned only in getChat.
-	HasProtectedContent                bool             `json:"has_protected_content,omitempty"`                   // Optional. True, if messages from the chat can't be forwarded to other chats. Returned only in getChat.
-	HasVisibleHistory                  bool             `json:"has_visible_history,omitempty"`                     // Optional. True, if new chat members will have access to old messages; available only to chat administrators. Returned only in getChat.
-	StickerSetName                     string           `json:"sticker_set_name,omitempty"`                        // Optional. For supergroups, name of group sticker set. Returned only in getChat.
-	CanSetStickerSet                   bool             `json:"can_set_sticker_set,omitempty"`                     // Optional. True, if the bot can change the group sticker set. Returned only in getChat.
-	CustomEmojiStickerSetName          string           `json:"custom_emoji_sticker_set_name,omitempty"`           // Optional. For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group. Returned only in getChat.
-	LinkedChatId                       int64            `json:"linked_chat_id,omitempty"`                          // Optional. Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier. Returned only in getChat.
-	Location                           *ChatLocation    `json:"location,omitempty"`                                // Optional. For supergroups, the location to which the supergroup is connected. Returned only in getChat.
+	Id                                 int64                 `json:"id"`                                                // Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+	Type                               string                `json:"type"`                                              // Type of chat, can be either “private”, “group”, “supergroup” or “channel”
+	Title                              string                `json:"title,omitempty"`                                   // Optional. Title, for supergroups, channels and group chats
+	Username                           string                `json:"username,omitempty"`                                // Optional. Username, for private chats, supergroups and channels if available
+	FirstName                          string                `json:"first_name,omitempty"`                              // Optional. First name of the other party in a private chat
+	LastName                           string                `json:"last_name,omitempty"`                               // Optional. Last name of the other party in a private chat
+	IsForum                            bool                  `json:"is_forum,omitempty"`                                // Optional. True, if the supergroup chat is a forum (has topics enabled)
+	Photo                              *ChatPhoto            `json:"photo,omitempty"`                                   // Optional. Chat photo. Returned only in getChat.
+	ActiveUsernames                    []string              `json:"active_usernames,omitempty"`                        // Optional. If non-empty, the list of all active chat usernames; for private chats, supergroups and channels. Returned only in getChat.
+	Birthdate                          *Birthdate            `json:"birthdate,omitempty"`                               // Optional. For private chats, the date of birth of the user. Returned only in getChat.
+	BusinessIntro                      *BusinessIntro        `json:"business_intro,omitempty"`                          // Optional. For private chats with business accounts, the intro of the business. Returned only in getChat.
+	BusinessLocation                   *BusinessLocation     `json:"business_location,omitempty"`                       // Optional. For private chats with business accounts, the location of the business. Returned only in getChat.
+	BusinessOpeningHours               *BusinessOpeningHours `json:"business_opening_hours,omitempty"`                  // Optional. For private chats with business accounts, the opening hours of the business. Returned only in getChat.
+	PersonalChat                       *Chat                 `json:"personal_chat,omitempty"`                           // Optional. For private chats, the personal channel of the user. Returned only in getChat.
+	AvailableReactions                 []ReactionType        `json:"available_reactions,omitempty"`                     // Optional. List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed. Returned only in getChat.
+	AccentColorId                      int64                 `json:"accent_color_id,omitempty"`                         // Optional. Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details. Returned only in getChat. Always returned in getChat.
+	BackgroundCustomEmojiId            string                `json:"background_custom_emoji_id,omitempty"`              // Optional. Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background. Returned only in getChat.
+	ProfileAccentColorId               int64                 `json:"profile_accent_color_id,omitempty"`                 // Optional. Identifier of the accent color for the chat's profile background. See profile accent colors for more details. Returned only in getChat.
+	ProfileBackgroundCustomEmojiId     string                `json:"profile_background_custom_emoji_id,omitempty"`      // Optional. Custom emoji identifier of the emoji chosen by the chat for its profile background. Returned only in getChat.
+	EmojiStatusCustomEmojiId           string                `json:"emoji_status_custom_emoji_id,omitempty"`            // Optional. Custom emoji identifier of the emoji status of the chat or the other party in a private chat. Returned only in getChat.
+	EmojiStatusExpirationDate          int64                 `json:"emoji_status_expiration_date,omitempty"`            // Optional. Expiration date of the emoji status of the chat or the other party in a private chat, in Unix time, if any. Returned only in getChat.
+	Bio                                string                `json:"bio,omitempty"`                                     // Optional. Bio of the other party in a private chat. Returned only in getChat.
+	HasPrivateForwards                 bool                  `json:"has_private_forwards,omitempty"`                    // Optional. True, if privacy settings of the other party in the private chat allows to use tg://user?id=<user_id> links only in chats with the user. Returned only in getChat.
+	HasRestrictedVoiceAndVideoMessages bool                  `json:"has_restricted_voice_and_video_messages,omitempty"` // Optional. True, if the privacy settings of the other party restrict sending voice and video note messages in the private chat. Returned only in getChat.
+	JoinToSendMessages                 bool                  `json:"join_to_send_messages,omitempty"`                   // Optional. True, if users need to join the supergroup before they can send messages. Returned only in getChat.
+	JoinByRequest                      bool                  `json:"join_by_request,omitempty"`                         // Optional. True, if all users directly joining the supergroup need to be approved by supergroup administrators. Returned only in getChat.
+	Description                        string                `json:"description,omitempty"`                             // Optional. Description, for groups, supergroups and channel chats. Returned only in getChat.
+	InviteLink                         string                `json:"invite_link,omitempty"`                             // Optional. Primary invite link, for groups, supergroups and channel chats. Returned only in getChat.
+	PinnedMessage                      *Message              `json:"pinned_message,omitempty"`                          // Optional. The most recent pinned message (by sending date). Returned only in getChat.
+	Permissions                        *ChatPermissions      `json:"permissions,omitempty"`                             // Optional. Default chat member permissions, for groups and supergroups. Returned only in getChat.
+	SlowModeDelay                      int64                 `json:"slow_mode_delay,omitempty"`                         // Optional. For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds. Returned only in getChat.
+	UnrestrictBoostCount               int64                 `json:"unrestrict_boost_count,omitempty"`                  // Optional. For supergroups, the minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions. Returned only in getChat.
+	MessageAutoDeleteTime              int64                 `json:"message_auto_delete_time,omitempty"`                // Optional. The time after which all messages sent to the chat will be automatically deleted; in seconds. Returned only in getChat.
+	HasAggressiveAntiSpamEnabled       bool                  `json:"has_aggressive_anti_spam_enabled,omitempty"`        // Optional. True, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators. Returned only in getChat.
+	HasHiddenMembers                   bool                  `json:"has_hidden_members,omitempty"`                      // Optional. True, if non-administrators can only get the list of bots and administrators in the chat. Returned only in getChat.
+	HasProtectedContent                bool                  `json:"has_protected_content,omitempty"`                   // Optional. True, if messages from the chat can't be forwarded to other chats. Returned only in getChat.
+	HasVisibleHistory                  bool                  `json:"has_visible_history,omitempty"`                     // Optional. True, if new chat members will have access to old messages; available only to chat administrators. Returned only in getChat.
+	StickerSetName                     string                `json:"sticker_set_name,omitempty"`                        // Optional. For supergroups, name of group sticker set. Returned only in getChat.
+	CanSetStickerSet                   bool                  `json:"can_set_sticker_set,omitempty"`                     // Optional. True, if the bot can change the group sticker set. Returned only in getChat.
+	CustomEmojiStickerSetName          string                `json:"custom_emoji_sticker_set_name,omitempty"`           // Optional. For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group. Returned only in getChat.
+	LinkedChatId                       int64                 `json:"linked_chat_id,omitempty"`                          // Optional. Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier. Returned only in getChat.
+	Location                           *ChatLocation         `json:"location,omitempty"`                                // Optional. For supergroups, the location to which the supergroup is connected. Returned only in getChat.
 }
 
 // Message represents a message.
@@ -211,7 +221,9 @@ type Message struct {
 	From                          *User                          `json:"from,omitempty"`                              // Optional. Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
 	SenderChat                    *Chat                          `json:"sender_chat,omitempty"`                       // Optional. Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field from contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
 	SenderBoostCount              int64                          `json:"sender_boost_count,omitempty"`                // Optional. If the sender of the message boosted the chat, the number of boosts added by the user
+	SenderBusinessBot             *User                          `json:"sender_business_bot,omitempty"`               // Optional. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
 	Date                          int64                          `json:"date"`                                        // Date the message was sent in Unix time. It is always a positive number, representing a valid date.
+	BusinessConnectionId          string                         `json:"business_connection_id,omitempty"`            // Optional. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
 	Chat                          Chat                           `json:"chat"`                                        // Chat the message belongs to
 	ForwardOrigin                 MessageOrigin                  `json:"forward_origin,omitempty"`                    // Optional. Information about the original message for forwarded messages
 	IsTopicMessage                bool                           `json:"is_topic_message,omitempty"`                  // Optional. True, if the message is sent to a forum topic
@@ -223,6 +235,7 @@ type Message struct {
 	ViaBot                        *User                          `json:"via_bot,omitempty"`                           // Optional. Bot through which the message was sent
 	EditDate                      int64                          `json:"edit_date,omitempty"`                         // Optional. Date the message was last edited in Unix time
 	HasProtectedContent           bool                           `json:"has_protected_content,omitempty"`             // Optional. True, if the message can't be forwarded
+	IsFromOffline                 bool                           `json:"is_from_offline,omitempty"`                   // Optional. True, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
 	MediaGroupId                  string                         `json:"media_group_id,omitempty"`                    // Optional. The unique identifier of a media message group this message belongs to
 	AuthorSignature               string                         `json:"author_signature,omitempty"`                  // Optional. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
 	Text                          string                         `json:"text,omitempty"`                              // Optional. For text messages, the actual UTF-8 text of the message
@@ -298,7 +311,9 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 		From                          *User                          `json:"from,omitempty"`                              // Optional. Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
 		SenderChat                    *Chat                          `json:"sender_chat,omitempty"`                       // Optional. Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field from contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
 		SenderBoostCount              int64                          `json:"sender_boost_count,omitempty"`                // Optional. If the sender of the message boosted the chat, the number of boosts added by the user
+		SenderBusinessBot             *User                          `json:"sender_business_bot,omitempty"`               // Optional. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
 		Date                          int64                          `json:"date"`                                        // Date the message was sent in Unix time. It is always a positive number, representing a valid date.
+		BusinessConnectionId          string                         `json:"business_connection_id,omitempty"`            // Optional. Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
 		Chat                          Chat                           `json:"chat"`                                        // Chat the message belongs to
 		ForwardOrigin                 json.RawMessage                `json:"forward_origin,omitempty"`                    // Optional. Information about the original message for forwarded messages
 		IsTopicMessage                bool                           `json:"is_topic_message,omitempty"`                  // Optional. True, if the message is sent to a forum topic
@@ -310,6 +325,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 		ViaBot                        *User                          `json:"via_bot,omitempty"`                           // Optional. Bot through which the message was sent
 		EditDate                      int64                          `json:"edit_date,omitempty"`                         // Optional. Date the message was last edited in Unix time
 		HasProtectedContent           bool                           `json:"has_protected_content,omitempty"`             // Optional. True, if the message can't be forwarded
+		IsFromOffline                 bool                           `json:"is_from_offline,omitempty"`                   // Optional. True, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message
 		MediaGroupId                  string                         `json:"media_group_id,omitempty"`                    // Optional. The unique identifier of a media message group this message belongs to
 		AuthorSignature               string                         `json:"author_signature,omitempty"`                  // Optional. Signature of the post author for messages in channels, or the custom title of an anonymous group administrator
 		Text                          string                         `json:"text,omitempty"`                              // Optional. For text messages, the actual UTF-8 text of the message
@@ -393,7 +409,9 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.From = raw.From
 	x.SenderChat = raw.SenderChat
 	x.SenderBoostCount = raw.SenderBoostCount
+	x.SenderBusinessBot = raw.SenderBusinessBot
 	x.Date = raw.Date
+	x.BusinessConnectionId = raw.BusinessConnectionId
 	x.Chat = raw.Chat
 
 	x.IsTopicMessage = raw.IsTopicMessage
@@ -405,6 +423,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.ViaBot = raw.ViaBot
 	x.EditDate = raw.EditDate
 	x.HasProtectedContent = raw.HasProtectedContent
+	x.IsFromOffline = raw.IsFromOffline
 	x.MediaGroupId = raw.MediaGroupId
 	x.AuthorSignature = raw.AuthorSignature
 	x.Text = raw.Text
@@ -605,8 +624,8 @@ func (x *ExternalReplyInfo) UnmarshalJSON(rawBytes []byte) (err error) {
 // Describes reply parameters for the message that is being sent.
 type ReplyParameters struct {
 	MessageId                int64            `json:"message_id"`                            // Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified
-	ChatId                   ChatID           `json:"chat_id,omitempty"`                     // Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername)
-	AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified message to be replied to is not found; can be used only for replies in the same chat and forum topic.
+	ChatId                   ChatID           `json:"chat_id,omitempty"`                     // Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account.
+	AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account.
 	Quote                    string           `json:"quote,omitempty"`                       // Optional. Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message.
 	QuoteParseMode           string           `json:"quote_parse_mode,omitempty"`            // Optional. Mode for parsing entities in the quote. See formatting options for more details.
 	QuoteEntities            []*MessageEntity `json:"quote_entities,omitempty"`              // Optional. A JSON-serialized list of special entities that appear in the quote. It can be specified instead of quote_parse_mode.
@@ -620,8 +639,8 @@ func (x *ReplyParameters) UnmarshalJSON(rawBytes []byte) (err error) {
 
 	type temp struct {
 		MessageId                int64            `json:"message_id"`                            // Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified
-		ChatId                   json.RawMessage  `json:"chat_id,omitempty"`                     // Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername)
-		AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified message to be replied to is not found; can be used only for replies in the same chat and forum topic.
+		ChatId                   json.RawMessage  `json:"chat_id,omitempty"`                     // Optional. If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername). Not supported for messages sent on behalf of a business account.
+		AllowSendingWithoutReply bool             `json:"allow_sending_without_reply,omitempty"` // Optional. Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account.
 		Quote                    string           `json:"quote,omitempty"`                       // Optional. Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message.
 		QuoteParseMode           string           `json:"quote_parse_mode,omitempty"`            // Optional. Mode for parsing entities in the quote. See formatting options for more details.
 		QuoteEntities            []*MessageEntity `json:"quote_entities,omitempty"`              // Optional. A JSON-serialized list of special entities that appear in the quote. It can be specified instead of quote_parse_mode.
@@ -825,8 +844,8 @@ type Poll struct {
 
 // Location represents a point on the map.
 type Location struct {
-	Longitude            float64 `json:"longitude"`                        // Longitude as defined by sender
 	Latitude             float64 `json:"latitude"`                         // Latitude as defined by sender
+	Longitude            float64 `json:"longitude"`                        // Longitude as defined by sender
 	HorizontalAccuracy   float64 `json:"horizontal_accuracy,omitempty"`    // Optional. The radius of uncertainty for the location, measured in meters; 0-1500
 	LivePeriod           int64   `json:"live_period,omitempty"`            // Optional. Time relative to the message sending date, during which the location can be updated; in seconds. For active live locations only.
 	Heading              int64   `json:"heading,omitempty"`                // Optional. The direction in which user is moving, in degrees; 1-360. For active live locations only.
@@ -892,16 +911,28 @@ type GeneralForumTopicHidden struct{}
 // GeneralForumTopicUnhidden represents a service message about General forum topic unhidden in the chat. Currently holds no information.
 type GeneralForumTopicUnhidden struct{}
 
-// UsersShared contains information about the users whose identifiers were shared with the bot using a KeyboardButtonRequestUsers button.
-type UsersShared struct {
-	RequestId int64   `json:"request_id"` // Identifier of the request
-	UserIds   []int64 `json:"user_ids"`   // Identifiers of the shared users. These numbers may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting them. But they have at most 52 significant bits, so 64-bit integers or double-precision float types are safe for storing these identifiers. The bot may not have access to the users and could be unable to use these identifiers, unless the users are already known to the bot by some other means.
+// SharedUser contains information about a user that was shared with the bot using a KeyboardButtonRequestUser button.
+type SharedUser struct {
+	UserId    int64        `json:"user_id"`              // Identifier of the shared user. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so 64-bit integers or double-precision float types are safe for storing these identifiers. The bot may not have access to the user and could be unable to use this identifier, unless the user is already known to the bot by some other means.
+	FirstName string       `json:"first_name,omitempty"` // Optional. First name of the user, if the name was requested by the bot
+	LastName  string       `json:"last_name,omitempty"`  // Optional. Last name of the user, if the name was requested by the bot
+	Username  string       `json:"username,omitempty"`   // Optional. Username of the user, if the username was requested by the bot
+	Photo     []*PhotoSize `json:"photo,omitempty"`      // Optional. Available sizes of the chat photo, if the photo was requested by the bot
 }
 
-// ChatShared contains information about the chat whose identifier was shared with the bot using a KeyboardButtonRequestChat button.
+// UsersShared contains information about the users whose identifiers were shared with the bot using a KeyboardButtonRequestUsers button.
+type UsersShared struct {
+	RequestId int64         `json:"request_id"` // Identifier of the request
+	Users     []*SharedUser `json:"users"`      // Information about users shared with the bot.
+}
+
+// ChatShared contains information about a chat that was shared with the bot using a KeyboardButtonRequestChat button.
 type ChatShared struct {
-	RequestId int64 `json:"request_id"` // Identifier of the request
-	ChatId    int64 `json:"chat_id"`    // Identifier of the shared chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. The bot may not have access to the chat and could be unable to use this identifier, unless the chat is already known to the bot by some other means.
+	RequestId int64        `json:"request_id"`         // Identifier of the request
+	ChatId    int64        `json:"chat_id"`            // Identifier of the shared chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. The bot may not have access to the chat and could be unable to use this identifier, unless the chat is already known to the bot by some other means.
+	Title     string       `json:"title,omitempty"`    // Optional. Title of the chat, if the title was requested by the bot.
+	Username  string       `json:"username,omitempty"` // Optional. Username of the chat, if the username was requested by the bot and available.
+	Photo     []*PhotoSize `json:"photo,omitempty"`    // Optional. Available sizes of the chat photo, if the photo was requested by the bot
 }
 
 // WriteAccessAllowed represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess.
@@ -1021,15 +1052,18 @@ type KeyboardButton struct {
 	WebApp          *WebAppInfo                 `json:"web_app,omitempty"`          // Optional. If specified, the described Web App will be launched when the button is pressed. The Web App will be able to send a “web_app_data” service message. Available in private chats only.
 }
 
-// KeyboardButtonRequestUsers defines the criteria used to request suitable users. The identifiers of the selected users will be shared with the bot when the corresponding button is pressed. More about requesting users »
+// KeyboardButtonRequestUsers defines the criteria used to request suitable users. Information about the selected users will be shared with the bot when the corresponding button is pressed. More about requesting users »
 type KeyboardButtonRequestUsers struct {
-	RequestId     int64 `json:"request_id"`                // Signed 32-bit identifier of the request that will be received back in the UsersShared object. Must be unique within the message
-	UserIsBot     bool  `json:"user_is_bot,omitempty"`     // Optional. Pass True to request bots, pass False to request regular users. If not specified, no additional restrictions are applied.
-	UserIsPremium bool  `json:"user_is_premium,omitempty"` // Optional. Pass True to request premium users, pass False to request non-premium users. If not specified, no additional restrictions are applied.
-	MaxQuantity   int64 `json:"max_quantity,omitempty"`    // Optional. The maximum number of users to be selected; 1-10. Defaults to 1.
+	RequestId       int64 `json:"request_id"`                 // Signed 32-bit identifier of the request that will be received back in the UsersShared object. Must be unique within the message
+	UserIsBot       bool  `json:"user_is_bot,omitempty"`      // Optional. Pass True to request bots, pass False to request regular users. If not specified, no additional restrictions are applied.
+	UserIsPremium   bool  `json:"user_is_premium,omitempty"`  // Optional. Pass True to request premium users, pass False to request non-premium users. If not specified, no additional restrictions are applied.
+	MaxQuantity     int64 `json:"max_quantity,omitempty"`     // Optional. The maximum number of users to be selected; 1-10. Defaults to 1.
+	RequestName     bool  `json:"request_name,omitempty"`     // Optional. Pass True to request the users' first and last name
+	RequestUsername bool  `json:"request_username,omitempty"` // Optional. Pass True to request the users' username
+	RequestPhoto    bool  `json:"request_photo,omitempty"`    // Optional. Pass True to request the users' photo
 }
 
-// KeyboardButtonRequestChat defines the criteria used to request a suitable chat. The identifier of the selected chat will be shared with the bot when the corresponding button is pressed. More about requesting chats »
+// KeyboardButtonRequestChat defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the сhat if appropriate More about requesting chats »
 type KeyboardButtonRequestChat struct {
 	RequestId               int64                    `json:"request_id"`                          // Signed 32-bit identifier of the request, which will be received back in the ChatShared object. Must be unique within the message
 	ChatIsChannel           bool                     `json:"chat_is_channel"`                     // Pass True to request a channel chat, pass False to request a group or a supergroup chat.
@@ -1039,6 +1073,9 @@ type KeyboardButtonRequestChat struct {
 	UserAdministratorRights *ChatAdministratorRights `json:"user_administrator_rights,omitempty"` // Optional. A JSON-serialized object listing the required administrator rights of the user in the chat. The rights must be a superset of bot_administrator_rights. If not specified, no additional restrictions are applied.
 	BotAdministratorRights  *ChatAdministratorRights `json:"bot_administrator_rights,omitempty"`  // Optional. A JSON-serialized object listing the required administrator rights of the bot in the chat. The rights must be a subset of user_administrator_rights. If not specified, no additional restrictions are applied.
 	BotIsMember             bool                     `json:"bot_is_member,omitempty"`             // Optional. Pass True to request a chat with the bot as a member. Otherwise, no additional restrictions are applied.
+	RequestTitle            bool                     `json:"request_title,omitempty"`             // Optional. Pass True to request the chat's title
+	RequestUsername         bool                     `json:"request_username,omitempty"`          // Optional. Pass True to request the chat's username
+	RequestPhoto            bool                     `json:"request_photo,omitempty"`             // Optional. Pass True to request the chat's photo
 }
 
 // KeyboardButtonPollType represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
@@ -1196,10 +1233,10 @@ type ChatAdministratorRights struct {
 	CanPostStories      bool `json:"can_post_stories"`            // True, if the administrator can post stories to the chat
 	CanEditStories      bool `json:"can_edit_stories"`            // True, if the administrator can edit stories posted by other users
 	CanDeleteStories    bool `json:"can_delete_stories"`          // True, if the administrator can delete stories posted by other users
-	CanPostMessages     bool `json:"can_post_messages,omitempty"` // Optional. True, if the administrator can post messages in the channel, or access channel statistics; channels only
-	CanEditMessages     bool `json:"can_edit_messages,omitempty"` // Optional. True, if the administrator can edit messages of other users and can pin messages; channels only
-	CanPinMessages      bool `json:"can_pin_messages,omitempty"`  // Optional. True, if the user is allowed to pin messages; groups and supergroups only
-	CanManageTopics     bool `json:"can_manage_topics,omitempty"` // Optional. True, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only
+	CanPostMessages     bool `json:"can_post_messages,omitempty"` // Optional. True, if the administrator can post messages in the channel, or access channel statistics; for channels only
+	CanEditMessages     bool `json:"can_edit_messages,omitempty"` // Optional. True, if the administrator can edit messages of other users and can pin messages; for channels only
+	CanPinMessages      bool `json:"can_pin_messages,omitempty"`  // Optional. True, if the user is allowed to pin messages; for groups and supergroups only
+	CanManageTopics     bool `json:"can_manage_topics,omitempty"` // Optional. True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
 }
 
 // ChatMemberUpdated represents changes in the status of a chat member.
@@ -1286,10 +1323,10 @@ type ChatMemberAdministrator struct {
 	CanPostStories      bool   `json:"can_post_stories"`            // True, if the administrator can post stories to the chat
 	CanEditStories      bool   `json:"can_edit_stories"`            // True, if the administrator can edit stories posted by other users
 	CanDeleteStories    bool   `json:"can_delete_stories"`          // True, if the administrator can delete stories posted by other users
-	CanPostMessages     bool   `json:"can_post_messages,omitempty"` // Optional. True, if the administrator can post messages in the channel, or access channel statistics; channels only
-	CanEditMessages     bool   `json:"can_edit_messages,omitempty"` // Optional. True, if the administrator can edit messages of other users and can pin messages; channels only
-	CanPinMessages      bool   `json:"can_pin_messages,omitempty"`  // Optional. True, if the user is allowed to pin messages; groups and supergroups only
-	CanManageTopics     bool   `json:"can_manage_topics,omitempty"` // Optional. True, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only
+	CanPostMessages     bool   `json:"can_post_messages,omitempty"` // Optional. True, if the administrator can post messages in the channel, or access channel statistics; for channels only
+	CanEditMessages     bool   `json:"can_edit_messages,omitempty"` // Optional. True, if the administrator can edit messages of other users and can pin messages; for channels only
+	CanPinMessages      bool   `json:"can_pin_messages,omitempty"`  // Optional. True, if the user is allowed to pin messages; for groups and supergroups only
+	CanManageTopics     bool   `json:"can_manage_topics,omitempty"` // Optional. True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
 	CustomTitle         string `json:"custom_title,omitempty"`      // Optional. Custom title for this user
 }
 
@@ -1370,6 +1407,33 @@ type ChatPermissions struct {
 	CanInviteUsers        bool `json:"can_invite_users,omitempty"`          // Optional. True, if the user is allowed to invite new users to the chat
 	CanPinMessages        bool `json:"can_pin_messages,omitempty"`          // Optional. True, if the user is allowed to pin messages. Ignored in public supergroups
 	CanManageTopics       bool `json:"can_manage_topics,omitempty"`         // Optional. True, if the user is allowed to create forum topics. If omitted defaults to the value of can_pin_messages
+}
+
+type Birthdate struct {
+	Day   int64 `json:"day"`            // Day of the user's birth; 1-31
+	Month int64 `json:"month"`          // Month of the user's birth; 1-12
+	Year  int64 `json:"year,omitempty"` // Optional. Year of the user's birth
+}
+
+type BusinessIntro struct {
+	Title   string   `json:"title,omitempty"`   // Optional. Title text of the business intro
+	Message string   `json:"message,omitempty"` // Optional. Message text of the business intro
+	Sticker *Sticker `json:"sticker,omitempty"` // Optional. Sticker of the business intro
+}
+
+type BusinessLocation struct {
+	Address  string    `json:"address"`            // Address of the business
+	Location *Location `json:"location,omitempty"` // Optional. Location of the business
+}
+
+type BusinessOpeningHoursInterval struct {
+	OpeningMinute int64 `json:"opening_minute"` // The minute's sequence number in a week, starting on Monday, marking the start of the time interval during which the business is open; 0 - 7 * 24 * 60
+	ClosingMinute int64 `json:"closing_minute"` // The minute's sequence number in a week, starting on Monday, marking the end of the time interval during which the business is open; 0 - 8 * 24 * 60
+}
+
+type BusinessOpeningHours struct {
+	TimeZoneName string                          `json:"time_zone_name"` // Unique name of the time zone for which the opening hours are defined
+	OpeningHours []*BusinessOpeningHoursInterval `json:"opening_hours"`  // List of time intervals describing business opening hours
 }
 
 // Represents a location to which a chat is connected.
@@ -1766,6 +1830,23 @@ type UserChatBoosts struct {
 	Boosts []*ChatBoost `json:"boosts"` // The list of boosts added to the chat by the user
 }
 
+// Describes the connection of the bot with a business account.
+type BusinessConnection struct {
+	Id         string `json:"id"`           // Unique identifier of the business connection
+	User       User   `json:"user"`         // Business account user that created the business connection
+	UserChatId int64  `json:"user_chat_id"` // Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
+	Date       int64  `json:"date"`         // Date the connection was established in Unix time
+	CanReply   bool   `json:"can_reply"`    // True, if the bot can act on behalf of the business account in chats that were active in the last 24 hours
+	IsEnabled  bool   `json:"is_enabled"`   // True, if the connection is active
+}
+
+// BusinessMessagesDeleted is received when messages are deleted from a connected business account.
+type BusinessMessagesDeleted struct {
+	BusinessConnectionId string  `json:"business_connection_id"` // Unique identifier of the business connection
+	Chat                 Chat    `json:"chat"`                   // Information about a chat in the business account. The bot may not have access to the chat or the corresponding user.
+	MessageIds           []int64 `json:"message_ids"`            // A JSON-serialized list of identifiers of deleted messages in the chat of the business account
+}
+
 // Describes why a request was unsuccessful.
 type ResponseParameters struct {
 	MigrateToChatId int64 `json:"migrate_to_chat_id,omitempty"` // Optional. The group has been migrated to a supergroup with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
@@ -1951,16 +2032,17 @@ func (api *API) Close() (bool, error) {
 
 // sendMessage is used to send text messages. On success, the sent Message is returned.
 type SendMessage struct {
-	ChatId              ChatID              `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64               `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Text                string              `json:"text"`                           // Text of the message to be sent, 1-4096 characters after entities parsing
-	ParseMode           ParseMode           `json:"parse_mode,omitempty"`           // Mode for parsing entities in the message text. See formatting options for more details.
-	Entities            []*MessageEntity    `json:"entities,omitempty"`             // A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode
-	LinkPreviewOptions  *LinkPreviewOptions `json:"link_preview_options,omitempty"` // Link preview generation options for the message
-	DisableNotification bool                `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool                `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters    `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup         `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	BusinessConnectionId string              `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID              `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64               `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Text                 string              `json:"text"`                             // Text of the message to be sent, 1-4096 characters after entities parsing
+	ParseMode            ParseMode           `json:"parse_mode,omitempty"`             // Mode for parsing entities in the message text. See formatting options for more details.
+	Entities             []*MessageEntity    `json:"entities,omitempty"`               // A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode
+	LinkPreviewOptions   *LinkPreviewOptions `json:"link_preview_options,omitempty"`   // Link preview generation options for the message
+	DisableNotification  bool                `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool                `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters      *ReplyParameters    `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          ReplyMarkup         `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 // sendMessage is used to send text messages. On success, the sent Message is returned.
@@ -1988,7 +2070,7 @@ type ForwardMessages struct {
 	ChatId              ChatID  `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageThreadId     int64   `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	FromChatId          ChatID  `json:"from_chat_id"`                   // Unique identifier for the chat where the original messages were sent (or channel username in the format @channelusername)
-	MessageIds          []int64 `json:"message_ids"`                    // Identifiers of 1-100 messages in the chat from_chat_id to forward. The identifiers must be specified in a strictly increasing order.
+	MessageIds          []int64 `json:"message_ids"`                    // A JSON-serialized list of 1-100 identifiers of messages in the chat from_chat_id to forward. The identifiers must be specified in a strictly increasing order.
 	DisableNotification bool    `json:"disable_notification,omitempty"` // Sends the messages silently. Users will receive a notification with no sound.
 	ProtectContent      bool    `json:"protect_content,omitempty"`      // Protects the contents of the forwarded messages from forwarding and saving
 }
@@ -2023,7 +2105,7 @@ type CopyMessages struct {
 	ChatId              ChatID  `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageThreadId     int64   `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	FromChatId          ChatID  `json:"from_chat_id"`                   // Unique identifier for the chat where the original messages were sent (or channel username in the format @channelusername)
-	MessageIds          []int64 `json:"message_ids"`                    // Identifiers of 1-100 messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order.
+	MessageIds          []int64 `json:"message_ids"`                    // A JSON-serialized list of 1-100 identifiers of messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order.
 	DisableNotification bool    `json:"disable_notification,omitempty"` // Sends the messages silently. Users will receive a notification with no sound.
 	ProtectContent      bool    `json:"protect_content,omitempty"`      // Protects the contents of the sent messages from forwarding and saving
 	RemoveCaption       bool    `json:"remove_caption,omitempty"`       // Pass True to copy the messages without their captions
@@ -2036,17 +2118,18 @@ func (api *API) CopyMessages(payload *CopyMessages) ([]*MessageId, error) {
 
 // sendPhoto is used to send photos. On success, the sent Message is returned.
 type SendPhoto struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Photo               *InputFile       `json:"photo"`                          // Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. More information on Sending Files »
-	Caption             string           `json:"caption,omitempty"`              // Photo caption (may also be used when resending photos by file_id), 0-1024 characters after entities parsing
-	ParseMode           ParseMode        `json:"parse_mode,omitempty"`           // Mode for parsing entities in the photo caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity `json:"caption_entities,omitempty"`     // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
-	HasSpoiler          bool             `json:"has_spoiler,omitempty"`          // Pass True if the photo needs to be covered with a spoiler animation
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Photo                *InputFile       `json:"photo"`                            // Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. More information on Sending Files »
+	Caption              string           `json:"caption,omitempty"`                // Photo caption (may also be used when resending photos by file_id), 0-1024 characters after entities parsing
+	ParseMode            ParseMode        `json:"parse_mode,omitempty"`             // Mode for parsing entities in the photo caption. See formatting options for more details.
+	CaptionEntities      []*MessageEntity `json:"caption_entities,omitempty"`       // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	HasSpoiler           bool             `json:"has_spoiler,omitempty"`            // Pass True if the photo needs to be covered with a spoiler animation
+	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 func (x *SendPhoto) getFiles() map[string]*InputFile {
@@ -2064,6 +2147,9 @@ func (x *SendPhoto) getFiles() map[string]*InputFile {
 func (x *SendPhoto) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
+	if x.BusinessConnectionId != "" {
+		payload["business_connection_id"] = x.BusinessConnectionId
+	}
 	if bb, err := json.Marshal(x.ChatId); err != nil {
 		return nil, err
 	} else {
@@ -2127,20 +2213,21 @@ func (api *API) SendPhoto(payload *SendPhoto) (*Message, error) {
 // sendAudio is used to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
 // For sending voice messages, use the sendVoice method instead.
 type SendAudio struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Audio               *InputFile       `json:"audio"`                          // Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »
-	Caption             string           `json:"caption,omitempty"`              // Audio caption, 0-1024 characters after entities parsing
-	ParseMode           ParseMode        `json:"parse_mode,omitempty"`           // Mode for parsing entities in the audio caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity `json:"caption_entities,omitempty"`     // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
-	Duration            int64            `json:"duration,omitempty"`             // Duration of the audio in seconds
-	Performer           string           `json:"performer,omitempty"`            // Performer
-	Title               string           `json:"title,omitempty"`                // Track name
-	Thumbnail           *InputFile       `json:"thumbnail,omitempty"`            // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Audio                *InputFile       `json:"audio"`                            // Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »
+	Caption              string           `json:"caption,omitempty"`                // Audio caption, 0-1024 characters after entities parsing
+	ParseMode            ParseMode        `json:"parse_mode,omitempty"`             // Mode for parsing entities in the audio caption. See formatting options for more details.
+	CaptionEntities      []*MessageEntity `json:"caption_entities,omitempty"`       // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	Duration             int64            `json:"duration,omitempty"`               // Duration of the audio in seconds
+	Performer            string           `json:"performer,omitempty"`              // Performer
+	Title                string           `json:"title,omitempty"`                  // Track name
+	Thumbnail            *InputFile       `json:"thumbnail,omitempty"`              // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 func (x *SendAudio) getFiles() map[string]*InputFile {
@@ -2163,6 +2250,9 @@ func (x *SendAudio) getFiles() map[string]*InputFile {
 func (x *SendAudio) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
+	if x.BusinessConnectionId != "" {
+		payload["business_connection_id"] = x.BusinessConnectionId
+	}
 	if bb, err := json.Marshal(x.ChatId); err != nil {
 		return nil, err
 	} else {
@@ -2232,6 +2322,7 @@ func (api *API) SendAudio(payload *SendAudio) (*Message, error) {
 
 // sendDocument is used to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
 type SendDocument struct {
+	BusinessConnectionId        string           `json:"business_connection_id,omitempty"`         // Unique identifier of the business connection on behalf of which the message will be sent
 	ChatId                      ChatID           `json:"chat_id"`                                  // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageThreadId             int64            `json:"message_thread_id,omitempty"`              // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	Document                    *InputFile       `json:"document"`                                 // File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »
@@ -2243,7 +2334,7 @@ type SendDocument struct {
 	DisableNotification         bool             `json:"disable_notification,omitempty"`           // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent              bool             `json:"protect_content,omitempty"`                // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters             *ReplyParameters `json:"reply_parameters,omitempty"`               // Description of the message to reply to
-	ReplyMarkup                 ReplyMarkup      `json:"reply_markup,omitempty"`                   // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup                 ReplyMarkup      `json:"reply_markup,omitempty"`                   // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 func (x *SendDocument) getFiles() map[string]*InputFile {
@@ -2266,6 +2357,9 @@ func (x *SendDocument) getFiles() map[string]*InputFile {
 func (x *SendDocument) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
+	if x.BusinessConnectionId != "" {
+		payload["business_connection_id"] = x.BusinessConnectionId
+	}
 	if bb, err := json.Marshal(x.ChatId); err != nil {
 		return nil, err
 	} else {
@@ -2328,22 +2422,23 @@ func (api *API) SendDocument(payload *SendDocument) (*Message, error) {
 
 // sendVideo is used to send video files, Telegram clients support MPEG4 videos (other formats may be sent as Document). On success, the sent Message is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
 type SendVideo struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Video               *InputFile       `json:"video"`                          // Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. More information on Sending Files »
-	Duration            int64            `json:"duration,omitempty"`             // Duration of sent video in seconds
-	Width               int64            `json:"width,omitempty"`                // Video width
-	Height              int64            `json:"height,omitempty"`               // Video height
-	Thumbnail           *InputFile       `json:"thumbnail,omitempty"`            // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-	Caption             string           `json:"caption,omitempty"`              // Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing
-	ParseMode           ParseMode        `json:"parse_mode,omitempty"`           // Mode for parsing entities in the video caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity `json:"caption_entities,omitempty"`     // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
-	HasSpoiler          bool             `json:"has_spoiler,omitempty"`          // Pass True if the video needs to be covered with a spoiler animation
-	SupportsStreaming   bool             `json:"supports_streaming,omitempty"`   // Pass True if the uploaded video is suitable for streaming
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Video                *InputFile       `json:"video"`                            // Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. More information on Sending Files »
+	Duration             int64            `json:"duration,omitempty"`               // Duration of sent video in seconds
+	Width                int64            `json:"width,omitempty"`                  // Video width
+	Height               int64            `json:"height,omitempty"`                 // Video height
+	Thumbnail            *InputFile       `json:"thumbnail,omitempty"`              // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	Caption              string           `json:"caption,omitempty"`                // Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing
+	ParseMode            ParseMode        `json:"parse_mode,omitempty"`             // Mode for parsing entities in the video caption. See formatting options for more details.
+	CaptionEntities      []*MessageEntity `json:"caption_entities,omitempty"`       // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	HasSpoiler           bool             `json:"has_spoiler,omitempty"`            // Pass True if the video needs to be covered with a spoiler animation
+	SupportsStreaming    bool             `json:"supports_streaming,omitempty"`     // Pass True if the uploaded video is suitable for streaming
+	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 func (x *SendVideo) getFiles() map[string]*InputFile {
@@ -2366,6 +2461,9 @@ func (x *SendVideo) getFiles() map[string]*InputFile {
 func (x *SendVideo) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
+	if x.BusinessConnectionId != "" {
+		payload["business_connection_id"] = x.BusinessConnectionId
+	}
 	if bb, err := json.Marshal(x.ChatId); err != nil {
 		return nil, err
 	} else {
@@ -2440,21 +2538,22 @@ func (api *API) SendVideo(payload *SendVideo) (*Message, error) {
 
 // sendAnimation is used to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future.
 type SendAnimation struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Animation           *InputFile       `json:"animation"`                      // Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. More information on Sending Files »
-	Duration            int64            `json:"duration,omitempty"`             // Duration of sent animation in seconds
-	Width               int64            `json:"width,omitempty"`                // Animation width
-	Height              int64            `json:"height,omitempty"`               // Animation height
-	Thumbnail           *InputFile       `json:"thumbnail,omitempty"`            // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-	Caption             string           `json:"caption,omitempty"`              // Animation caption (may also be used when resending animation by file_id), 0-1024 characters after entities parsing
-	ParseMode           ParseMode        `json:"parse_mode,omitempty"`           // Mode for parsing entities in the animation caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity `json:"caption_entities,omitempty"`     // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
-	HasSpoiler          bool             `json:"has_spoiler,omitempty"`          // Pass True if the animation needs to be covered with a spoiler animation
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Animation            *InputFile       `json:"animation"`                        // Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. More information on Sending Files »
+	Duration             int64            `json:"duration,omitempty"`               // Duration of sent animation in seconds
+	Width                int64            `json:"width,omitempty"`                  // Animation width
+	Height               int64            `json:"height,omitempty"`                 // Animation height
+	Thumbnail            *InputFile       `json:"thumbnail,omitempty"`              // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	Caption              string           `json:"caption,omitempty"`                // Animation caption (may also be used when resending animation by file_id), 0-1024 characters after entities parsing
+	ParseMode            ParseMode        `json:"parse_mode,omitempty"`             // Mode for parsing entities in the animation caption. See formatting options for more details.
+	CaptionEntities      []*MessageEntity `json:"caption_entities,omitempty"`       // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	HasSpoiler           bool             `json:"has_spoiler,omitempty"`            // Pass True if the animation needs to be covered with a spoiler animation
+	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 func (x *SendAnimation) getFiles() map[string]*InputFile {
@@ -2477,6 +2576,9 @@ func (x *SendAnimation) getFiles() map[string]*InputFile {
 func (x *SendAnimation) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
+	if x.BusinessConnectionId != "" {
+		payload["business_connection_id"] = x.BusinessConnectionId
+	}
 	if bb, err := json.Marshal(x.ChatId); err != nil {
 		return nil, err
 	} else {
@@ -2548,17 +2650,18 @@ func (api *API) SendAnimation(payload *SendAnimation) (*Message, error) {
 
 // sendVoice is used to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
 type SendVoice struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Voice               *InputFile       `json:"voice"`                          // Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »
-	Caption             string           `json:"caption,omitempty"`              // Voice message caption, 0-1024 characters after entities parsing
-	ParseMode           ParseMode        `json:"parse_mode,omitempty"`           // Mode for parsing entities in the voice message caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity `json:"caption_entities,omitempty"`     // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
-	Duration            int64            `json:"duration,omitempty"`             // Duration of the voice message in seconds
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Voice                *InputFile       `json:"voice"`                            // Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files »
+	Caption              string           `json:"caption,omitempty"`                // Voice message caption, 0-1024 characters after entities parsing
+	ParseMode            ParseMode        `json:"parse_mode,omitempty"`             // Mode for parsing entities in the voice message caption. See formatting options for more details.
+	CaptionEntities      []*MessageEntity `json:"caption_entities,omitempty"`       // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	Duration             int64            `json:"duration,omitempty"`               // Duration of the voice message in seconds
+	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 func (x *SendVoice) getFiles() map[string]*InputFile {
@@ -2576,6 +2679,9 @@ func (x *SendVoice) getFiles() map[string]*InputFile {
 func (x *SendVoice) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
+	if x.BusinessConnectionId != "" {
+		payload["business_connection_id"] = x.BusinessConnectionId
+	}
 	if bb, err := json.Marshal(x.ChatId); err != nil {
 		return nil, err
 	} else {
@@ -2638,16 +2744,17 @@ func (api *API) SendVoice(payload *SendVoice) (*Message, error) {
 
 // As of v.4.0, Telegram clients support rounded square MPEG4 videos of up to 1 minute long. sendVideoNote is used to send video messages. On success, the sent Message is returned.
 type SendVideoNote struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	VideoNote           *InputFile       `json:"video_note"`                     // Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files ». Sending video notes by a URL is currently unsupported
-	Duration            int64            `json:"duration,omitempty"`             // Duration of sent video in seconds
-	Length              int64            `json:"length,omitempty"`               // Video width and height, i.e. diameter of the video message
-	Thumbnail           *InputFile       `json:"thumbnail,omitempty"`            // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	VideoNote            *InputFile       `json:"video_note"`                       // Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files ». Sending video notes by a URL is currently unsupported
+	Duration             int64            `json:"duration,omitempty"`               // Duration of sent video in seconds
+	Length               int64            `json:"length,omitempty"`                 // Video width and height, i.e. diameter of the video message
+	Thumbnail            *InputFile       `json:"thumbnail,omitempty"`              // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 func (x *SendVideoNote) getFiles() map[string]*InputFile {
@@ -2670,6 +2777,9 @@ func (x *SendVideoNote) getFiles() map[string]*InputFile {
 func (x *SendVideoNote) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
+	if x.BusinessConnectionId != "" {
+		payload["business_connection_id"] = x.BusinessConnectionId
+	}
 	if bb, err := json.Marshal(x.ChatId); err != nil {
 		return nil, err
 	} else {
@@ -2722,12 +2832,13 @@ func (api *API) SendVideoNote(payload *SendVideoNote) (*Message, error) {
 
 // sendMediaGroup is used to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Messages that were sent is returned.
 type SendMediaGroup struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Media               []InputMedia     `json:"media"`                          // A JSON-serialized array describing messages to be sent, must include 2-10 items
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends messages silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent messages from forwarding and saving
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Media                []InputMedia     `json:"media"`                            // A JSON-serialized array describing messages to be sent, must include 2-10 items
+	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends messages silently. Users will receive a notification with no sound.
+	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent messages from forwarding and saving
+	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 }
 
 func (x *SendMediaGroup) getFiles() map[string]*InputFile {
@@ -2745,6 +2856,9 @@ func (x *SendMediaGroup) getFiles() map[string]*InputFile {
 func (x *SendMediaGroup) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
+	if x.BusinessConnectionId != "" {
+		payload["business_connection_id"] = x.BusinessConnectionId
+	}
 	if bb, err := json.Marshal(x.ChatId); err != nil {
 		return nil, err
 	} else {
@@ -2789,6 +2903,7 @@ func (api *API) SendMediaGroup(payload *SendMediaGroup) ([]*Message, error) {
 
 // sendLocation is used to send point on the map. On success, the sent Message is returned.
 type SendLocation struct {
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
 	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	Latitude             float64          `json:"latitude"`                         // Latitude of the location
@@ -2800,7 +2915,7 @@ type SendLocation struct {
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 // sendLocation is used to send point on the map. On success, the sent Message is returned.
@@ -2810,20 +2925,21 @@ func (api *API) SendLocation(payload *SendLocation) (*Message, error) {
 
 // sendVenue is used to send information about a venue. On success, the sent Message is returned.
 type SendVenue struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Latitude            float64          `json:"latitude"`                       // Latitude of the venue
-	Longitude           float64          `json:"longitude"`                      // Longitude of the venue
-	Title               string           `json:"title"`                          // Name of the venue
-	Address             string           `json:"address"`                        // Address of the venue
-	FoursquareId        string           `json:"foursquare_id,omitempty"`        // Foursquare identifier of the venue
-	FoursquareType      string           `json:"foursquare_type,omitempty"`      // Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
-	GooglePlaceId       string           `json:"google_place_id,omitempty"`      // Google Places identifier of the venue
-	GooglePlaceType     string           `json:"google_place_type,omitempty"`    // Google Places type of the venue. (See supported types.)
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Latitude             float64          `json:"latitude"`                         // Latitude of the venue
+	Longitude            float64          `json:"longitude"`                        // Longitude of the venue
+	Title                string           `json:"title"`                            // Name of the venue
+	Address              string           `json:"address"`                          // Address of the venue
+	FoursquareId         string           `json:"foursquare_id,omitempty"`          // Foursquare identifier of the venue
+	FoursquareType       string           `json:"foursquare_type,omitempty"`        // Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
+	GooglePlaceId        string           `json:"google_place_id,omitempty"`        // Google Places identifier of the venue
+	GooglePlaceType      string           `json:"google_place_type,omitempty"`      // Google Places type of the venue. (See supported types.)
+	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 // sendVenue is used to send information about a venue. On success, the sent Message is returned.
@@ -2833,16 +2949,17 @@ func (api *API) SendVenue(payload *SendVenue) (*Message, error) {
 
 // sendContact is used to send phone contacts. On success, the sent Message is returned.
 type SendContact struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	PhoneNumber         string           `json:"phone_number"`                   // Contact's phone number
-	FirstName           string           `json:"first_name"`                     // Contact's first name
-	LastName            string           `json:"last_name,omitempty"`            // Contact's last name
-	Vcard               string           `json:"vcard,omitempty"`                // Additional data about the contact in the form of a vCard, 0-2048 bytes
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	PhoneNumber          string           `json:"phone_number"`                     // Contact's phone number
+	FirstName            string           `json:"first_name"`                       // Contact's first name
+	LastName             string           `json:"last_name,omitempty"`              // Contact's last name
+	Vcard                string           `json:"vcard,omitempty"`                  // Additional data about the contact in the form of a vCard, 0-2048 bytes
+	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 // sendContact is used to send phone contacts. On success, the sent Message is returned.
@@ -2852,6 +2969,7 @@ func (api *API) SendContact(payload *SendContact) (*Message, error) {
 
 // sendPoll is used to send a native poll. On success, the sent Message is returned.
 type SendPoll struct {
+	BusinessConnectionId  string           `json:"business_connection_id,omitempty"`  // Unique identifier of the business connection on behalf of which the message will be sent
 	ChatId                ChatID           `json:"chat_id"`                           // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageThreadId       int64            `json:"message_thread_id,omitempty"`       // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	Question              string           `json:"question"`                          // Poll question, 1-300 characters
@@ -2869,7 +2987,7 @@ type SendPoll struct {
 	DisableNotification   bool             `json:"disable_notification,omitempty"`    // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent        bool             `json:"protect_content,omitempty"`         // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`        // Description of the message to reply to
-	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`            // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`            // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 // sendPoll is used to send a native poll. On success, the sent Message is returned.
@@ -2879,13 +2997,14 @@ func (api *API) SendPoll(payload *SendPoll) (*Message, error) {
 
 // sendDice is used to send an animated emoji that will display a random value. On success, the sent Message is returned.
 type SendDice struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Emoji               string           `json:"emoji,omitempty"`                // Emoji on which the dice throw animation is based. Currently, must be one of “”, “”, “”, “”, “”, or “”. Dice can have values 1-6 for “”, “” and “”, values 1-5 for “” and “”, and values 1-64 for “”. Defaults to “”
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Emoji                string           `json:"emoji,omitempty"`                  // Emoji on which the dice throw animation is based. Currently, must be one of “”, “”, “”, “”, “”, or “”. Dice can have values 1-6 for “”, “” and “”, values 1-5 for “” and “”, and values 1-64 for “”. Defaults to “”
+	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding
+	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
 }
 
 // sendDice is used to send an animated emoji that will display a random value. On success, the sent Message is returned.
@@ -2899,9 +3018,10 @@ func (api *API) SendDice(payload *SendDice) (*Message, error) {
 //
 // We only recommend using this method when a response from the bot will take a noticeable amount of time to arrive.
 type SendChatAction struct {
-	ChatId          ChatID `json:"chat_id"`                     // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId int64  `json:"message_thread_id,omitempty"` // Unique identifier for the target message thread; supergroups only
-	Action          string `json:"action"`                      // Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for text messages, upload_photo for photos, record_video or upload_video for videos, record_voice or upload_voice for voice notes, upload_document for general files, choose_sticker for stickers, find_location for location data, record_video_note or upload_video_note for video notes.
+	BusinessConnectionId string `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the action will be sent
+	ChatId               ChatID `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64  `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread; for supergroups only
+	Action               string `json:"action"`                           // Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for text messages, upload_photo for photos, record_video or upload_video for videos, record_voice or upload_voice for voice notes, upload_document for general files, choose_sticker for stickers, find_location for location data, record_video_note or upload_video_note for video notes.
 }
 
 // Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns True on success.
@@ -2917,7 +3037,7 @@ func (api *API) SendChatAction(payload *SendChatAction) (bool, error) {
 type SetMessageReaction struct {
 	ChatId    ChatID         `json:"chat_id"`            // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageId int64          `json:"message_id"`         // Identifier of the target message. If the message belongs to a media group, the reaction is set to the first non-deleted message in the group instead.
-	Reaction  []ReactionType `json:"reaction,omitempty"` // New list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators.
+	Reaction  []ReactionType `json:"reaction,omitempty"` // A JSON-serialized list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators.
 	IsBig     bool           `json:"is_big,omitempty"`   // Pass True to set the reaction with a big animation
 }
 
@@ -3004,10 +3124,10 @@ type PromoteChatMember struct {
 	CanPostStories      bool   `json:"can_post_stories,omitempty"`       // Pass True if the administrator can post stories to the chat
 	CanEditStories      bool   `json:"can_edit_stories,omitempty"`       // Pass True if the administrator can edit stories posted by other users
 	CanDeleteStories    bool   `json:"can_delete_stories,omitempty"`     // Pass True if the administrator can delete stories posted by other users
-	CanPostMessages     bool   `json:"can_post_messages,omitempty"`      // Pass True if the administrator can post messages in the channel, or access channel statistics; channels only
-	CanEditMessages     bool   `json:"can_edit_messages,omitempty"`      // Pass True if the administrator can edit messages of other users and can pin messages; channels only
-	CanPinMessages      bool   `json:"can_pin_messages,omitempty"`       // Pass True if the administrator can pin messages, supergroups only
-	CanManageTopics     bool   `json:"can_manage_topics,omitempty"`      // Pass True if the user is allowed to create, rename, close, and reopen forum topics, supergroups only
+	CanPostMessages     bool   `json:"can_post_messages,omitempty"`      // Pass True if the administrator can post messages in the channel, or access channel statistics; for channels only
+	CanEditMessages     bool   `json:"can_edit_messages,omitempty"`      // Pass True if the administrator can edit messages of other users and can pin messages; for channels only
+	CanPinMessages      bool   `json:"can_pin_messages,omitempty"`       // Pass True if the administrator can pin messages; for supergroups only
+	CanManageTopics     bool   `json:"can_manage_topics,omitempty"`      // Pass True if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only
 }
 
 // promoteChatMember is used to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Pass False for all boolean parameters to demote a user. Returns True on success.
@@ -3489,6 +3609,16 @@ func (api *API) GetUserChatBoosts(payload *GetUserChatBoosts) (*UserChatBoosts, 
 	return callJson[*UserChatBoosts](api, "getUserChatBoosts", payload)
 }
 
+// getBusinessConnection is used to get information about the connection of the bot with a business account. Returns a BusinessConnection object on success.
+type GetBusinessConnection struct {
+	BusinessConnectionId string `json:"business_connection_id"` // Unique identifier of the business connection
+}
+
+// getBusinessConnection is used to get information about the connection of the bot with a business account. Returns a BusinessConnection object on success.
+func (api *API) GetBusinessConnection(payload *GetBusinessConnection) (*BusinessConnection, error) {
+	return callJson[*BusinessConnection](api, "getBusinessConnection", payload)
+}
+
 // setMyCommands is used to change the list of the bot's commands. See this manual for more details about bot commands. Returns True on success.
 type SetMyCommands struct {
 	Commands     []*BotCommand   `json:"commands"`                // A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
@@ -3798,7 +3928,7 @@ func (api *API) DeleteMessage(payload *DeleteMessage) (bool, error) {
 // deleteMessages is used to delete multiple messages simultaneously. If some of the specified messages can't be found, they are skipped. Returns True on success.
 type DeleteMessages struct {
 	ChatId     ChatID  `json:"chat_id"`     // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageIds []int64 `json:"message_ids"` // Identifiers of 1-100 messages to delete. See deleteMessage for limitations on which messages can be deleted
+	MessageIds []int64 `json:"message_ids"` // A JSON-serialized list of 1-100 identifiers of messages to delete. See deleteMessage for limitations on which messages can be deleted
 }
 
 // deleteMessages is used to delete multiple messages simultaneously. If some of the specified messages can't be found, they are skipped. Returns True on success.
@@ -3830,8 +3960,6 @@ type StickerSet struct {
 	Name        string     `json:"name"`                // Sticker set name
 	Title       string     `json:"title"`               // Sticker set title
 	StickerType string     `json:"sticker_type"`        // Type of stickers in the set, currently one of “regular”, “mask”, “custom_emoji”
-	IsAnimated  bool       `json:"is_animated"`         // True, if the sticker set contains animated stickers
-	IsVideo     bool       `json:"is_video"`            // True, if the sticker set contains video stickers
 	Stickers    []*Sticker `json:"stickers"`            // List of all set stickers
 	Thumbnail   *PhotoSize `json:"thumbnail,omitempty"` // Optional. Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format
 }
@@ -3847,6 +3975,7 @@ type MaskPosition struct {
 // InputSticker describes a sticker to be added to a sticker set.
 type InputSticker struct {
 	Sticker      *InputFile    `json:"sticker"`                 // The added sticker. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, upload a new one using multipart/form-data, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. Animated and video stickers can't be uploaded via HTTP URL. More information on Sending Files »
+	Format       string        `json:"format"`                  // Format of the added sticker, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, “video” for a WEBM video
 	EmojiList    []string      `json:"emoji_list"`              // List of 1-20 emoji associated with the sticker
 	MaskPosition *MaskPosition `json:"mask_position,omitempty"` // Optional. Position where the mask should be placed on faces. For “mask” stickers only.
 	Keywords     []string      `json:"keywords,omitempty"`      // Optional. List of 0-20 search keywords for the sticker with total length of up to 64 characters. For “regular” and “custom_emoji” stickers only.
@@ -3866,14 +3995,15 @@ func (x *InputSticker) getFiles() map[string]*InputFile {
 
 // sendSticker is used to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned.
 type SendSticker struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Sticker             *InputFile       `json:"sticker"`                        // Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP or .TGS sticker using multipart/form-data. More information on Sending Files ». Video stickers can only be sent by a file_id. Animated stickers can't be sent via an HTTP URL.
-	Emoji               string           `json:"emoji,omitempty"`                // Emoji associated with the sticker; only for just uploaded stickers
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Sticker              *InputFile       `json:"sticker"`                          // Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data. More information on Sending Files ». Video and animated stickers can't be sent via an HTTP URL.
+	Emoji                string           `json:"emoji,omitempty"`                  // Emoji associated with the sticker; only for just uploaded stickers
+	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account.
 }
 
 func (x *SendSticker) getFiles() map[string]*InputFile {
@@ -3891,6 +4021,9 @@ func (x *SendSticker) getFiles() map[string]*InputFile {
 func (x *SendSticker) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
+	if x.BusinessConnectionId != "" {
+		payload["business_connection_id"] = x.BusinessConnectionId
+	}
 	if bb, err := json.Marshal(x.ChatId); err != nil {
 		return nil, err
 	} else {
@@ -3950,7 +4083,7 @@ func (api *API) GetStickerSet(payload *GetStickerSet) (*StickerSet, error) {
 
 // getCustomEmojiStickers is used to get information about custom emoji stickers by their identifiers. Returns an Array of Sticker objects.
 type GetCustomEmojiStickers struct {
-	CustomEmojiIds []string `json:"custom_emoji_ids"` // List of custom emoji identifiers. At most 200 custom emoji identifiers can be specified.
+	CustomEmojiIds []string `json:"custom_emoji_ids"` // A JSON-serialized list of custom emoji identifiers. At most 200 custom emoji identifiers can be specified.
 }
 
 // getCustomEmojiStickers is used to get information about custom emoji stickers by their identifiers. Returns an Array of Sticker objects.
@@ -3958,7 +4091,7 @@ func (api *API) GetCustomEmojiStickers(payload *GetCustomEmojiStickers) ([]*Stic
 	return callJson[[]*Sticker](api, "getCustomEmojiStickers", payload)
 }
 
-// uploadStickerFile is used to upload a file with a sticker for later use in the createNewStickerSet and addStickerToSet methods (the file can be used multiple times). Returns the uploaded File on success.
+// uploadStickerFile is used to upload a file with a sticker for later use in the createNewStickerSet, addStickerToSet, or replaceStickerInSet methods (the file can be used multiple times). Returns the uploaded File on success.
 type UploadStickerFile struct {
 	UserId        int64      `json:"user_id"`        // User identifier of sticker file owner
 	Sticker       *InputFile `json:"sticker"`        // A file with the sticker in .WEBP, .PNG, .TGS, or .WEBM format. See https://core.telegram.org/stickers for technical requirements. More information on Sending Files »
@@ -3986,7 +4119,7 @@ func (x *UploadStickerFile) getParams() (map[string]string, error) {
 	return payload, nil
 }
 
-// uploadStickerFile is used to upload a file with a sticker for later use in the createNewStickerSet and addStickerToSet methods (the file can be used multiple times). Returns the uploaded File on success.
+// uploadStickerFile is used to upload a file with a sticker for later use in the createNewStickerSet, addStickerToSet, or replaceStickerInSet methods (the file can be used multiple times). Returns the uploaded File on success.
 func (api *API) UploadStickerFile(payload *UploadStickerFile) (*File, error) {
 	if files := payload.getFiles(); len(files) != 0 {
 		params, err := payload.getParams()
@@ -4004,7 +4137,6 @@ type CreateNewStickerSet struct {
 	Name            string          `json:"name"`                       // Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals). Can contain only English letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in "_by_<bot_username>". <bot_username> is case insensitive. 1-64 characters.
 	Title           string          `json:"title"`                      // Sticker set title, 1-64 characters
 	Stickers        []*InputSticker `json:"stickers"`                   // A JSON-serialized list of 1-50 initial stickers to be added to the sticker set
-	StickerFormat   string          `json:"sticker_format"`             // Format of stickers in the set, must be one of “static”, “animated”, “video”
 	StickerType     string          `json:"sticker_type,omitempty"`     // Type of stickers in the set, pass “regular”, “mask”, or “custom_emoji”. By default, a regular sticker set is created.
 	NeedsRepainting bool            `json:"needs_repainting,omitempty"` // Pass True if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only
 }
@@ -4032,7 +4164,6 @@ func (x *CreateNewStickerSet) getParams() (map[string]string, error) {
 	} else {
 		payload["stickers"] = string(bb)
 	}
-	payload["sticker_format"] = x.StickerFormat
 	if x.StickerType != "" {
 		payload["sticker_type"] = x.StickerType
 	}
@@ -4055,7 +4186,7 @@ func (api *API) CreateNewStickerSet(payload *CreateNewStickerSet) (bool, error) 
 	return callJson[bool](api, "createNewStickerSet", payload)
 }
 
-// addStickerToSet is used to add a new sticker to a set created by the bot. The format of the added sticker must match the format of the other stickers in the set. Emoji sticker sets can have up to 200 stickers. Animated and video sticker sets can have up to 50 stickers. Static sticker sets can have up to 120 stickers. Returns True on success.
+// addStickerToSet is used to add a new sticker to a set created by the bot. Emoji sticker sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers. Returns True on success.
 type AddStickerToSet struct {
 	UserId  int64        `json:"user_id"` // User identifier of sticker set owner
 	Name    string       `json:"name"`    // Sticker set name
@@ -4086,7 +4217,7 @@ func (x *AddStickerToSet) getParams() (map[string]string, error) {
 	return payload, nil
 }
 
-// addStickerToSet is used to add a new sticker to a set created by the bot. The format of the added sticker must match the format of the other stickers in the set. Emoji sticker sets can have up to 200 stickers. Animated and video sticker sets can have up to 50 stickers. Static sticker sets can have up to 120 stickers. Returns True on success.
+// addStickerToSet is used to add a new sticker to a set created by the bot. Emoji sticker sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers. Returns True on success.
 func (api *API) AddStickerToSet(payload *AddStickerToSet) (bool, error) {
 	if files := payload.getFiles(); len(files) != 0 {
 		params, err := payload.getParams()
@@ -4117,6 +4248,51 @@ type DeleteStickerFromSet struct {
 // deleteStickerFromSet is used to delete a sticker from a set created by the bot. Returns True on success.
 func (api *API) DeleteStickerFromSet(payload *DeleteStickerFromSet) (bool, error) {
 	return callJson[bool](api, "deleteStickerFromSet", payload)
+}
+
+// replaceStickerInSet is used to replace an existing sticker in a sticker set with a new one. The method is equivalent to calling deleteStickerFromSet, then addStickerToSet, then setStickerPositionInSet. Returns True on success.
+type ReplaceStickerInSet struct {
+	UserId     int64        `json:"user_id"`     // User identifier of the sticker set owner
+	Name       string       `json:"name"`        // Sticker set name
+	OldSticker string       `json:"old_sticker"` // File identifier of the replaced sticker
+	Sticker    InputSticker `json:"sticker"`     // A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set remains unchanged.
+}
+
+func (x *ReplaceStickerInSet) getFiles() map[string]*InputFile {
+	media := map[string]*InputFile{}
+
+	for key, value := range x.Sticker.getFiles() {
+		media[key] = value
+	}
+
+	return media
+}
+
+func (x *ReplaceStickerInSet) getParams() (map[string]string, error) {
+	payload := map[string]string{}
+
+	payload["user_id"] = strconv.FormatInt(x.UserId, 10)
+	payload["name"] = x.Name
+	payload["old_sticker"] = x.OldSticker
+	if bb, err := json.Marshal(x.Sticker); err != nil {
+		return nil, err
+	} else {
+		payload["sticker"] = string(bb)
+	}
+
+	return payload, nil
+}
+
+// replaceStickerInSet is used to replace an existing sticker in a sticker set with a new one. The method is equivalent to calling deleteStickerFromSet, then addStickerToSet, then setStickerPositionInSet. Returns True on success.
+func (api *API) ReplaceStickerInSet(payload *ReplaceStickerInSet) (bool, error) {
+	if files := payload.getFiles(); len(files) != 0 {
+		params, err := payload.getParams()
+		if err != nil {
+			return false, err
+		}
+		return callMultipart[bool](api, "replaceStickerInSet", params, files)
+	}
+	return callJson[bool](api, "replaceStickerInSet", payload)
 }
 
 // setStickerEmojiList is used to change the list of emoji assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns True on success.
@@ -4168,6 +4344,7 @@ type SetStickerSetThumbnail struct {
 	Name      string     `json:"name"`                // Sticker set name
 	UserId    int64      `json:"user_id"`             // User identifier of the sticker set owner
 	Thumbnail *InputFile `json:"thumbnail,omitempty"` // A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see https://core.telegram.org/stickers#animated-sticker-requirements for animated sticker technical requirements), or a WEBM video with the thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-sticker-requirements for video sticker technical requirements. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files ». Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail.
+	Format    string     `json:"format"`              // Format of the thumbnail, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, or “video” for a WEBM video
 }
 
 func (x *SetStickerSetThumbnail) getFiles() map[string]*InputFile {
@@ -4187,6 +4364,7 @@ func (x *SetStickerSetThumbnail) getParams() (map[string]string, error) {
 
 	payload["name"] = x.Name
 	payload["user_id"] = strconv.FormatInt(x.UserId, 10)
+	payload["format"] = x.Format
 
 	return payload, nil
 }
@@ -5708,14 +5886,14 @@ type PassportFile struct {
 // Describes documents or other Telegram Passport elements shared with the bot by the user.
 type EncryptedPassportElement struct {
 	Type        string          `json:"type"`                   // Element type. One of “personal_details”, “passport”, “driver_license”, “identity_card”, “internal_passport”, “address”, “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration”, “temporary_registration”, “phone_number”, “email”.
-	Data        string          `json:"data,omitempty"`         // Optional. Base64-encoded encrypted Telegram Passport element data provided by the user, available for “personal_details”, “passport”, “driver_license”, “identity_card”, “internal_passport” and “address” types. Can be decrypted and verified using the accompanying EncryptedCredentials.
-	PhoneNumber string          `json:"phone_number,omitempty"` // Optional. User's verified phone number, available only for “phone_number” type
-	Email       string          `json:"email,omitempty"`        // Optional. User's verified email address, available only for “email” type
-	Files       []*PassportFile `json:"files,omitempty"`        // Optional. Array of encrypted files with documents provided by the user, available for “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration” and “temporary_registration” types. Files can be decrypted and verified using the accompanying EncryptedCredentials.
-	FrontSide   *PassportFile   `json:"front_side,omitempty"`   // Optional. Encrypted file with the front side of the document, provided by the user. Available for “passport”, “driver_license”, “identity_card” and “internal_passport”. The file can be decrypted and verified using the accompanying EncryptedCredentials.
-	ReverseSide *PassportFile   `json:"reverse_side,omitempty"` // Optional. Encrypted file with the reverse side of the document, provided by the user. Available for “driver_license” and “identity_card”. The file can be decrypted and verified using the accompanying EncryptedCredentials.
-	Selfie      *PassportFile   `json:"selfie,omitempty"`       // Optional. Encrypted file with the selfie of the user holding a document, provided by the user; available for “passport”, “driver_license”, “identity_card” and “internal_passport”. The file can be decrypted and verified using the accompanying EncryptedCredentials.
-	Translation []*PassportFile `json:"translation,omitempty"`  // Optional. Array of encrypted files with translated versions of documents provided by the user. Available if requested for “passport”, “driver_license”, “identity_card”, “internal_passport”, “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration” and “temporary_registration” types. Files can be decrypted and verified using the accompanying EncryptedCredentials.
+	Data        string          `json:"data,omitempty"`         // Optional. Base64-encoded encrypted Telegram Passport element data provided by the user; available only for “personal_details”, “passport”, “driver_license”, “identity_card”, “internal_passport” and “address” types. Can be decrypted and verified using the accompanying EncryptedCredentials.
+	PhoneNumber string          `json:"phone_number,omitempty"` // Optional. User's verified phone number; available only for “phone_number” type
+	Email       string          `json:"email,omitempty"`        // Optional. User's verified email address; available only for “email” type
+	Files       []*PassportFile `json:"files,omitempty"`        // Optional. Array of encrypted files with documents provided by the user; available only for “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration” and “temporary_registration” types. Files can be decrypted and verified using the accompanying EncryptedCredentials.
+	FrontSide   *PassportFile   `json:"front_side,omitempty"`   // Optional. Encrypted file with the front side of the document, provided by the user; available only for “passport”, “driver_license”, “identity_card” and “internal_passport”. The file can be decrypted and verified using the accompanying EncryptedCredentials.
+	ReverseSide *PassportFile   `json:"reverse_side,omitempty"` // Optional. Encrypted file with the reverse side of the document, provided by the user; available only for “driver_license” and “identity_card”. The file can be decrypted and verified using the accompanying EncryptedCredentials.
+	Selfie      *PassportFile   `json:"selfie,omitempty"`       // Optional. Encrypted file with the selfie of the user holding a document, provided by the user; available if requested for “passport”, “driver_license”, “identity_card” and “internal_passport”. The file can be decrypted and verified using the accompanying EncryptedCredentials.
+	Translation []*PassportFile `json:"translation,omitempty"`  // Optional. Array of encrypted files with translated versions of documents provided by the user; available if requested for “passport”, “driver_license”, “identity_card”, “internal_passport”, “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration” and “temporary_registration” types. Files can be decrypted and verified using the accompanying EncryptedCredentials.
 	Hash        string          `json:"hash"`                   // Base64-encoded element hash for using in PassportElementErrorUnspecified
 }
 
@@ -5839,13 +6017,14 @@ func (PassportElementErrorUnspecified) IsPassportElementError() {}
 
 // sendGame is used to send a game. On success, the sent Message is returned.
 type SendGame struct {
-	ChatId              int64                 `json:"chat_id"`                        // Unique identifier for the target chat
-	MessageThreadId     int64                 `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	GameShortName       string                `json:"game_short_name"`                // Short name of the game, serves as the unique identifier for the game. Set up your games via @BotFather.
-	DisableNotification bool                  `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool                  `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters      `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`         // A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game.
+	BusinessConnectionId string                `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId               int64                 `json:"chat_id"`                          // Unique identifier for the target chat
+	MessageThreadId      int64                 `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	GameShortName        string                `json:"game_short_name"`                  // Short name of the game, serves as the unique identifier for the game. Set up your games via @BotFather.
+	DisableNotification  bool                  `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent       bool                  `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters      *ReplyParameters      `json:"reply_parameters,omitempty"`       // Description of the message to reply to
+	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game. Not supported for messages sent on behalf of a business account.
 }
 
 // sendGame is used to send a game. On success, the sent Message is returned.
