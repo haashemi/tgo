@@ -36,7 +36,6 @@ type Update struct {
 // getUpdates is used to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
 //
 // Notes1. This method will not work if an outgoing webhook is set up.2. In order to avoid getting duplicate updates, recalculate offset after each server response.
-//
 type GetUpdates struct {
 	Offset         int64    `json:"offset,omitempty"`          // Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id. The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue. All previous updates will be forgotten.
 	Limit          int64    `json:"limit,omitempty"`           // Limits the number of updates to be retrieved. Values between 1-100 are accepted. Defaults to 100.
@@ -47,7 +46,6 @@ type GetUpdates struct {
 // getUpdates is used to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
 //
 // Notes1. This method will not work if an outgoing webhook is set up.2. In order to avoid getting duplicate updates, recalculate offset after each server response.
-//
 func (api *API) GetUpdates(payload *GetUpdates) ([]*Update, error) {
 	return callJson[[]*Update](api, "getUpdates", payload)
 }
@@ -57,7 +55,6 @@ func (api *API) GetUpdates(payload *GetUpdates) ([]*Update, error) {
 //
 // Notes1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.3. Ports currently supported for webhooks: 443, 80, 88, 8443.
 // If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks.
-//
 type SetWebhook struct {
 	Url                string     `json:"url"`                            // HTTPS URL to send updates to. Use an empty string to remove webhook integration
 	Certificate        *InputFile `json:"certificate,omitempty"`          // Upload your public key certificate so that the root certificate in use can be checked. See our self-signed guide for details.
@@ -112,7 +109,6 @@ func (x *SetWebhook) getParams() (map[string]string, error) {
 //
 // Notes1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.3. Ports currently supported for webhooks: 443, 80, 88, 8443.
 // If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks.
-//
 func (api *API) SetWebhook(payload *SetWebhook) (bool, error) {
 	if files := payload.getFiles(); len(files) != 0 {
 		params, err := payload.getParams()
@@ -170,48 +166,60 @@ type User struct {
 
 // Chat represents a chat.
 type Chat struct {
+	Id        int64  `json:"id"`                   // Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
+	Type      string `json:"type"`                 // Type of the chat, can be either “private”, “group”, “supergroup” or “channel”
+	Title     string `json:"title,omitempty"`      // Optional. Title, for supergroups, channels and group chats
+	Username  string `json:"username,omitempty"`   // Optional. Username, for private chats, supergroups and channels if available
+	FirstName string `json:"first_name,omitempty"` // Optional. First name of the other party in a private chat
+	LastName  string `json:"last_name,omitempty"`  // Optional. Last name of the other party in a private chat
+	IsForum   bool   `json:"is_forum,omitempty"`   // Optional. True, if the supergroup chat is a forum (has topics enabled)
+}
+
+// ChatFullInfo contains full information about a chat.
+type ChatFullInfo struct {
 	Id                                 int64                 `json:"id"`                                                // Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
-	Type                               string                `json:"type"`                                              // Type of chat, can be either “private”, “group”, “supergroup” or “channel”
+	Type                               string                `json:"type"`                                              // Type of the chat, can be either “private”, “group”, “supergroup” or “channel”
 	Title                              string                `json:"title,omitempty"`                                   // Optional. Title, for supergroups, channels and group chats
 	Username                           string                `json:"username,omitempty"`                                // Optional. Username, for private chats, supergroups and channels if available
 	FirstName                          string                `json:"first_name,omitempty"`                              // Optional. First name of the other party in a private chat
 	LastName                           string                `json:"last_name,omitempty"`                               // Optional. Last name of the other party in a private chat
 	IsForum                            bool                  `json:"is_forum,omitempty"`                                // Optional. True, if the supergroup chat is a forum (has topics enabled)
-	Photo                              *ChatPhoto            `json:"photo,omitempty"`                                   // Optional. Chat photo. Returned only in getChat.
-	ActiveUsernames                    []string              `json:"active_usernames,omitempty"`                        // Optional. If non-empty, the list of all active chat usernames; for private chats, supergroups and channels. Returned only in getChat.
-	Birthdate                          *Birthdate            `json:"birthdate,omitempty"`                               // Optional. For private chats, the date of birth of the user. Returned only in getChat.
-	BusinessIntro                      *BusinessIntro        `json:"business_intro,omitempty"`                          // Optional. For private chats with business accounts, the intro of the business. Returned only in getChat.
-	BusinessLocation                   *BusinessLocation     `json:"business_location,omitempty"`                       // Optional. For private chats with business accounts, the location of the business. Returned only in getChat.
-	BusinessOpeningHours               *BusinessOpeningHours `json:"business_opening_hours,omitempty"`                  // Optional. For private chats with business accounts, the opening hours of the business. Returned only in getChat.
-	PersonalChat                       *Chat                 `json:"personal_chat,omitempty"`                           // Optional. For private chats, the personal channel of the user. Returned only in getChat.
-	AvailableReactions                 []ReactionType        `json:"available_reactions,omitempty"`                     // Optional. List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed. Returned only in getChat.
-	AccentColorId                      int64                 `json:"accent_color_id,omitempty"`                         // Optional. Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details. Returned only in getChat. Always returned in getChat.
-	BackgroundCustomEmojiId            string                `json:"background_custom_emoji_id,omitempty"`              // Optional. Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background. Returned only in getChat.
-	ProfileAccentColorId               int64                 `json:"profile_accent_color_id,omitempty"`                 // Optional. Identifier of the accent color for the chat's profile background. See profile accent colors for more details. Returned only in getChat.
-	ProfileBackgroundCustomEmojiId     string                `json:"profile_background_custom_emoji_id,omitempty"`      // Optional. Custom emoji identifier of the emoji chosen by the chat for its profile background. Returned only in getChat.
-	EmojiStatusCustomEmojiId           string                `json:"emoji_status_custom_emoji_id,omitempty"`            // Optional. Custom emoji identifier of the emoji status of the chat or the other party in a private chat. Returned only in getChat.
-	EmojiStatusExpirationDate          int64                 `json:"emoji_status_expiration_date,omitempty"`            // Optional. Expiration date of the emoji status of the chat or the other party in a private chat, in Unix time, if any. Returned only in getChat.
-	Bio                                string                `json:"bio,omitempty"`                                     // Optional. Bio of the other party in a private chat. Returned only in getChat.
-	HasPrivateForwards                 bool                  `json:"has_private_forwards,omitempty"`                    // Optional. True, if privacy settings of the other party in the private chat allows to use tg://user?id=<user_id> links only in chats with the user. Returned only in getChat.
-	HasRestrictedVoiceAndVideoMessages bool                  `json:"has_restricted_voice_and_video_messages,omitempty"` // Optional. True, if the privacy settings of the other party restrict sending voice and video note messages in the private chat. Returned only in getChat.
-	JoinToSendMessages                 bool                  `json:"join_to_send_messages,omitempty"`                   // Optional. True, if users need to join the supergroup before they can send messages. Returned only in getChat.
-	JoinByRequest                      bool                  `json:"join_by_request,omitempty"`                         // Optional. True, if all users directly joining the supergroup need to be approved by supergroup administrators. Returned only in getChat.
-	Description                        string                `json:"description,omitempty"`                             // Optional. Description, for groups, supergroups and channel chats. Returned only in getChat.
-	InviteLink                         string                `json:"invite_link,omitempty"`                             // Optional. Primary invite link, for groups, supergroups and channel chats. Returned only in getChat.
-	PinnedMessage                      *Message              `json:"pinned_message,omitempty"`                          // Optional. The most recent pinned message (by sending date). Returned only in getChat.
-	Permissions                        *ChatPermissions      `json:"permissions,omitempty"`                             // Optional. Default chat member permissions, for groups and supergroups. Returned only in getChat.
-	SlowModeDelay                      int64                 `json:"slow_mode_delay,omitempty"`                         // Optional. For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds. Returned only in getChat.
-	UnrestrictBoostCount               int64                 `json:"unrestrict_boost_count,omitempty"`                  // Optional. For supergroups, the minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions. Returned only in getChat.
-	MessageAutoDeleteTime              int64                 `json:"message_auto_delete_time,omitempty"`                // Optional. The time after which all messages sent to the chat will be automatically deleted; in seconds. Returned only in getChat.
-	HasAggressiveAntiSpamEnabled       bool                  `json:"has_aggressive_anti_spam_enabled,omitempty"`        // Optional. True, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators. Returned only in getChat.
-	HasHiddenMembers                   bool                  `json:"has_hidden_members,omitempty"`                      // Optional. True, if non-administrators can only get the list of bots and administrators in the chat. Returned only in getChat.
-	HasProtectedContent                bool                  `json:"has_protected_content,omitempty"`                   // Optional. True, if messages from the chat can't be forwarded to other chats. Returned only in getChat.
-	HasVisibleHistory                  bool                  `json:"has_visible_history,omitempty"`                     // Optional. True, if new chat members will have access to old messages; available only to chat administrators. Returned only in getChat.
-	StickerSetName                     string                `json:"sticker_set_name,omitempty"`                        // Optional. For supergroups, name of group sticker set. Returned only in getChat.
-	CanSetStickerSet                   bool                  `json:"can_set_sticker_set,omitempty"`                     // Optional. True, if the bot can change the group sticker set. Returned only in getChat.
-	CustomEmojiStickerSetName          string                `json:"custom_emoji_sticker_set_name,omitempty"`           // Optional. For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group. Returned only in getChat.
-	LinkedChatId                       int64                 `json:"linked_chat_id,omitempty"`                          // Optional. Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier. Returned only in getChat.
-	Location                           *ChatLocation         `json:"location,omitempty"`                                // Optional. For supergroups, the location to which the supergroup is connected. Returned only in getChat.
+	AccentColorId                      int64                 `json:"accent_color_id"`                                   // Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
+	MaxReactionCount                   int64                 `json:"max_reaction_count"`                                // The maximum number of reactions that can be set on a message in the chat
+	Photo                              *ChatPhoto            `json:"photo,omitempty"`                                   // Optional. Chat photo
+	ActiveUsernames                    []string              `json:"active_usernames,omitempty"`                        // Optional. If non-empty, the list of all active chat usernames; for private chats, supergroups and channels
+	Birthdate                          *Birthdate            `json:"birthdate,omitempty"`                               // Optional. For private chats, the date of birth of the user
+	BusinessIntro                      *BusinessIntro        `json:"business_intro,omitempty"`                          // Optional. For private chats with business accounts, the intro of the business
+	BusinessLocation                   *BusinessLocation     `json:"business_location,omitempty"`                       // Optional. For private chats with business accounts, the location of the business
+	BusinessOpeningHours               *BusinessOpeningHours `json:"business_opening_hours,omitempty"`                  // Optional. For private chats with business accounts, the opening hours of the business
+	PersonalChat                       *Chat                 `json:"personal_chat,omitempty"`                           // Optional. For private chats, the personal channel of the user
+	AvailableReactions                 []ReactionType        `json:"available_reactions,omitempty"`                     // Optional. List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed.
+	BackgroundCustomEmojiId            string                `json:"background_custom_emoji_id,omitempty"`              // Optional. Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background
+	ProfileAccentColorId               int64                 `json:"profile_accent_color_id,omitempty"`                 // Optional. Identifier of the accent color for the chat's profile background. See profile accent colors for more details.
+	ProfileBackgroundCustomEmojiId     string                `json:"profile_background_custom_emoji_id,omitempty"`      // Optional. Custom emoji identifier of the emoji chosen by the chat for its profile background
+	EmojiStatusCustomEmojiId           string                `json:"emoji_status_custom_emoji_id,omitempty"`            // Optional. Custom emoji identifier of the emoji status of the chat or the other party in a private chat
+	EmojiStatusExpirationDate          int64                 `json:"emoji_status_expiration_date,omitempty"`            // Optional. Expiration date of the emoji status of the chat or the other party in a private chat, in Unix time, if any
+	Bio                                string                `json:"bio,omitempty"`                                     // Optional. Bio of the other party in a private chat
+	HasPrivateForwards                 bool                  `json:"has_private_forwards,omitempty"`                    // Optional. True, if privacy settings of the other party in the private chat allows to use tg://user?id=<user_id> links only in chats with the user
+	HasRestrictedVoiceAndVideoMessages bool                  `json:"has_restricted_voice_and_video_messages,omitempty"` // Optional. True, if the privacy settings of the other party restrict sending voice and video note messages in the private chat
+	JoinToSendMessages                 bool                  `json:"join_to_send_messages,omitempty"`                   // Optional. True, if users need to join the supergroup before they can send messages
+	JoinByRequest                      bool                  `json:"join_by_request,omitempty"`                         // Optional. True, if all users directly joining the supergroup need to be approved by supergroup administrators
+	Description                        string                `json:"description,omitempty"`                             // Optional. Description, for groups, supergroups and channel chats
+	InviteLink                         string                `json:"invite_link,omitempty"`                             // Optional. Primary invite link, for groups, supergroups and channel chats
+	PinnedMessage                      *Message              `json:"pinned_message,omitempty"`                          // Optional. The most recent pinned message (by sending date)
+	Permissions                        *ChatPermissions      `json:"permissions,omitempty"`                             // Optional. Default chat member permissions, for groups and supergroups
+	SlowModeDelay                      int64                 `json:"slow_mode_delay,omitempty"`                         // Optional. For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds
+	UnrestrictBoostCount               int64                 `json:"unrestrict_boost_count,omitempty"`                  // Optional. For supergroups, the minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions
+	MessageAutoDeleteTime              int64                 `json:"message_auto_delete_time,omitempty"`                // Optional. The time after which all messages sent to the chat will be automatically deleted; in seconds
+	HasAggressiveAntiSpamEnabled       bool                  `json:"has_aggressive_anti_spam_enabled,omitempty"`        // Optional. True, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators.
+	HasHiddenMembers                   bool                  `json:"has_hidden_members,omitempty"`                      // Optional. True, if non-administrators can only get the list of bots and administrators in the chat
+	HasProtectedContent                bool                  `json:"has_protected_content,omitempty"`                   // Optional. True, if messages from the chat can't be forwarded to other chats
+	HasVisibleHistory                  bool                  `json:"has_visible_history,omitempty"`                     // Optional. True, if new chat members will have access to old messages; available only to chat administrators
+	StickerSetName                     string                `json:"sticker_set_name,omitempty"`                        // Optional. For supergroups, name of the group sticker set
+	CanSetStickerSet                   bool                  `json:"can_set_sticker_set,omitempty"`                     // Optional. True, if the bot can change the group sticker set
+	CustomEmojiStickerSetName          string                `json:"custom_emoji_sticker_set_name,omitempty"`           // Optional. For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group.
+	LinkedChatId                       int64                 `json:"linked_chat_id,omitempty"`                          // Optional. Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier.
+	Location                           *ChatLocation         `json:"location,omitempty"`                                // Optional. For supergroups, the location to which the supergroup is connected
 }
 
 // Message represents a message.
@@ -280,6 +288,7 @@ type Message struct {
 	PassportData                  *PassportData                  `json:"passport_data,omitempty"`                     // Optional. Telegram Passport data
 	ProximityAlertTriggered       *ProximityAlertTriggered       `json:"proximity_alert_triggered,omitempty"`         // Optional. Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
 	BoostAdded                    *ChatBoostAdded                `json:"boost_added,omitempty"`                       // Optional. Service message: user boosted the chat
+	ChatBackgroundSet             *ChatBackground                `json:"chat_background_set,omitempty"`               // Optional. Service message: chat background set
 	ForumTopicCreated             *ForumTopicCreated             `json:"forum_topic_created,omitempty"`               // Optional. Service message: forum topic created
 	ForumTopicEdited              *ForumTopicEdited              `json:"forum_topic_edited,omitempty"`                // Optional. Service message: forum topic edited
 	ForumTopicClosed              *ForumTopicClosed              `json:"forum_topic_closed,omitempty"`                // Optional. Service message: forum topic closed
@@ -370,6 +379,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 		PassportData                  *PassportData                  `json:"passport_data,omitempty"`                     // Optional. Telegram Passport data
 		ProximityAlertTriggered       *ProximityAlertTriggered       `json:"proximity_alert_triggered,omitempty"`         // Optional. Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
 		BoostAdded                    *ChatBoostAdded                `json:"boost_added,omitempty"`                       // Optional. Service message: user boosted the chat
+		ChatBackgroundSet             *ChatBackground                `json:"chat_background_set,omitempty"`               // Optional. Service message: chat background set
 		ForumTopicCreated             *ForumTopicCreated             `json:"forum_topic_created,omitempty"`               // Optional. Service message: forum topic created
 		ForumTopicEdited              *ForumTopicEdited              `json:"forum_topic_edited,omitempty"`                // Optional. Service message: forum topic edited
 		ForumTopicClosed              *ForumTopicClosed              `json:"forum_topic_closed,omitempty"`                // Optional. Service message: forum topic closed
@@ -468,6 +478,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.PassportData = raw.PassportData
 	x.ProximityAlertTriggered = raw.ProximityAlertTriggered
 	x.BoostAdded = raw.BoostAdded
+	x.ChatBackgroundSet = raw.ChatBackgroundSet
 	x.ForumTopicCreated = raw.ForumTopicCreated
 	x.ForumTopicEdited = raw.ForumTopicEdited
 	x.ForumTopicClosed = raw.ForumTopicClosed
@@ -813,8 +824,16 @@ type Dice struct {
 
 // PollOption contains information about one answer option in a poll.
 type PollOption struct {
-	Text       string `json:"text"`        // Option text, 1-100 characters
-	VoterCount int64  `json:"voter_count"` // Number of users that voted for this option
+	Text         string           `json:"text"`                    // Option text, 1-100 characters
+	TextEntities []*MessageEntity `json:"text_entities,omitempty"` // Optional. Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts
+	VoterCount   int64            `json:"voter_count"`             // Number of users that voted for this option
+}
+
+// InputPollOption contains information about one answer option in a poll to send.
+type InputPollOption struct {
+	Text          string           `json:"text"`                      // Option text, 1-100 characters
+	TextParseMode string           `json:"text_parse_mode,omitempty"` // Optional. Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed
+	TextEntities  []*MessageEntity `json:"text_entities,omitempty"`   // Optional. A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of text_parse_mode
 }
 
 // PollAnswer represents an answer of a user in a non-anonymous poll.
@@ -829,6 +848,7 @@ type PollAnswer struct {
 type Poll struct {
 	Id                    string           `json:"id"`                             // Unique poll identifier
 	Question              string           `json:"question"`                       // Poll question, 1-300 characters
+	QuestionEntities      []*MessageEntity `json:"question_entities,omitempty"`    // Optional. Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
 	Options               []*PollOption    `json:"options"`                        // List of poll options
 	TotalVoterCount       int64            `json:"total_voter_count"`              // Total number of users that voted in the poll
 	IsClosed              bool             `json:"is_closed"`                      // True, if the poll is closed
@@ -886,6 +906,174 @@ type ChatBoostAdded struct {
 	BoostCount int64 `json:"boost_count"` // Number of boosts added by the user
 }
 
+// BackgroundFill describes the way a background is filled based on the selected colors. Currently, it can be one of
+// BackgroundFillSolid, BackgroundFillGradient, BackgroundFillFreeformGradient
+type BackgroundFill interface {
+	// IsBackgroundFill does nothing and is only used to enforce type-safety
+	IsBackgroundFill()
+}
+
+// The background is filled using the selected color.
+type BackgroundFillSolid struct {
+	Type  string `json:"type"`  // Type of the background fill, always “solid”
+	Color int64  `json:"color"` // The color of the background fill in the RGB24 format
+}
+
+func (BackgroundFillSolid) IsBackgroundFill() {}
+
+// The background is a gradient fill.
+type BackgroundFillGradient struct {
+	Type          string `json:"type"`           // Type of the background fill, always “gradient”
+	TopColor      int64  `json:"top_color"`      // Top color of the gradient in the RGB24 format
+	BottomColor   int64  `json:"bottom_color"`   // Bottom color of the gradient in the RGB24 format
+	RotationAngle int64  `json:"rotation_angle"` // Clockwise rotation angle of the background fill in degrees; 0-359
+}
+
+func (BackgroundFillGradient) IsBackgroundFill() {}
+
+// The background is a freeform gradient that rotates after every message in the chat.
+type BackgroundFillFreeformGradient struct {
+	Type   string  `json:"type"`   // Type of the background fill, always “freeform_gradient”
+	Colors []int64 `json:"colors"` // A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format
+}
+
+func (BackgroundFillFreeformGradient) IsBackgroundFill() {}
+
+// BackgroundType describes the type of a background. Currently, it can be one of
+// BackgroundTypeFill, BackgroundTypeWallpaper, BackgroundTypePattern, BackgroundTypeChatTheme
+type BackgroundType interface {
+	// IsBackgroundType does nothing and is only used to enforce type-safety
+	IsBackgroundType()
+}
+
+// The background is automatically filled based on the selected colors.
+type BackgroundTypeFill struct {
+	Type             string         `json:"type"`               // Type of the background, always “fill”
+	Fill             BackgroundFill `json:"fill"`               // The background fill
+	DarkThemeDimming int64          `json:"dark_theme_dimming"` // Dimming of the background in dark themes, as a percentage; 0-100
+}
+
+func (BackgroundTypeFill) IsBackgroundType() {}
+
+func (x *BackgroundTypeFill) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
+	type temp struct {
+		Type             string          `json:"type"`               // Type of the background, always “fill”
+		Fill             json.RawMessage `json:"fill"`               // The background fill
+		DarkThemeDimming int64           `json:"dark_theme_dimming"` // Dimming of the background in dark themes, as a percentage; 0-100
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalBackgroundFill(raw.Fill); err != nil {
+		return err
+	} else {
+		x.Fill = data
+	}
+	x.Type = raw.Type
+
+	x.DarkThemeDimming = raw.DarkThemeDimming
+	return nil
+}
+
+// The background is a wallpaper in the JPEG format.
+type BackgroundTypeWallpaper struct {
+	Type             string   `json:"type"`                 // Type of the background, always “wallpaper”
+	Document         Document `json:"document"`             // Document with the wallpaper
+	DarkThemeDimming int64    `json:"dark_theme_dimming"`   // Dimming of the background in dark themes, as a percentage; 0-100
+	IsBlurred        bool     `json:"is_blurred,omitempty"` // Optional. True, if the wallpaper is downscaled to fit in a 450x450 square and then box-blurred with radius 12
+	IsMoving         bool     `json:"is_moving,omitempty"`  // Optional. True, if the background moves slightly when the device is tilted
+}
+
+func (BackgroundTypeWallpaper) IsBackgroundType() {}
+
+// The background is a PNG or TGV (gzipped subset of SVG with MIME type “application/x-tgwallpattern”) pattern to be combined with the background fill chosen by the user.
+type BackgroundTypePattern struct {
+	Type       string         `json:"type"`                  // Type of the background, always “pattern”
+	Document   Document       `json:"document"`              // Document with the pattern
+	Fill       BackgroundFill `json:"fill"`                  // The background fill that is combined with the pattern
+	Intensity  int64          `json:"intensity"`             // Intensity of the pattern when it is shown above the filled background; 0-100
+	IsInverted bool           `json:"is_inverted,omitempty"` // Optional. True, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only
+	IsMoving   bool           `json:"is_moving,omitempty"`   // Optional. True, if the background moves slightly when the device is tilted
+}
+
+func (BackgroundTypePattern) IsBackgroundType() {}
+
+func (x *BackgroundTypePattern) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
+	type temp struct {
+		Type       string          `json:"type"`                  // Type of the background, always “pattern”
+		Document   Document        `json:"document"`              // Document with the pattern
+		Fill       json.RawMessage `json:"fill"`                  // The background fill that is combined with the pattern
+		Intensity  int64           `json:"intensity"`             // Intensity of the pattern when it is shown above the filled background; 0-100
+		IsInverted bool            `json:"is_inverted,omitempty"` // Optional. True, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only
+		IsMoving   bool            `json:"is_moving,omitempty"`   // Optional. True, if the background moves slightly when the device is tilted
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalBackgroundFill(raw.Fill); err != nil {
+		return err
+	} else {
+		x.Fill = data
+	}
+	x.Type = raw.Type
+	x.Document = raw.Document
+
+	x.Intensity = raw.Intensity
+	x.IsInverted = raw.IsInverted
+	x.IsMoving = raw.IsMoving
+	return nil
+}
+
+// The background is taken directly from a built-in chat theme.
+type BackgroundTypeChatTheme struct {
+	Type      string `json:"type"`       // Type of the background, always “chat_theme”
+	ThemeName string `json:"theme_name"` // Name of the chat theme, which is usually an emoji
+}
+
+func (BackgroundTypeChatTheme) IsBackgroundType() {}
+
+// ChatBackground represents a chat background.
+type ChatBackground struct {
+	Type BackgroundType `json:"type"` // Type of the background
+}
+
+func (x *ChatBackground) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
+	type temp struct {
+		Type json.RawMessage `json:"type"` // Type of the background
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalBackgroundType(raw.Type); err != nil {
+		return err
+	} else {
+		x.Type = data
+	}
+
+	return nil
+}
+
 // ForumTopicCreated represents a service message about a new forum topic created in the chat.
 type ForumTopicCreated struct {
 	Name              string `json:"name"`                           // Name of the topic
@@ -911,7 +1099,7 @@ type GeneralForumTopicHidden struct{}
 // GeneralForumTopicUnhidden represents a service message about General forum topic unhidden in the chat. Currently holds no information.
 type GeneralForumTopicUnhidden struct{}
 
-// SharedUser contains information about a user that was shared with the bot using a KeyboardButtonRequestUser button.
+// SharedUser contains information about a user that was shared with the bot using a KeyboardButtonRequestUsers button.
 type SharedUser struct {
 	UserId    int64        `json:"user_id"`              // Identifier of the shared user. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so 64-bit integers or double-precision float types are safe for storing these identifiers. The bot may not have access to the user and could be unable to use this identifier, unless the user is already known to the bot by some other means.
 	FirstName string       `json:"first_name,omitempty"` // Optional. First name of the user, if the name was requested by the bot
@@ -1015,7 +1203,6 @@ type UserProfilePhotos struct {
 // File represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
 //
 // The maximum file size to download is 20 MB
-//
 type File struct {
 	FileId       string `json:"file_id"`             // Identifier for this file, which can be used to download or reuse the file
 	FileUniqueId string `json:"file_unique_id"`      // Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
@@ -1028,7 +1215,7 @@ type WebAppInfo struct {
 	Url string `json:"url"` // An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps
 }
 
-// ReplyKeyboardMarkup represents a custom keyboard with reply options (see Introduction to bots for details and examples).
+// ReplyKeyboardMarkup represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a Telegram Business account.
 type ReplyKeyboardMarkup struct {
 	Keyboard              [][]*KeyboardButton `json:"keyboard"`                          // Array of button rows, each represented by an Array of KeyboardButton objects
 	IsPersistent          bool                `json:"is_persistent,omitempty"`           // Optional. Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to false, in which case the custom keyboard can be hidden and opened with a keyboard icon.
@@ -1058,12 +1245,12 @@ type KeyboardButtonRequestUsers struct {
 	UserIsBot       bool  `json:"user_is_bot,omitempty"`      // Optional. Pass True to request bots, pass False to request regular users. If not specified, no additional restrictions are applied.
 	UserIsPremium   bool  `json:"user_is_premium,omitempty"`  // Optional. Pass True to request premium users, pass False to request non-premium users. If not specified, no additional restrictions are applied.
 	MaxQuantity     int64 `json:"max_quantity,omitempty"`     // Optional. The maximum number of users to be selected; 1-10. Defaults to 1.
-	RequestName     bool  `json:"request_name,omitempty"`     // Optional. Pass True to request the users' first and last name
-	RequestUsername bool  `json:"request_username,omitempty"` // Optional. Pass True to request the users' username
-	RequestPhoto    bool  `json:"request_photo,omitempty"`    // Optional. Pass True to request the users' photo
+	RequestName     bool  `json:"request_name,omitempty"`     // Optional. Pass True to request the users' first and last names
+	RequestUsername bool  `json:"request_username,omitempty"` // Optional. Pass True to request the users' usernames
+	RequestPhoto    bool  `json:"request_photo,omitempty"`    // Optional. Pass True to request the users' photos
 }
 
-// KeyboardButtonRequestChat defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the сhat if appropriate More about requesting chats »
+// KeyboardButtonRequestChat defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the chat if appropriate. More about requesting chats ».
 type KeyboardButtonRequestChat struct {
 	RequestId               int64                    `json:"request_id"`                          // Signed 32-bit identifier of the request, which will be received back in the ChatShared object. Must be unique within the message
 	ChatIsChannel           bool                     `json:"chat_is_channel"`                     // Pass True to request a channel chat, pass False to request a group or a supergroup chat.
@@ -1083,7 +1270,7 @@ type KeyboardButtonPollType struct {
 	Type string `json:"type,omitempty"` // Optional. If quiz is passed, the user will be allowed to create only polls in the quiz mode. If regular is passed, only regular polls will be allowed. Otherwise, the user will be allowed to create a poll of any type.
 }
 
-// Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup).
+// Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a Telegram Business account.
 type ReplyKeyboardRemove struct {
 	RemoveKeyboard bool `json:"remove_keyboard"`     // Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use one_time_keyboard in ReplyKeyboardMarkup)
 	Selective      bool `json:"selective,omitempty"` // Optional. Use this parameter if you want to remove the keyboard for specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.Example: A user votes in a poll, bot returns confirmation message in reply to the vote and removes the keyboard for that user, while still showing the keyboard with poll options to users who haven't voted yet.
@@ -1102,12 +1289,12 @@ func (InlineKeyboardMarkup) IsReplyMarkup() {}
 type InlineKeyboardButton struct {
 	Text                         string                       `json:"text"`                                       // Label text on the button
 	Url                          string                       `json:"url,omitempty"`                              // Optional. HTTP or tg:// URL to be opened when the button is pressed. Links tg://user?id=<user_id> can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
-	CallbackData                 string                       `json:"callback_data,omitempty"`                    // Optional. Data to be sent in a callback query to the bot when button is pressed, 1-64 bytes
-	WebApp                       *WebAppInfo                  `json:"web_app,omitempty"`                          // Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot.
+	CallbackData                 string                       `json:"callback_data,omitempty"`                    // Optional. Data to be sent in a callback query to the bot when button is pressed, 1-64 bytes. Not supported for messages sent on behalf of a Telegram Business account.
+	WebApp                       *WebAppInfo                  `json:"web_app,omitempty"`                          // Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a Telegram Business account.
 	LoginUrl                     *LoginUrl                    `json:"login_url,omitempty"`                        // Optional. An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget.
-	SwitchInlineQuery            string                       `json:"switch_inline_query,omitempty"`              // Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted.
-	SwitchInlineQueryCurrentChat string                       `json:"switch_inline_query_current_chat,omitempty"` // Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options.
-	SwitchInlineQueryChosenChat  *SwitchInlineQueryChosenChat `json:"switch_inline_query_chosen_chat,omitempty"`  // Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field
+	SwitchInlineQuery            string                       `json:"switch_inline_query,omitempty"`              // Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent on behalf of a Telegram Business account.
+	SwitchInlineQueryCurrentChat string                       `json:"switch_inline_query_current_chat,omitempty"` // Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent on behalf of a Telegram Business account.
+	SwitchInlineQueryChosenChat  *SwitchInlineQueryChosenChat `json:"switch_inline_query_chosen_chat,omitempty"`  // Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent on behalf of a Telegram Business account.
 	CallbackGame                 *CallbackGame                `json:"callback_game,omitempty"`                    // Optional. Description of the game that will be launched when the user presses the button.NOTE: This type of button must always be the first button in the first row.
 	Pay                          bool                         `json:"pay,omitempty"`                              // Optional. Specify True, to send a Pay button.NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
 }
@@ -1116,7 +1303,6 @@ type InlineKeyboardButton struct {
 // Telegram apps support these buttons as of version 5.7.
 //
 // Sample bot: @discussbot
-//
 type LoginUrl struct {
 	Url                string `json:"url"`                            // An HTTPS URL to be opened with user authorization data added to the query string when the button is pressed. If the user refuses to provide authorization data, the original URL without information about the user will be opened. The data added is the same as described in Receiving authorization data.NOTE: You must always check the hash of the received data to verify the authentication and the integrity of the data as described in Checking authorization.
 	ForwardText        string `json:"forward_text,omitempty"`         // Optional. New text of the button in forwarded messages.
@@ -1136,7 +1322,6 @@ type SwitchInlineQueryChosenChat struct {
 // CallbackQuery represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present.
 //
 // NOTE: After the user presses a callback button, Telegram clients will display a progress bar until you call answerCallbackQuery. It is, therefore, necessary to react by calling answerCallbackQuery even if no notification to the user is needed (e.g., without specifying any of the optional parameters).
-//
 type CallbackQuery struct {
 	Id              string                   `json:"id"`                          // Unique identifier for this query
 	From            User                     `json:"from"`                        // Sender
@@ -1182,7 +1367,7 @@ func (x *CallbackQuery) UnmarshalJSON(rawBytes []byte) (err error) {
 	return nil
 }
 
-// Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode.
+// Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a Telegram Business account.
 //
 // Example: A poll bot for groups runs in privacy mode (only receives commands, replies to its messages and mentions). There could be two ways to create a new poll:
 //
@@ -1190,7 +1375,6 @@ func (x *CallbackQuery) UnmarshalJSON(rawBytes []byte) (err error) {
 // Guide the user through a step-by-step process. 'Please send me your question', 'Cool, now let's add the first answer option', 'Great. Keep adding answer options, then send /done when you're ready'.
 //
 // The last option is definitely more attractive. And if you use ForceReply in your bot's questions, it will receive the user's answers even if it only receives replies, commands and mentions - without any extra work for the user.
-//
 type ForceReply struct {
 	ForceReply            bool   `json:"force_reply"`                       // Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
 	InputFieldPlaceholder string `json:"input_field_placeholder,omitempty"` // Optional. The placeholder to be shown in the input field when the reply is active; 1-64 characters
@@ -1231,7 +1415,7 @@ type ChatAdministratorRights struct {
 	CanChangeInfo       bool `json:"can_change_info"`             // True, if the user is allowed to change the chat title, photo and other settings
 	CanInviteUsers      bool `json:"can_invite_users"`            // True, if the user is allowed to invite new users to the chat
 	CanPostStories      bool `json:"can_post_stories"`            // True, if the administrator can post stories to the chat
-	CanEditStories      bool `json:"can_edit_stories"`            // True, if the administrator can edit stories posted by other users
+	CanEditStories      bool `json:"can_edit_stories"`            // True, if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive
 	CanDeleteStories    bool `json:"can_delete_stories"`          // True, if the administrator can delete stories posted by other users
 	CanPostMessages     bool `json:"can_post_messages,omitempty"` // Optional. True, if the administrator can post messages in the channel, or access channel statistics; for channels only
 	CanEditMessages     bool `json:"can_edit_messages,omitempty"` // Optional. True, if the administrator can edit messages of other users and can pin messages; for channels only
@@ -1247,6 +1431,7 @@ type ChatMemberUpdated struct {
 	OldChatMember           ChatMember      `json:"old_chat_member"`                       // Previous information about the chat member
 	NewChatMember           ChatMember      `json:"new_chat_member"`                       // New information about the chat member
 	InviteLink              *ChatInviteLink `json:"invite_link,omitempty"`                 // Optional. Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
+	ViaJoinRequest          bool            `json:"via_join_request,omitempty"`            // Optional. True, if the user joined the chat after sending a direct join request and being approved by an administrator
 	ViaChatFolderInviteLink bool            `json:"via_chat_folder_invite_link,omitempty"` // Optional. True, if the user joined the chat via a chat folder invite link
 }
 
@@ -1262,6 +1447,7 @@ func (x *ChatMemberUpdated) UnmarshalJSON(rawBytes []byte) (err error) {
 		OldChatMember           json.RawMessage `json:"old_chat_member"`                       // Previous information about the chat member
 		NewChatMember           json.RawMessage `json:"new_chat_member"`                       // New information about the chat member
 		InviteLink              *ChatInviteLink `json:"invite_link,omitempty"`                 // Optional. Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
+		ViaJoinRequest          bool            `json:"via_join_request,omitempty"`            // Optional. True, if the user joined the chat after sending a direct join request and being approved by an administrator
 		ViaChatFolderInviteLink bool            `json:"via_chat_folder_invite_link,omitempty"` // Optional. True, if the user joined the chat via a chat folder invite link
 	}
 	raw := &temp{}
@@ -1286,6 +1472,7 @@ func (x *ChatMemberUpdated) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.Date = raw.Date
 
 	x.InviteLink = raw.InviteLink
+	x.ViaJoinRequest = raw.ViaJoinRequest
 	x.ViaChatFolderInviteLink = raw.ViaChatFolderInviteLink
 	return nil
 }
@@ -1321,7 +1508,7 @@ type ChatMemberAdministrator struct {
 	CanChangeInfo       bool   `json:"can_change_info"`             // True, if the user is allowed to change the chat title, photo and other settings
 	CanInviteUsers      bool   `json:"can_invite_users"`            // True, if the user is allowed to invite new users to the chat
 	CanPostStories      bool   `json:"can_post_stories"`            // True, if the administrator can post stories to the chat
-	CanEditStories      bool   `json:"can_edit_stories"`            // True, if the administrator can edit stories posted by other users
+	CanEditStories      bool   `json:"can_edit_stories"`            // True, if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive
 	CanDeleteStories    bool   `json:"can_delete_stories"`          // True, if the administrator can delete stories posted by other users
 	CanPostMessages     bool   `json:"can_post_messages,omitempty"` // Optional. True, if the administrator can post messages in the channel, or access channel statistics; for channels only
 	CanEditMessages     bool   `json:"can_edit_messages,omitempty"` // Optional. True, if the administrator can edit messages of other users and can pin messages; for channels only
@@ -1409,28 +1596,33 @@ type ChatPermissions struct {
 	CanManageTopics       bool `json:"can_manage_topics,omitempty"`         // Optional. True, if the user is allowed to create forum topics. If omitted defaults to the value of can_pin_messages
 }
 
+// Describes the birthdate of a user.
 type Birthdate struct {
 	Day   int64 `json:"day"`            // Day of the user's birth; 1-31
 	Month int64 `json:"month"`          // Month of the user's birth; 1-12
 	Year  int64 `json:"year,omitempty"` // Optional. Year of the user's birth
 }
 
+// Contains information about the start page settings of a Telegram Business account.
 type BusinessIntro struct {
 	Title   string   `json:"title,omitempty"`   // Optional. Title text of the business intro
 	Message string   `json:"message,omitempty"` // Optional. Message text of the business intro
 	Sticker *Sticker `json:"sticker,omitempty"` // Optional. Sticker of the business intro
 }
 
+// Contains information about the location of a Telegram Business account.
 type BusinessLocation struct {
 	Address  string    `json:"address"`            // Address of the business
 	Location *Location `json:"location,omitempty"` // Optional. Location of the business
 }
 
+// Describes an interval of time during which a business is open.
 type BusinessOpeningHoursInterval struct {
 	OpeningMinute int64 `json:"opening_minute"` // The minute's sequence number in a week, starting on Monday, marking the start of the time interval during which the business is open; 0 - 7 * 24 * 60
 	ClosingMinute int64 `json:"closing_minute"` // The minute's sequence number in a week, starting on Monday, marking the end of the time interval during which the business is open; 0 - 8 * 24 * 60
 }
 
+// Describes the opening hours of a business.
 type BusinessOpeningHours struct {
 	TimeZoneName string                          `json:"time_zone_name"` // Unique name of the time zone for which the opening hours are defined
 	OpeningHours []*BusinessOpeningHoursInterval `json:"opening_hours"`  // List of time intervals describing business opening hours
@@ -1844,7 +2036,7 @@ type BusinessConnection struct {
 type BusinessMessagesDeleted struct {
 	BusinessConnectionId string  `json:"business_connection_id"` // Unique identifier of the business connection
 	Chat                 Chat    `json:"chat"`                   // Information about a chat in the business account. The bot may not have access to the chat or the corresponding user.
-	MessageIds           []int64 `json:"message_ids"`            // A JSON-serialized list of identifiers of deleted messages in the chat of the business account
+	MessageIds           []int64 `json:"message_ids"`            // The list of identifiers of deleted messages in the chat of the business account
 }
 
 // Describes why a request was unsuccessful.
@@ -2042,7 +2234,7 @@ type SendMessage struct {
 	DisableNotification  bool                `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool                `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters    `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup         `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup          ReplyMarkup         `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // sendMessage is used to send text messages. On success, the sent Message is returned.
@@ -2092,7 +2284,7 @@ type CopyMessage struct {
 	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
+	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // copyMessage is used to copy messages of any kind. Service messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
@@ -2129,7 +2321,7 @@ type SendPhoto struct {
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 func (x *SendPhoto) getFiles() map[string]*InputFile {
@@ -2227,7 +2419,7 @@ type SendAudio struct {
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 func (x *SendAudio) getFiles() map[string]*InputFile {
@@ -2334,7 +2526,7 @@ type SendDocument struct {
 	DisableNotification         bool             `json:"disable_notification,omitempty"`           // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent              bool             `json:"protect_content,omitempty"`                // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters             *ReplyParameters `json:"reply_parameters,omitempty"`               // Description of the message to reply to
-	ReplyMarkup                 ReplyMarkup      `json:"reply_markup,omitempty"`                   // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup                 ReplyMarkup      `json:"reply_markup,omitempty"`                   // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 func (x *SendDocument) getFiles() map[string]*InputFile {
@@ -2438,7 +2630,7 @@ type SendVideo struct {
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 func (x *SendVideo) getFiles() map[string]*InputFile {
@@ -2553,7 +2745,7 @@ type SendAnimation struct {
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 func (x *SendAnimation) getFiles() map[string]*InputFile {
@@ -2648,7 +2840,7 @@ func (api *API) SendAnimation(payload *SendAnimation) (*Message, error) {
 	return callJson[*Message](api, "sendAnimation", payload)
 }
 
-// sendVoice is used to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
+// sendVoice is used to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
 type SendVoice struct {
 	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
 	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
@@ -2661,7 +2853,7 @@ type SendVoice struct {
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 func (x *SendVoice) getFiles() map[string]*InputFile {
@@ -2730,7 +2922,7 @@ func (x *SendVoice) getParams() (map[string]string, error) {
 	return payload, nil
 }
 
-// sendVoice is used to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
+// sendVoice is used to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
 func (api *API) SendVoice(payload *SendVoice) (*Message, error) {
 	if files := payload.getFiles(); len(files) != 0 {
 		params, err := payload.getParams()
@@ -2754,7 +2946,7 @@ type SendVideoNote struct {
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 func (x *SendVideoNote) getFiles() map[string]*InputFile {
@@ -2909,13 +3101,13 @@ type SendLocation struct {
 	Latitude             float64          `json:"latitude"`                         // Latitude of the location
 	Longitude            float64          `json:"longitude"`                        // Longitude of the location
 	HorizontalAccuracy   float64          `json:"horizontal_accuracy,omitempty"`    // The radius of uncertainty for the location, measured in meters; 0-1500
-	LivePeriod           int64            `json:"live_period,omitempty"`            // Period in seconds for which the location will be updated (see Live Locations, should be between 60 and 86400.
+	LivePeriod           int64            `json:"live_period,omitempty"`            // Period in seconds during which the location will be updated (see Live Locations, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
 	Heading              int64            `json:"heading,omitempty"`                // For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
 	ProximityAlertRadius int64            `json:"proximity_alert_radius,omitempty"` // For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // sendLocation is used to send point on the map. On success, the sent Message is returned.
@@ -2939,7 +3131,7 @@ type SendVenue struct {
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // sendVenue is used to send information about a venue. On success, the sent Message is returned.
@@ -2959,7 +3151,7 @@ type SendContact struct {
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // sendContact is used to send phone contacts. On success, the sent Message is returned.
@@ -2969,25 +3161,27 @@ func (api *API) SendContact(payload *SendContact) (*Message, error) {
 
 // sendPoll is used to send a native poll. On success, the sent Message is returned.
 type SendPoll struct {
-	BusinessConnectionId  string           `json:"business_connection_id,omitempty"`  // Unique identifier of the business connection on behalf of which the message will be sent
-	ChatId                ChatID           `json:"chat_id"`                           // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId       int64            `json:"message_thread_id,omitempty"`       // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Question              string           `json:"question"`                          // Poll question, 1-300 characters
-	Options               []string         `json:"options"`                           // A JSON-serialized list of answer options, 2-10 strings 1-100 characters each
-	IsAnonymous           bool             `json:"is_anonymous,omitempty"`            // True, if the poll needs to be anonymous, defaults to True
-	Type                  string           `json:"type,omitempty"`                    // Poll type, “quiz” or “regular”, defaults to “regular”
-	AllowsMultipleAnswers bool             `json:"allows_multiple_answers,omitempty"` // True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False
-	CorrectOptionId       int64            `json:"correct_option_id,omitempty"`       // 0-based identifier of the correct answer option, required for polls in quiz mode
-	Explanation           string           `json:"explanation,omitempty"`             // Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing
-	ExplanationParseMode  string           `json:"explanation_parse_mode,omitempty"`  // Mode for parsing entities in the explanation. See formatting options for more details.
-	ExplanationEntities   []*MessageEntity `json:"explanation_entities,omitempty"`    // A JSON-serialized list of special entities that appear in the poll explanation, which can be specified instead of parse_mode
-	OpenPeriod            int64            `json:"open_period,omitempty"`             // Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date.
-	CloseDate             int64            `json:"close_date,omitempty"`              // Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period.
-	IsClosed              bool             `json:"is_closed,omitempty"`               // Pass True if the poll needs to be immediately closed. This can be useful for poll preview.
-	DisableNotification   bool             `json:"disable_notification,omitempty"`    // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent        bool             `json:"protect_content,omitempty"`         // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`        // Description of the message to reply to
-	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`            // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	BusinessConnectionId  string             `json:"business_connection_id,omitempty"`  // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId                ChatID             `json:"chat_id"`                           // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId       int64              `json:"message_thread_id,omitempty"`       // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Question              string             `json:"question"`                          // Poll question, 1-300 characters
+	QuestionParseMode     string             `json:"question_parse_mode,omitempty"`     // Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed
+	QuestionEntities      []*MessageEntity   `json:"question_entities,omitempty"`       // A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of question_parse_mode
+	Options               []*InputPollOption `json:"options"`                           // A JSON-serialized list of 2-10 answer options
+	IsAnonymous           bool               `json:"is_anonymous,omitempty"`            // True, if the poll needs to be anonymous, defaults to True
+	Type                  string             `json:"type,omitempty"`                    // Poll type, “quiz” or “regular”, defaults to “regular”
+	AllowsMultipleAnswers bool               `json:"allows_multiple_answers,omitempty"` // True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False
+	CorrectOptionId       int64              `json:"correct_option_id,omitempty"`       // 0-based identifier of the correct answer option, required for polls in quiz mode
+	Explanation           string             `json:"explanation,omitempty"`             // Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing
+	ExplanationParseMode  string             `json:"explanation_parse_mode,omitempty"`  // Mode for parsing entities in the explanation. See formatting options for more details.
+	ExplanationEntities   []*MessageEntity   `json:"explanation_entities,omitempty"`    // A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of explanation_parse_mode
+	OpenPeriod            int64              `json:"open_period,omitempty"`             // Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date.
+	CloseDate             int64              `json:"close_date,omitempty"`              // Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period.
+	IsClosed              bool               `json:"is_closed,omitempty"`               // Pass True if the poll needs to be immediately closed. This can be useful for poll preview.
+	DisableNotification   bool               `json:"disable_notification,omitempty"`    // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent        bool               `json:"protect_content,omitempty"`         // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters       *ReplyParameters   `json:"reply_parameters,omitempty"`        // Description of the message to reply to
+	ReplyMarkup           ReplyMarkup        `json:"reply_markup,omitempty"`            // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // sendPoll is used to send a native poll. On success, the sent Message is returned.
@@ -3004,7 +3198,7 @@ type SendDice struct {
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // sendDice is used to send an animated emoji that will display a random value. On success, the sent Message is returned.
@@ -3122,7 +3316,7 @@ type PromoteChatMember struct {
 	CanChangeInfo       bool   `json:"can_change_info,omitempty"`        // Pass True if the administrator can change chat title, photo and other settings
 	CanInviteUsers      bool   `json:"can_invite_users,omitempty"`       // Pass True if the administrator can invite new users to the chat
 	CanPostStories      bool   `json:"can_post_stories,omitempty"`       // Pass True if the administrator can post stories to the chat
-	CanEditStories      bool   `json:"can_edit_stories,omitempty"`       // Pass True if the administrator can edit stories posted by other users
+	CanEditStories      bool   `json:"can_edit_stories,omitempty"`       // Pass True if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive
 	CanDeleteStories    bool   `json:"can_delete_stories,omitempty"`     // Pass True if the administrator can delete stories posted by other users
 	CanPostMessages     bool   `json:"can_post_messages,omitempty"`      // Pass True if the administrator can post messages in the channel, or access channel statistics; for channels only
 	CanEditMessages     bool   `json:"can_edit_messages,omitempty"`      // Pass True if the administrator can edit messages of other users and can pin messages; for channels only
@@ -3184,7 +3378,6 @@ func (api *API) SetChatPermissions(payload *SetChatPermissions) (bool, error) {
 // exportChatInviteLink is used to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.
 //
 // Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again.
-//
 type ExportChatInviteLink struct {
 	ChatId ChatID `json:"chat_id"` // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 }
@@ -3192,7 +3385,6 @@ type ExportChatInviteLink struct {
 // exportChatInviteLink is used to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.
 //
 // Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again.
-//
 func (api *API) ExportChatInviteLink(payload *ExportChatInviteLink) (string, error) {
 	return callJson[string](api, "exportChatInviteLink", payload)
 }
@@ -3376,14 +3568,14 @@ func (api *API) LeaveChat(payload *LeaveChat) (bool, error) {
 	return callJson[bool](api, "leaveChat", payload)
 }
 
-// getChat is used to get up to date information about the chat. Returns a Chat object on success.
+// getChat is used to get up-to-date information about the chat. Returns a ChatFullInfo object on success.
 type GetChat struct {
 	ChatId ChatID `json:"chat_id"` // Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername)
 }
 
-// getChat is used to get up to date information about the chat. Returns a Chat object on success.
-func (api *API) GetChat(payload *GetChat) (*Chat, error) {
-	return callJson[*Chat](api, "getChat", payload)
+// getChat is used to get up-to-date information about the chat. Returns a ChatFullInfo object on success.
+func (api *API) GetChat(payload *GetChat) (*ChatFullInfo, error) {
+	return callJson[*ChatFullInfo](api, "getChat", payload)
 }
 
 // getChatAdministrators is used to get a list of administrators in a chat, which aren't bots. Returns an Array of ChatMember objects.
@@ -3581,7 +3773,6 @@ func (api *API) UnpinAllGeneralForumTopicMessages(payload *UnpinAllGeneralForumT
 // answerCallbackQuery is used to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
 //
 // Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
-//
 type AnswerCallbackQuery struct {
 	CallbackQueryId string `json:"callback_query_id"`    // Unique identifier for the query to be answered
 	Text            string `json:"text,omitempty"`       // Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters
@@ -3593,7 +3784,6 @@ type AnswerCallbackQuery struct {
 // answerCallbackQuery is used to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
 //
 // Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
-//
 func (api *API) AnswerCallbackQuery(payload *AnswerCallbackQuery) (bool, error) {
 	return callJson[bool](api, "answerCallbackQuery", payload)
 }
@@ -3865,6 +4055,7 @@ type EditMessageLiveLocation struct {
 	InlineMessageId      string                `json:"inline_message_id,omitempty"`      // Required if chat_id and message_id are not specified. Identifier of the inline message
 	Latitude             float64               `json:"latitude"`                         // Latitude of new location
 	Longitude            float64               `json:"longitude"`                        // Longitude of new location
+	LivePeriod           int64                 `json:"live_period,omitempty"`            // New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current live_period by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then live_period remains unchanged
 	HorizontalAccuracy   float64               `json:"horizontal_accuracy,omitempty"`    // The radius of uncertainty for the location, measured in meters; 0-1500
 	Heading              int64                 `json:"heading,omitempty"`                // Direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
 	ProximityAlertRadius int64                 `json:"proximity_alert_radius,omitempty"` // The maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
@@ -4003,7 +4194,7 @@ type SendSticker struct {
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. Not supported for messages sent on behalf of a business account.
+	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 func (x *SendSticker) getFiles() map[string]*InputFile {
@@ -4709,7 +4900,6 @@ func (x *InlineQueryResultMpeg4Gif) UnmarshalJSON(rawBytes []byte) (err error) {
 // Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
 //
 // If an InlineQueryResultVideo message contains an embedded video (e.g., YouTube), you must replace its content using input_message_content.
-//
 type InlineQueryResultVideo struct {
 	Type                string                `json:"type"`                            // Type of the result, must be video
 	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
@@ -4975,7 +5165,7 @@ type InlineQueryResultLocation struct {
 	Longitude            float64               `json:"longitude"`                        // Location longitude in degrees
 	Title                string                `json:"title"`                            // Location title
 	HorizontalAccuracy   float64               `json:"horizontal_accuracy,omitempty"`    // Optional. The radius of uncertainty for the location, measured in meters; 0-1500
-	LivePeriod           int64                 `json:"live_period,omitempty"`            // Optional. Period in seconds for which the location can be updated, should be between 60 and 86400.
+	LivePeriod           int64                 `json:"live_period,omitempty"`            // Optional. Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
 	Heading              int64                 `json:"heading,omitempty"`                // Optional. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
 	ProximityAlertRadius int64                 `json:"proximity_alert_radius,omitempty"` // Optional. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
 	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // Optional. Inline keyboard attached to the message
@@ -4999,7 +5189,7 @@ func (x *InlineQueryResultLocation) UnmarshalJSON(rawBytes []byte) (err error) {
 		Longitude            float64               `json:"longitude"`                        // Location longitude in degrees
 		Title                string                `json:"title"`                            // Location title
 		HorizontalAccuracy   float64               `json:"horizontal_accuracy,omitempty"`    // Optional. The radius of uncertainty for the location, measured in meters; 0-1500
-		LivePeriod           int64                 `json:"live_period,omitempty"`            // Optional. Period in seconds for which the location can be updated, should be between 60 and 86400.
+		LivePeriod           int64                 `json:"live_period,omitempty"`            // Optional. Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
 		Heading              int64                 `json:"heading,omitempty"`                // Optional. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
 		ProximityAlertRadius int64                 `json:"proximity_alert_radius,omitempty"` // Optional. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
 		ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // Optional. Inline keyboard attached to the message
@@ -5626,7 +5816,7 @@ type InputLocationMessageContent struct {
 	Latitude             float64 `json:"latitude"`                         // Latitude of the location in degrees
 	Longitude            float64 `json:"longitude"`                        // Longitude of the location in degrees
 	HorizontalAccuracy   float64 `json:"horizontal_accuracy,omitempty"`    // Optional. The radius of uncertainty for the location, measured in meters; 0-1500
-	LivePeriod           int64   `json:"live_period,omitempty"`            // Optional. Period in seconds for which the location can be updated, should be between 60 and 86400.
+	LivePeriod           int64   `json:"live_period,omitempty"`            // Optional. Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely.
 	Heading              int64   `json:"heading,omitempty"`                // Optional. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
 	ProximityAlertRadius int64   `json:"proximity_alert_radius,omitempty"` // Optional. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
 }
@@ -6024,7 +6214,7 @@ type SendGame struct {
 	DisableNotification  bool                  `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool                  `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
 	ReplyParameters      *ReplyParameters      `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game. Not supported for messages sent on behalf of a business account.
+	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game.
 }
 
 // sendGame is used to send a game. On success, the sent Message is returned.
@@ -6064,7 +6254,6 @@ func (api *API) SetGameScore(payload *SetGameScore) (*Message, error) {
 // getGameHighScores is used to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
 //
 // This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change.
-//
 type GetGameHighScores struct {
 	UserId          int64  `json:"user_id"`                     // Target user id
 	ChatId          int64  `json:"chat_id,omitempty"`           // Required if inline_message_id is not specified. Unique identifier for the target chat
@@ -6075,7 +6264,6 @@ type GetGameHighScores struct {
 // getGameHighScores is used to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
 //
 // This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change.
-//
 func (api *API) GetGameHighScores(payload *GetGameHighScores) ([]*GameHighScore, error) {
 	return callJson[[]*GameHighScore](api, "getGameHighScores", payload)
 }

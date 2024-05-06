@@ -57,6 +57,62 @@ func unmarshalMessageOrigin(rawBytes json.RawMessage) (data MessageOrigin, err e
 	return data, err
 }
 
+func unmarshalBackgroundFill(rawBytes json.RawMessage) (data BackgroundFill, err error) {
+	if len(rawBytes) == 0 {
+		return nil, nil
+	}
+
+	var temp struct {
+		Type string `json:"type"`
+	}
+	if err = json.Unmarshal(rawBytes, &temp); err != nil {
+		return nil, err
+	}
+
+	switch temp.Type {
+	case "solid":
+		data = &BackgroundFillSolid{}
+	case "gradient":
+		data = &BackgroundFillGradient{}
+	case "freeform_gradient":
+		data = &BackgroundFillFreeformGradient{}
+	default:
+		return nil, errors.New("unknown type")
+	}
+
+	err = json.Unmarshal(rawBytes, data)
+	return data, err
+}
+
+func unmarshalBackgroundType(rawBytes json.RawMessage) (data BackgroundType, err error) {
+	if len(rawBytes) == 0 {
+		return nil, nil
+	}
+
+	var temp struct {
+		Type string `json:"type"`
+	}
+	if err = json.Unmarshal(rawBytes, &temp); err != nil {
+		return nil, err
+	}
+
+	switch temp.Type {
+	case "fill":
+		data = &BackgroundTypeFill{}
+	case "wallpaper":
+		data = &BackgroundTypeWallpaper{}
+	case "pattern":
+		data = &BackgroundTypePattern{}
+	case "chat_theme":
+		data = &BackgroundTypeChatTheme{}
+	default:
+		return nil, errors.New("unknown type")
+	}
+
+	err = json.Unmarshal(rawBytes, data)
+	return data, err
+}
+
 func unmarshalChatMember(rawBytes json.RawMessage) (data ChatMember, err error) {
 	if len(rawBytes) == 0 {
 		return nil, nil
