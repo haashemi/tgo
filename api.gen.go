@@ -14,7 +14,7 @@ type Update struct {
 	ChannelPost             *Message                     `json:"channel_post,omitempty"`              // Optional. New incoming channel post of any kind - text, photo, sticker, etc.
 	EditedChannelPost       *Message                     `json:"edited_channel_post,omitempty"`       // Optional. New version of a channel post that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot.
 	BusinessConnection      *BusinessConnection          `json:"business_connection,omitempty"`       // Optional. The bot was connected to or disconnected from a business account, or a user edited an existing connection with the bot
-	BusinessMessage         *Message                     `json:"business_message,omitempty"`          // Optional. New non-service message from a connected business account
+	BusinessMessage         *Message                     `json:"business_message,omitempty"`          // Optional. New message from a connected business account
 	EditedBusinessMessage   *Message                     `json:"edited_business_message,omitempty"`   // Optional. New version of a message from a connected business account
 	DeletedBusinessMessages *BusinessMessagesDeleted     `json:"deleted_business_messages,omitempty"` // Optional. Messages were deleted from a connected business account
 	MessageReaction         *MessageReactionUpdated      `json:"message_reaction,omitempty"`          // Optional. A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify "message_reaction" in the list of allowed_updates to receive these updates. The update isn't received for reactions set by bots.
@@ -36,6 +36,7 @@ type Update struct {
 // getUpdates is used to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
 //
 // Notes1. This method will not work if an outgoing webhook is set up.2. In order to avoid getting duplicate updates, recalculate offset after each server response.
+//
 type GetUpdates struct {
 	Offset         int64    `json:"offset,omitempty"`          // Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id. The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue. All previous updates will be forgotten.
 	Limit          int64    `json:"limit,omitempty"`           // Limits the number of updates to be retrieved. Values between 1-100 are accepted. Defaults to 100.
@@ -46,6 +47,7 @@ type GetUpdates struct {
 // getUpdates is used to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
 //
 // Notes1. This method will not work if an outgoing webhook is set up.2. In order to avoid getting duplicate updates, recalculate offset after each server response.
+//
 func (api *API) GetUpdates(payload *GetUpdates) ([]*Update, error) {
 	return callJson[[]*Update](api, "getUpdates", payload)
 }
@@ -55,6 +57,7 @@ func (api *API) GetUpdates(payload *GetUpdates) ([]*Update, error) {
 //
 // Notes1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.3. Ports currently supported for webhooks: 443, 80, 88, 8443.
 // If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks.
+//
 type SetWebhook struct {
 	Url                string     `json:"url"`                            // HTTPS URL to send updates to. Use an empty string to remove webhook integration
 	Certificate        *InputFile `json:"certificate,omitempty"`          // Upload your public key certificate so that the root certificate in use can be checked. See our self-signed guide for details.
@@ -109,6 +112,7 @@ func (x *SetWebhook) getParams() (map[string]string, error) {
 //
 // Notes1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.3. Ports currently supported for webhooks: 443, 80, 88, 8443.
 // If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks.
+//
 func (api *API) SetWebhook(payload *SetWebhook) (bool, error) {
 	if files := payload.getFiles(); len(files) != 0 {
 		params, err := payload.getParams()
@@ -203,7 +207,7 @@ type ChatFullInfo struct {
 	HasPrivateForwards                 bool                  `json:"has_private_forwards,omitempty"`                    // Optional. True, if privacy settings of the other party in the private chat allows to use tg://user?id=<user_id> links only in chats with the user
 	HasRestrictedVoiceAndVideoMessages bool                  `json:"has_restricted_voice_and_video_messages,omitempty"` // Optional. True, if the privacy settings of the other party restrict sending voice and video note messages in the private chat
 	JoinToSendMessages                 bool                  `json:"join_to_send_messages,omitempty"`                   // Optional. True, if users need to join the supergroup before they can send messages
-	JoinByRequest                      bool                  `json:"join_by_request,omitempty"`                         // Optional. True, if all users directly joining the supergroup need to be approved by supergroup administrators
+	JoinByRequest                      bool                  `json:"join_by_request,omitempty"`                         // Optional. True, if all users directly joining the supergroup without using an invite link need to be approved by supergroup administrators
 	Description                        string                `json:"description,omitempty"`                             // Optional. Description, for groups, supergroups and channel chats
 	InviteLink                         string                `json:"invite_link,omitempty"`                             // Optional. Primary invite link, for groups, supergroups and channel chats
 	PinnedMessage                      *Message              `json:"pinned_message,omitempty"`                          // Optional. The most recent pinned message (by sending date)
@@ -249,6 +253,7 @@ type Message struct {
 	Text                          string                         `json:"text,omitempty"`                              // Optional. For text messages, the actual UTF-8 text of the message
 	Entities                      []*MessageEntity               `json:"entities,omitempty"`                          // Optional. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
 	LinkPreviewOptions            *LinkPreviewOptions            `json:"link_preview_options,omitempty"`              // Optional. Options used for link preview generation for the message, if it is a text message and link preview options were changed
+	EffectId                      string                         `json:"effect_id,omitempty"`                         // Optional. Unique identifier of the message effect added to the message
 	Animation                     *Animation                     `json:"animation,omitempty"`                         // Optional. Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
 	Audio                         *Audio                         `json:"audio,omitempty"`                             // Optional. Message is an audio file, information about the file
 	Document                      *Document                      `json:"document,omitempty"`                          // Optional. Message is a general file, information about the file
@@ -260,6 +265,7 @@ type Message struct {
 	Voice                         *Voice                         `json:"voice,omitempty"`                             // Optional. Message is a voice message, information about the file
 	Caption                       string                         `json:"caption,omitempty"`                           // Optional. Caption for the animation, audio, document, photo, video or voice
 	CaptionEntities               []*MessageEntity               `json:"caption_entities,omitempty"`                  // Optional. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+	ShowCaptionAboveMedia         bool                           `json:"show_caption_above_media,omitempty"`          // Optional. True, if the caption must be shown above the message media
 	HasMediaSpoiler               bool                           `json:"has_media_spoiler,omitempty"`                 // Optional. True, if the message media is covered by a spoiler animation
 	Contact                       *Contact                       `json:"contact,omitempty"`                           // Optional. Message is a shared contact, information about the contact
 	Dice                          *Dice                          `json:"dice,omitempty"`                              // Optional. Message is a dice with random value
@@ -340,6 +346,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 		Text                          string                         `json:"text,omitempty"`                              // Optional. For text messages, the actual UTF-8 text of the message
 		Entities                      []*MessageEntity               `json:"entities,omitempty"`                          // Optional. For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the text
 		LinkPreviewOptions            *LinkPreviewOptions            `json:"link_preview_options,omitempty"`              // Optional. Options used for link preview generation for the message, if it is a text message and link preview options were changed
+		EffectId                      string                         `json:"effect_id,omitempty"`                         // Optional. Unique identifier of the message effect added to the message
 		Animation                     *Animation                     `json:"animation,omitempty"`                         // Optional. Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
 		Audio                         *Audio                         `json:"audio,omitempty"`                             // Optional. Message is an audio file, information about the file
 		Document                      *Document                      `json:"document,omitempty"`                          // Optional. Message is a general file, information about the file
@@ -351,6 +358,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 		Voice                         *Voice                         `json:"voice,omitempty"`                             // Optional. Message is a voice message, information about the file
 		Caption                       string                         `json:"caption,omitempty"`                           // Optional. Caption for the animation, audio, document, photo, video or voice
 		CaptionEntities               []*MessageEntity               `json:"caption_entities,omitempty"`                  // Optional. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+		ShowCaptionAboveMedia         bool                           `json:"show_caption_above_media,omitempty"`          // Optional. True, if the caption must be shown above the message media
 		HasMediaSpoiler               bool                           `json:"has_media_spoiler,omitempty"`                 // Optional. True, if the message media is covered by a spoiler animation
 		Contact                       *Contact                       `json:"contact,omitempty"`                           // Optional. Message is a shared contact, information about the contact
 		Dice                          *Dice                          `json:"dice,omitempty"`                              // Optional. Message is a dice with random value
@@ -439,6 +447,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.Text = raw.Text
 	x.Entities = raw.Entities
 	x.LinkPreviewOptions = raw.LinkPreviewOptions
+	x.EffectId = raw.EffectId
 	x.Animation = raw.Animation
 	x.Audio = raw.Audio
 	x.Document = raw.Document
@@ -450,6 +459,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.Voice = raw.Voice
 	x.Caption = raw.Caption
 	x.CaptionEntities = raw.CaptionEntities
+	x.ShowCaptionAboveMedia = raw.ShowCaptionAboveMedia
 	x.HasMediaSpoiler = raw.HasMediaSpoiler
 	x.Contact = raw.Contact
 	x.Dice = raw.Dice
@@ -521,7 +531,7 @@ type MaybeInaccessibleMessage interface {
 
 // MessageEntity represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 type MessageEntity struct {
-	Type          string `json:"type"`                      // Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag), “cashtag” ($USD), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers)
+	Type          string `json:"type"`                      // Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag), “cashtag” ($USD), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers)
 	Offset        int64  `json:"offset"`                    // Offset in UTF-16 code units to the start of the entity
 	Length        int64  `json:"length"`                    // Length of the entity in UTF-16 code units
 	Url           string `json:"url,omitempty"`             // Optional. For “text_link” only, URL that will be opened after user taps on the text
@@ -1203,6 +1213,7 @@ type UserProfilePhotos struct {
 // File represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
 //
 // The maximum file size to download is 20 MB
+//
 type File struct {
 	FileId       string `json:"file_id"`             // Identifier for this file, which can be used to download or reuse the file
 	FileUniqueId string `json:"file_unique_id"`      // Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
@@ -1227,7 +1238,7 @@ type ReplyKeyboardMarkup struct {
 
 func (ReplyKeyboardMarkup) IsReplyMarkup() {}
 
-// KeyboardButton represents one button of the reply keyboard. For simple text buttons, String can be used instead of this object to specify the button text. The optional fields web_app, request_users, request_chat, request_contact, request_location, and request_poll are mutually exclusive.
+// KeyboardButton represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, String can be used instead of this object to specify the button text.
 // Note: request_users and request_chat options will only work in Telegram versions released after 3 February, 2023. Older clients will display unsupported message.
 type KeyboardButton struct {
 	Text            string                      `json:"text"`                       // Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed
@@ -1285,7 +1296,7 @@ type InlineKeyboardMarkup struct {
 
 func (InlineKeyboardMarkup) IsReplyMarkup() {}
 
-// InlineKeyboardButton represents one button of an inline keyboard. You must use exactly one of the optional fields.
+// InlineKeyboardButton represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button.
 type InlineKeyboardButton struct {
 	Text                         string                       `json:"text"`                                       // Label text on the button
 	Url                          string                       `json:"url,omitempty"`                              // Optional. HTTP or tg:// URL to be opened when the button is pressed. Links tg://user?id=<user_id> can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
@@ -1296,13 +1307,14 @@ type InlineKeyboardButton struct {
 	SwitchInlineQueryCurrentChat string                       `json:"switch_inline_query_current_chat,omitempty"` // Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent on behalf of a Telegram Business account.
 	SwitchInlineQueryChosenChat  *SwitchInlineQueryChosenChat `json:"switch_inline_query_chosen_chat,omitempty"`  // Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent on behalf of a Telegram Business account.
 	CallbackGame                 *CallbackGame                `json:"callback_game,omitempty"`                    // Optional. Description of the game that will be launched when the user presses the button.NOTE: This type of button must always be the first button in the first row.
-	Pay                          bool                         `json:"pay,omitempty"`                              // Optional. Specify True, to send a Pay button.NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
+	Pay                          bool                         `json:"pay,omitempty"`                              // Optional. Specify True, to send a Pay button. Substrings “” and “XTR” in the buttons's text will be replaced with a Telegram Star icon.NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
 }
 
 // LoginUrl represents a parameter of the inline keyboard button used to automatically authorize a user. Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in:
 // Telegram apps support these buttons as of version 5.7.
 //
 // Sample bot: @discussbot
+//
 type LoginUrl struct {
 	Url                string `json:"url"`                            // An HTTPS URL to be opened with user authorization data added to the query string when the button is pressed. If the user refuses to provide authorization data, the original URL without information about the user will be opened. The data added is the same as described in Receiving authorization data.NOTE: You must always check the hash of the received data to verify the authentication and the integrity of the data as described in Checking authorization.
 	ForwardText        string `json:"forward_text,omitempty"`         // Optional. New text of the button in forwarded messages.
@@ -1322,6 +1334,7 @@ type SwitchInlineQueryChosenChat struct {
 // CallbackQuery represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present.
 //
 // NOTE: After the user presses a callback button, Telegram clients will display a progress bar until you call answerCallbackQuery. It is, therefore, necessary to react by calling answerCallbackQuery even if no notification to the user is needed (e.g., without specifying any of the optional parameters).
+//
 type CallbackQuery struct {
 	Id              string                   `json:"id"`                          // Unique identifier for this query
 	From            User                     `json:"from"`                        // Sender
@@ -1375,6 +1388,7 @@ func (x *CallbackQuery) UnmarshalJSON(rawBytes []byte) (err error) {
 // Guide the user through a step-by-step process. 'Please send me your question', 'Cool, now let's add the first answer option', 'Great. Keep adding answer options, then send /done when you're ready'.
 //
 // The last option is definitely more attractive. And if you use ForceReply in your bot's questions, it will receive the user's answers even if it only receives replies, commands and mentions - without any extra work for the user.
+//
 type ForceReply struct {
 	ForceReply            bool   `json:"force_reply"`                       // Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
 	InputFieldPlaceholder string `json:"input_field_placeholder,omitempty"` // Optional. The placeholder to be shown in the input field when the reply is active; 1-64 characters
@@ -1431,7 +1445,7 @@ type ChatMemberUpdated struct {
 	OldChatMember           ChatMember      `json:"old_chat_member"`                       // Previous information about the chat member
 	NewChatMember           ChatMember      `json:"new_chat_member"`                       // New information about the chat member
 	InviteLink              *ChatInviteLink `json:"invite_link,omitempty"`                 // Optional. Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
-	ViaJoinRequest          bool            `json:"via_join_request,omitempty"`            // Optional. True, if the user joined the chat after sending a direct join request and being approved by an administrator
+	ViaJoinRequest          bool            `json:"via_join_request,omitempty"`            // Optional. True, if the user joined the chat after sending a direct join request without using an invite link and being approved by an administrator
 	ViaChatFolderInviteLink bool            `json:"via_chat_folder_invite_link,omitempty"` // Optional. True, if the user joined the chat via a chat folder invite link
 }
 
@@ -1447,7 +1461,7 @@ func (x *ChatMemberUpdated) UnmarshalJSON(rawBytes []byte) (err error) {
 		OldChatMember           json.RawMessage `json:"old_chat_member"`                       // Previous information about the chat member
 		NewChatMember           json.RawMessage `json:"new_chat_member"`                       // New information about the chat member
 		InviteLink              *ChatInviteLink `json:"invite_link,omitempty"`                 // Optional. Chat invite link, which was used by the user to join the chat; for joining by invite link events only.
-		ViaJoinRequest          bool            `json:"via_join_request,omitempty"`            // Optional. True, if the user joined the chat after sending a direct join request and being approved by an administrator
+		ViaJoinRequest          bool            `json:"via_join_request,omitempty"`            // Optional. True, if the user joined the chat after sending a direct join request without using an invite link and being approved by an administrator
 		ViaChatFolderInviteLink bool            `json:"via_chat_folder_invite_link,omitempty"` // Optional. True, if the user joined the chat via a chat folder invite link
 	}
 	raw := &temp{}
@@ -2056,12 +2070,13 @@ type InputMedia interface {
 
 // Represents a photo to be sent.
 type InputMediaPhoto struct {
-	Type            string           `json:"type"`                       // Type of the result, must be photo
-	Media           *InputFile       `json:"media"`                      // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-	Caption         string           `json:"caption,omitempty"`          // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
-	ParseMode       ParseMode        `json:"parse_mode,omitempty"`       // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
-	CaptionEntities []*MessageEntity `json:"caption_entities,omitempty"` // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-	HasSpoiler      bool             `json:"has_spoiler,omitempty"`      // Optional. Pass True if the photo needs to be covered with a spoiler animation
+	Type                  string           `json:"type"`                               // Type of the result, must be photo
+	Media                 *InputFile       `json:"media"`                              // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
+	Caption               string           `json:"caption,omitempty"`                  // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
+	ParseMode             ParseMode        `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool             `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+	HasSpoiler            bool             `json:"has_spoiler,omitempty"`              // Optional. Pass True if the photo needs to be covered with a spoiler animation
 }
 
 func (InputMediaPhoto) IsInputMedia() {}
@@ -2080,17 +2095,18 @@ func (x *InputMediaPhoto) getFiles() map[string]*InputFile {
 
 // Represents a video to be sent.
 type InputMediaVideo struct {
-	Type              string           `json:"type"`                         // Type of the result, must be video
-	Media             *InputFile       `json:"media"`                        // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-	Thumbnail         *InputFile       `json:"thumbnail,omitempty"`          // Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-	Caption           string           `json:"caption,omitempty"`            // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
-	ParseMode         ParseMode        `json:"parse_mode,omitempty"`         // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
-	CaptionEntities   []*MessageEntity `json:"caption_entities,omitempty"`   // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-	Width             int64            `json:"width,omitempty"`              // Optional. Video width
-	Height            int64            `json:"height,omitempty"`             // Optional. Video height
-	Duration          int64            `json:"duration,omitempty"`           // Optional. Video duration in seconds
-	SupportsStreaming bool             `json:"supports_streaming,omitempty"` // Optional. Pass True if the uploaded video is suitable for streaming
-	HasSpoiler        bool             `json:"has_spoiler,omitempty"`        // Optional. Pass True if the video needs to be covered with a spoiler animation
+	Type                  string           `json:"type"`                               // Type of the result, must be video
+	Media                 *InputFile       `json:"media"`                              // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
+	Thumbnail             *InputFile       `json:"thumbnail,omitempty"`                // Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	Caption               string           `json:"caption,omitempty"`                  // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
+	ParseMode             ParseMode        `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool             `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+	Width                 int64            `json:"width,omitempty"`                    // Optional. Video width
+	Height                int64            `json:"height,omitempty"`                   // Optional. Video height
+	Duration              int64            `json:"duration,omitempty"`                 // Optional. Video duration in seconds
+	SupportsStreaming     bool             `json:"supports_streaming,omitempty"`       // Optional. Pass True if the uploaded video is suitable for streaming
+	HasSpoiler            bool             `json:"has_spoiler,omitempty"`              // Optional. Pass True if the video needs to be covered with a spoiler animation
 }
 
 func (InputMediaVideo) IsInputMedia() {}
@@ -2114,16 +2130,17 @@ func (x *InputMediaVideo) getFiles() map[string]*InputFile {
 
 // Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent.
 type InputMediaAnimation struct {
-	Type            string           `json:"type"`                       // Type of the result, must be animation
-	Media           *InputFile       `json:"media"`                      // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
-	Thumbnail       *InputFile       `json:"thumbnail,omitempty"`        // Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-	Caption         string           `json:"caption,omitempty"`          // Optional. Caption of the animation to be sent, 0-1024 characters after entities parsing
-	ParseMode       ParseMode        `json:"parse_mode,omitempty"`       // Optional. Mode for parsing entities in the animation caption. See formatting options for more details.
-	CaptionEntities []*MessageEntity `json:"caption_entities,omitempty"` // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-	Width           int64            `json:"width,omitempty"`            // Optional. Animation width
-	Height          int64            `json:"height,omitempty"`           // Optional. Animation height
-	Duration        int64            `json:"duration,omitempty"`         // Optional. Animation duration in seconds
-	HasSpoiler      bool             `json:"has_spoiler,omitempty"`      // Optional. Pass True if the animation needs to be covered with a spoiler animation
+	Type                  string           `json:"type"`                               // Type of the result, must be animation
+	Media                 *InputFile       `json:"media"`                              // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
+	Thumbnail             *InputFile       `json:"thumbnail,omitempty"`                // Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	Caption               string           `json:"caption,omitempty"`                  // Optional. Caption of the animation to be sent, 0-1024 characters after entities parsing
+	ParseMode             ParseMode        `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the animation caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool             `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+	Width                 int64            `json:"width,omitempty"`                    // Optional. Animation width
+	Height                int64            `json:"height,omitempty"`                   // Optional. Animation height
+	Duration              int64            `json:"duration,omitempty"`                 // Optional. Animation duration in seconds
+	HasSpoiler            bool             `json:"has_spoiler,omitempty"`              // Optional. Pass True if the animation needs to be covered with a spoiler animation
 }
 
 func (InputMediaAnimation) IsInputMedia() {}
@@ -2233,6 +2250,7 @@ type SendMessage struct {
 	LinkPreviewOptions   *LinkPreviewOptions `json:"link_preview_options,omitempty"`   // Link preview generation options for the message
 	DisableNotification  bool                `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool                `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId      string              `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters    `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup         `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -2274,17 +2292,18 @@ func (api *API) ForwardMessages(payload *ForwardMessages) ([]*MessageId, error) 
 
 // copyMessage is used to copy messages of any kind. Service messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
 type CopyMessage struct {
-	ChatId              ChatID           `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId     int64            `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	FromChatId          ChatID           `json:"from_chat_id"`                   // Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
-	MessageId           int64            `json:"message_id"`                     // Message identifier in the chat specified in from_chat_id
-	Caption             string           `json:"caption,omitempty"`              // New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept
-	ParseMode           ParseMode        `json:"parse_mode,omitempty"`           // Mode for parsing entities in the new caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity `json:"caption_entities,omitempty"`     // A JSON-serialized list of special entities that appear in the new caption, which can be specified instead of parse_mode
-	DisableNotification bool             `json:"disable_notification,omitempty"` // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent      bool             `json:"protect_content,omitempty"`      // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters     *ReplyParameters `json:"reply_parameters,omitempty"`     // Description of the message to reply to
-	ReplyMarkup         ReplyMarkup      `json:"reply_markup,omitempty"`         // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+	ChatId                ChatID           `json:"chat_id"`                            // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId       int64            `json:"message_thread_id,omitempty"`        // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	FromChatId            ChatID           `json:"from_chat_id"`                       // Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername)
+	MessageId             int64            `json:"message_id"`                         // Message identifier in the chat specified in from_chat_id
+	Caption               string           `json:"caption,omitempty"`                  // New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept
+	ParseMode             ParseMode        `json:"parse_mode,omitempty"`               // Mode for parsing entities in the new caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity `json:"caption_entities,omitempty"`         // A JSON-serialized list of special entities that appear in the new caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool             `json:"show_caption_above_media,omitempty"` // Pass True, if the caption must be shown above the message media. Ignored if a new caption isn't specified.
+	DisableNotification   bool             `json:"disable_notification,omitempty"`     // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent        bool             `json:"protect_content,omitempty"`          // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`         // Description of the message to reply to
+	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`             // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 // copyMessage is used to copy messages of any kind. Service messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
@@ -2310,18 +2329,20 @@ func (api *API) CopyMessages(payload *CopyMessages) ([]*MessageId, error) {
 
 // sendPhoto is used to send photos. On success, the sent Message is returned.
 type SendPhoto struct {
-	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
-	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Photo                *InputFile       `json:"photo"`                            // Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. More information on Sending Files »
-	Caption              string           `json:"caption,omitempty"`                // Photo caption (may also be used when resending photos by file_id), 0-1024 characters after entities parsing
-	ParseMode            ParseMode        `json:"parse_mode,omitempty"`             // Mode for parsing entities in the photo caption. See formatting options for more details.
-	CaptionEntities      []*MessageEntity `json:"caption_entities,omitempty"`       // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
-	HasSpoiler           bool             `json:"has_spoiler,omitempty"`            // Pass True if the photo needs to be covered with a spoiler animation
-	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+	BusinessConnectionId  string           `json:"business_connection_id,omitempty"`   // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId                ChatID           `json:"chat_id"`                            // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId       int64            `json:"message_thread_id,omitempty"`        // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Photo                 *InputFile       `json:"photo"`                              // Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. More information on Sending Files »
+	Caption               string           `json:"caption,omitempty"`                  // Photo caption (may also be used when resending photos by file_id), 0-1024 characters after entities parsing
+	ParseMode             ParseMode        `json:"parse_mode,omitempty"`               // Mode for parsing entities in the photo caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity `json:"caption_entities,omitempty"`         // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool             `json:"show_caption_above_media,omitempty"` // Pass True, if the caption must be shown above the message media
+	HasSpoiler            bool             `json:"has_spoiler,omitempty"`              // Pass True if the photo needs to be covered with a spoiler animation
+	DisableNotification   bool             `json:"disable_notification,omitempty"`     // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent        bool             `json:"protect_content,omitempty"`          // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId       string           `json:"message_effect_id,omitempty"`        // Unique identifier of the message effect to be added to the message; for private chats only
+	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`         // Description of the message to reply to
+	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`             // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 func (x *SendPhoto) getFiles() map[string]*InputFile {
@@ -2363,6 +2384,9 @@ func (x *SendPhoto) getParams() (map[string]string, error) {
 			payload["caption_entities"] = string(bb)
 		}
 	}
+	if x.ShowCaptionAboveMedia {
+		payload["show_caption_above_media"] = strconv.FormatBool(x.ShowCaptionAboveMedia)
+	}
 	if x.HasSpoiler {
 		payload["has_spoiler"] = strconv.FormatBool(x.HasSpoiler)
 	}
@@ -2371,6 +2395,9 @@ func (x *SendPhoto) getParams() (map[string]string, error) {
 	}
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
+	}
+	if x.MessageEffectId != "" {
+		payload["message_effect_id"] = x.MessageEffectId
 	}
 	if x.ReplyParameters != nil {
 		if bb, err := json.Marshal(x.ReplyParameters); err != nil {
@@ -2418,6 +2445,7 @@ type SendAudio struct {
 	Thumbnail            *InputFile       `json:"thumbnail,omitempty"`              // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -2481,6 +2509,9 @@ func (x *SendAudio) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.MessageEffectId != "" {
+		payload["message_effect_id"] = x.MessageEffectId
+	}
 	if x.ReplyParameters != nil {
 		if bb, err := json.Marshal(x.ReplyParameters); err != nil {
 			return nil, err
@@ -2525,6 +2556,7 @@ type SendDocument struct {
 	DisableContentTypeDetection bool             `json:"disable_content_type_detection,omitempty"` // Disables automatic server-side content type detection for files uploaded using multipart/form-data
 	DisableNotification         bool             `json:"disable_notification,omitempty"`           // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent              bool             `json:"protect_content,omitempty"`                // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId             string           `json:"message_effect_id,omitempty"`              // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters             *ReplyParameters `json:"reply_parameters,omitempty"`               // Description of the message to reply to
 	ReplyMarkup                 ReplyMarkup      `json:"reply_markup,omitempty"`                   // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -2582,6 +2614,9 @@ func (x *SendDocument) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.MessageEffectId != "" {
+		payload["message_effect_id"] = x.MessageEffectId
+	}
 	if x.ReplyParameters != nil {
 		if bb, err := json.Marshal(x.ReplyParameters); err != nil {
 			return nil, err
@@ -2614,23 +2649,25 @@ func (api *API) SendDocument(payload *SendDocument) (*Message, error) {
 
 // sendVideo is used to send video files, Telegram clients support MPEG4 videos (other formats may be sent as Document). On success, the sent Message is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
 type SendVideo struct {
-	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
-	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Video                *InputFile       `json:"video"`                            // Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. More information on Sending Files »
-	Duration             int64            `json:"duration,omitempty"`               // Duration of sent video in seconds
-	Width                int64            `json:"width,omitempty"`                  // Video width
-	Height               int64            `json:"height,omitempty"`                 // Video height
-	Thumbnail            *InputFile       `json:"thumbnail,omitempty"`              // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-	Caption              string           `json:"caption,omitempty"`                // Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing
-	ParseMode            ParseMode        `json:"parse_mode,omitempty"`             // Mode for parsing entities in the video caption. See formatting options for more details.
-	CaptionEntities      []*MessageEntity `json:"caption_entities,omitempty"`       // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
-	HasSpoiler           bool             `json:"has_spoiler,omitempty"`            // Pass True if the video needs to be covered with a spoiler animation
-	SupportsStreaming    bool             `json:"supports_streaming,omitempty"`     // Pass True if the uploaded video is suitable for streaming
-	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+	BusinessConnectionId  string           `json:"business_connection_id,omitempty"`   // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId                ChatID           `json:"chat_id"`                            // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId       int64            `json:"message_thread_id,omitempty"`        // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Video                 *InputFile       `json:"video"`                              // Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. More information on Sending Files »
+	Duration              int64            `json:"duration,omitempty"`                 // Duration of sent video in seconds
+	Width                 int64            `json:"width,omitempty"`                    // Video width
+	Height                int64            `json:"height,omitempty"`                   // Video height
+	Thumbnail             *InputFile       `json:"thumbnail,omitempty"`                // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	Caption               string           `json:"caption,omitempty"`                  // Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing
+	ParseMode             ParseMode        `json:"parse_mode,omitempty"`               // Mode for parsing entities in the video caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity `json:"caption_entities,omitempty"`         // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool             `json:"show_caption_above_media,omitempty"` // Pass True, if the caption must be shown above the message media
+	HasSpoiler            bool             `json:"has_spoiler,omitempty"`              // Pass True if the video needs to be covered with a spoiler animation
+	SupportsStreaming     bool             `json:"supports_streaming,omitempty"`       // Pass True if the uploaded video is suitable for streaming
+	DisableNotification   bool             `json:"disable_notification,omitempty"`     // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent        bool             `json:"protect_content,omitempty"`          // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId       string           `json:"message_effect_id,omitempty"`        // Unique identifier of the message effect to be added to the message; for private chats only
+	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`         // Description of the message to reply to
+	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`             // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 func (x *SendVideo) getFiles() map[string]*InputFile {
@@ -2686,6 +2723,9 @@ func (x *SendVideo) getParams() (map[string]string, error) {
 			payload["caption_entities"] = string(bb)
 		}
 	}
+	if x.ShowCaptionAboveMedia {
+		payload["show_caption_above_media"] = strconv.FormatBool(x.ShowCaptionAboveMedia)
+	}
 	if x.HasSpoiler {
 		payload["has_spoiler"] = strconv.FormatBool(x.HasSpoiler)
 	}
@@ -2697,6 +2737,9 @@ func (x *SendVideo) getParams() (map[string]string, error) {
 	}
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
+	}
+	if x.MessageEffectId != "" {
+		payload["message_effect_id"] = x.MessageEffectId
 	}
 	if x.ReplyParameters != nil {
 		if bb, err := json.Marshal(x.ReplyParameters); err != nil {
@@ -2730,22 +2773,24 @@ func (api *API) SendVideo(payload *SendVideo) (*Message, error) {
 
 // sendAnimation is used to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future.
 type SendAnimation struct {
-	BusinessConnectionId string           `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be sent
-	ChatId               ChatID           `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageThreadId      int64            `json:"message_thread_id,omitempty"`      // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
-	Animation            *InputFile       `json:"animation"`                        // Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. More information on Sending Files »
-	Duration             int64            `json:"duration,omitempty"`               // Duration of sent animation in seconds
-	Width                int64            `json:"width,omitempty"`                  // Animation width
-	Height               int64            `json:"height,omitempty"`                 // Animation height
-	Thumbnail            *InputFile       `json:"thumbnail,omitempty"`              // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
-	Caption              string           `json:"caption,omitempty"`                // Animation caption (may also be used when resending animation by file_id), 0-1024 characters after entities parsing
-	ParseMode            ParseMode        `json:"parse_mode,omitempty"`             // Mode for parsing entities in the animation caption. See formatting options for more details.
-	CaptionEntities      []*MessageEntity `json:"caption_entities,omitempty"`       // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
-	HasSpoiler           bool             `json:"has_spoiler,omitempty"`            // Pass True if the animation needs to be covered with a spoiler animation
-	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
-	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
-	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
-	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+	BusinessConnectionId  string           `json:"business_connection_id,omitempty"`   // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId                ChatID           `json:"chat_id"`                            // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageThreadId       int64            `json:"message_thread_id,omitempty"`        // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
+	Animation             *InputFile       `json:"animation"`                          // Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. More information on Sending Files »
+	Duration              int64            `json:"duration,omitempty"`                 // Duration of sent animation in seconds
+	Width                 int64            `json:"width,omitempty"`                    // Animation width
+	Height                int64            `json:"height,omitempty"`                   // Animation height
+	Thumbnail             *InputFile       `json:"thumbnail,omitempty"`                // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	Caption               string           `json:"caption,omitempty"`                  // Animation caption (may also be used when resending animation by file_id), 0-1024 characters after entities parsing
+	ParseMode             ParseMode        `json:"parse_mode,omitempty"`               // Mode for parsing entities in the animation caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity `json:"caption_entities,omitempty"`         // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool             `json:"show_caption_above_media,omitempty"` // Pass True, if the caption must be shown above the message media
+	HasSpoiler            bool             `json:"has_spoiler,omitempty"`              // Pass True if the animation needs to be covered with a spoiler animation
+	DisableNotification   bool             `json:"disable_notification,omitempty"`     // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent        bool             `json:"protect_content,omitempty"`          // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId       string           `json:"message_effect_id,omitempty"`        // Unique identifier of the message effect to be added to the message; for private chats only
+	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`         // Description of the message to reply to
+	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`             // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
 func (x *SendAnimation) getFiles() map[string]*InputFile {
@@ -2801,6 +2846,9 @@ func (x *SendAnimation) getParams() (map[string]string, error) {
 			payload["caption_entities"] = string(bb)
 		}
 	}
+	if x.ShowCaptionAboveMedia {
+		payload["show_caption_above_media"] = strconv.FormatBool(x.ShowCaptionAboveMedia)
+	}
 	if x.HasSpoiler {
 		payload["has_spoiler"] = strconv.FormatBool(x.HasSpoiler)
 	}
@@ -2809,6 +2857,9 @@ func (x *SendAnimation) getParams() (map[string]string, error) {
 	}
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
+	}
+	if x.MessageEffectId != "" {
+		payload["message_effect_id"] = x.MessageEffectId
 	}
 	if x.ReplyParameters != nil {
 		if bb, err := json.Marshal(x.ReplyParameters); err != nil {
@@ -2852,6 +2903,7 @@ type SendVoice struct {
 	Duration             int64            `json:"duration,omitempty"`               // Duration of the voice message in seconds
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -2904,6 +2956,9 @@ func (x *SendVoice) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.MessageEffectId != "" {
+		payload["message_effect_id"] = x.MessageEffectId
+	}
 	if x.ReplyParameters != nil {
 		if bb, err := json.Marshal(x.ReplyParameters); err != nil {
 			return nil, err
@@ -2945,6 +3000,7 @@ type SendVideoNote struct {
 	Thumbnail            *InputFile       `json:"thumbnail,omitempty"`              // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -2992,6 +3048,9 @@ func (x *SendVideoNote) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.MessageEffectId != "" {
+		payload["message_effect_id"] = x.MessageEffectId
+	}
 	if x.ReplyParameters != nil {
 		if bb, err := json.Marshal(x.ReplyParameters); err != nil {
 			return nil, err
@@ -3030,6 +3089,7 @@ type SendMediaGroup struct {
 	Media                []InputMedia     `json:"media"`                            // A JSON-serialized array describing messages to be sent, must include 2-10 items
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends messages silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent messages from forwarding and saving
+	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 }
 
@@ -3070,6 +3130,9 @@ func (x *SendMediaGroup) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.MessageEffectId != "" {
+		payload["message_effect_id"] = x.MessageEffectId
+	}
 	if x.ReplyParameters != nil {
 		if bb, err := json.Marshal(x.ReplyParameters); err != nil {
 			return nil, err
@@ -3106,6 +3169,7 @@ type SendLocation struct {
 	ProximityAlertRadius int64            `json:"proximity_alert_radius,omitempty"` // For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -3130,6 +3194,7 @@ type SendVenue struct {
 	GooglePlaceType      string           `json:"google_place_type,omitempty"`      // Google Places type of the venue. (See supported types.)
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -3150,6 +3215,7 @@ type SendContact struct {
 	Vcard                string           `json:"vcard,omitempty"`                  // Additional data about the contact in the form of a vCard, 0-2048 bytes
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -3180,6 +3246,7 @@ type SendPoll struct {
 	IsClosed              bool               `json:"is_closed,omitempty"`               // Pass True if the poll needs to be immediately closed. This can be useful for poll preview.
 	DisableNotification   bool               `json:"disable_notification,omitempty"`    // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent        bool               `json:"protect_content,omitempty"`         // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId       string             `json:"message_effect_id,omitempty"`       // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters       *ReplyParameters   `json:"reply_parameters,omitempty"`        // Description of the message to reply to
 	ReplyMarkup           ReplyMarkup        `json:"reply_markup,omitempty"`            // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -3197,6 +3264,7 @@ type SendDice struct {
 	Emoji                string           `json:"emoji,omitempty"`                  // Emoji on which the dice throw animation is based. Currently, must be one of “”, “”, “”, “”, “”, or “”. Dice can have values 1-6 for “”, “” and “”, values 1-5 for “” and “”, and values 1-64 for “”. Defaults to “”
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding
+	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -3378,6 +3446,7 @@ func (api *API) SetChatPermissions(payload *SetChatPermissions) (bool, error) {
 // exportChatInviteLink is used to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.
 //
 // Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again.
+//
 type ExportChatInviteLink struct {
 	ChatId ChatID `json:"chat_id"` // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 }
@@ -3385,6 +3454,7 @@ type ExportChatInviteLink struct {
 // exportChatInviteLink is used to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.
 //
 // Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again.
+//
 func (api *API) ExportChatInviteLink(payload *ExportChatInviteLink) (string, error) {
 	return callJson[string](api, "exportChatInviteLink", payload)
 }
@@ -3773,6 +3843,7 @@ func (api *API) UnpinAllGeneralForumTopicMessages(payload *UnpinAllGeneralForumT
 // answerCallbackQuery is used to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
 //
 // Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
+//
 type AnswerCallbackQuery struct {
 	CallbackQueryId string `json:"callback_query_id"`    // Unique identifier for the query to be answered
 	Text            string `json:"text,omitempty"`       // Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters
@@ -3784,6 +3855,7 @@ type AnswerCallbackQuery struct {
 // answerCallbackQuery is used to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
 //
 // Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
+//
 func (api *API) AnswerCallbackQuery(payload *AnswerCallbackQuery) (bool, error) {
 	return callJson[bool](api, "answerCallbackQuery", payload)
 }
@@ -3971,13 +4043,14 @@ func (api *API) EditMessageText(payload *EditMessageText) (*Message, error) {
 
 // editMessageCaption is used to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
 type EditMessageCaption struct {
-	ChatId          ChatID                `json:"chat_id,omitempty"`           // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageId       int64                 `json:"message_id,omitempty"`        // Required if inline_message_id is not specified. Identifier of the message to edit
-	InlineMessageId string                `json:"inline_message_id,omitempty"` // Required if chat_id and message_id are not specified. Identifier of the inline message
-	Caption         string                `json:"caption,omitempty"`           // New caption of the message, 0-1024 characters after entities parsing
-	ParseMode       ParseMode             `json:"parse_mode,omitempty"`        // Mode for parsing entities in the message caption. See formatting options for more details.
-	CaptionEntities []*MessageEntity      `json:"caption_entities,omitempty"`  // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
-	ReplyMarkup     *InlineKeyboardMarkup `json:"reply_markup,omitempty"`      // A JSON-serialized object for an inline keyboard.
+	ChatId                ChatID                `json:"chat_id,omitempty"`                  // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageId             int64                 `json:"message_id,omitempty"`               // Required if inline_message_id is not specified. Identifier of the message to edit
+	InlineMessageId       string                `json:"inline_message_id,omitempty"`        // Required if chat_id and message_id are not specified. Identifier of the inline message
+	Caption               string                `json:"caption,omitempty"`                  // New caption of the message, 0-1024 characters after entities parsing
+	ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Mode for parsing entities in the message caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Pass True, if the caption must be shown above the message media. Supported only for animation, photo and video messages.
+	ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // A JSON-serialized object for an inline keyboard.
 }
 
 // editMessageCaption is used to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
@@ -4193,6 +4266,7 @@ type SendSticker struct {
 	Emoji                string           `json:"emoji,omitempty"`                  // Emoji associated with the sticker; only for just uploaded stickers
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -4231,6 +4305,9 @@ func (x *SendSticker) getParams() (map[string]string, error) {
 	}
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
+	}
+	if x.MessageEffectId != "" {
+		payload["message_effect_id"] = x.MessageEffectId
 	}
 	if x.ReplyParameters != nil {
 		if bb, err := json.Marshal(x.ReplyParameters); err != nil {
@@ -4695,19 +4772,20 @@ func (x *InlineQueryResultArticle) UnmarshalJSON(rawBytes []byte) (err error) {
 
 // Represents a link to a photo. By default, this photo will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
 type InlineQueryResultPhoto struct {
-	Type                string                `json:"type"`                            // Type of the result, must be photo
-	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-	PhotoUrl            string                `json:"photo_url"`                       // A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB
-	ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the thumbnail for the photo
-	PhotoWidth          int64                 `json:"photo_width,omitempty"`           // Optional. Width of the photo
-	PhotoHeight         int64                 `json:"photo_height,omitempty"`          // Optional. Height of the photo
-	Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-	Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
-	Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
-	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the photo
+	Type                  string                `json:"type"`                               // Type of the result, must be photo
+	Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+	PhotoUrl              string                `json:"photo_url"`                          // A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB
+	ThumbnailUrl          string                `json:"thumbnail_url"`                      // URL of the thumbnail for the photo
+	PhotoWidth            int64                 `json:"photo_width,omitempty"`              // Optional. Width of the photo
+	PhotoHeight           int64                 `json:"photo_height,omitempty"`             // Optional. Height of the photo
+	Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+	Description           string                `json:"description,omitempty"`              // Optional. Short description of the result
+	Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
+	ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+	ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+	InputMessageContent   InputMessageContent   `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the photo
 }
 
 func (InlineQueryResultPhoto) IsInlineQueryResult() {}
@@ -4718,19 +4796,20 @@ func (x *InlineQueryResultPhoto) UnmarshalJSON(rawBytes []byte) (err error) {
 	}
 
 	type temp struct {
-		Type                string                `json:"type"`                            // Type of the result, must be photo
-		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-		PhotoUrl            string                `json:"photo_url"`                       // A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB
-		ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the thumbnail for the photo
-		PhotoWidth          int64                 `json:"photo_width,omitempty"`           // Optional. Width of the photo
-		PhotoHeight         int64                 `json:"photo_height,omitempty"`          // Optional. Height of the photo
-		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-		Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
-		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
-		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
-		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the photo
+		Type                  string                `json:"type"`                               // Type of the result, must be photo
+		Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+		PhotoUrl              string                `json:"photo_url"`                          // A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB
+		ThumbnailUrl          string                `json:"thumbnail_url"`                      // URL of the thumbnail for the photo
+		PhotoWidth            int64                 `json:"photo_width,omitempty"`              // Optional. Width of the photo
+		PhotoHeight           int64                 `json:"photo_height,omitempty"`             // Optional. Height of the photo
+		Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+		Description           string                `json:"description,omitempty"`              // Optional. Short description of the result
+		Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
+		ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
+		CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+		ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+		InputMessageContent   json.RawMessage       `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the photo
 	}
 	raw := &temp{}
 
@@ -4754,6 +4833,7 @@ func (x *InlineQueryResultPhoto) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.Caption = raw.Caption
 	x.ParseMode = raw.ParseMode
 	x.CaptionEntities = raw.CaptionEntities
+	x.ShowCaptionAboveMedia = raw.ShowCaptionAboveMedia
 	x.ReplyMarkup = raw.ReplyMarkup
 
 	return nil
@@ -4761,20 +4841,21 @@ func (x *InlineQueryResultPhoto) UnmarshalJSON(rawBytes []byte) (err error) {
 
 // Represents a link to an animated GIF file. By default, this animated GIF file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
 type InlineQueryResultGif struct {
-	Type                string                `json:"type"`                            // Type of the result, must be gif
-	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-	GifUrl              string                `json:"gif_url"`                         // A valid URL for the GIF file. File size must not exceed 1MB
-	GifWidth            int64                 `json:"gif_width,omitempty"`             // Optional. Width of the GIF
-	GifHeight           int64                 `json:"gif_height,omitempty"`            // Optional. Height of the GIF
-	GifDuration         int64                 `json:"gif_duration,omitempty"`          // Optional. Duration of the GIF in seconds
-	ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
-	ThumbnailMimeType   string                `json:"thumbnail_mime_type,omitempty"`   // Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
-	Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-	Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
-	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the GIF animation
+	Type                  string                `json:"type"`                               // Type of the result, must be gif
+	Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+	GifUrl                string                `json:"gif_url"`                            // A valid URL for the GIF file. File size must not exceed 1MB
+	GifWidth              int64                 `json:"gif_width,omitempty"`                // Optional. Width of the GIF
+	GifHeight             int64                 `json:"gif_height,omitempty"`               // Optional. Height of the GIF
+	GifDuration           int64                 `json:"gif_duration,omitempty"`             // Optional. Duration of the GIF in seconds
+	ThumbnailUrl          string                `json:"thumbnail_url"`                      // URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+	ThumbnailMimeType     string                `json:"thumbnail_mime_type,omitempty"`      // Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
+	Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+	Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
+	ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+	ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+	InputMessageContent   InputMessageContent   `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the GIF animation
 }
 
 func (InlineQueryResultGif) IsInlineQueryResult() {}
@@ -4785,20 +4866,21 @@ func (x *InlineQueryResultGif) UnmarshalJSON(rawBytes []byte) (err error) {
 	}
 
 	type temp struct {
-		Type                string                `json:"type"`                            // Type of the result, must be gif
-		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-		GifUrl              string                `json:"gif_url"`                         // A valid URL for the GIF file. File size must not exceed 1MB
-		GifWidth            int64                 `json:"gif_width,omitempty"`             // Optional. Width of the GIF
-		GifHeight           int64                 `json:"gif_height,omitempty"`            // Optional. Height of the GIF
-		GifDuration         int64                 `json:"gif_duration,omitempty"`          // Optional. Duration of the GIF in seconds
-		ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
-		ThumbnailMimeType   string                `json:"thumbnail_mime_type,omitempty"`   // Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
-		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
-		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
-		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the GIF animation
+		Type                  string                `json:"type"`                               // Type of the result, must be gif
+		Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+		GifUrl                string                `json:"gif_url"`                            // A valid URL for the GIF file. File size must not exceed 1MB
+		GifWidth              int64                 `json:"gif_width,omitempty"`                // Optional. Width of the GIF
+		GifHeight             int64                 `json:"gif_height,omitempty"`               // Optional. Height of the GIF
+		GifDuration           int64                 `json:"gif_duration,omitempty"`             // Optional. Duration of the GIF in seconds
+		ThumbnailUrl          string                `json:"thumbnail_url"`                      // URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+		ThumbnailMimeType     string                `json:"thumbnail_mime_type,omitempty"`      // Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
+		Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+		Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
+		ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+		CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+		ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+		InputMessageContent   json.RawMessage       `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the GIF animation
 	}
 	raw := &temp{}
 
@@ -4823,6 +4905,7 @@ func (x *InlineQueryResultGif) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.Caption = raw.Caption
 	x.ParseMode = raw.ParseMode
 	x.CaptionEntities = raw.CaptionEntities
+	x.ShowCaptionAboveMedia = raw.ShowCaptionAboveMedia
 	x.ReplyMarkup = raw.ReplyMarkup
 
 	return nil
@@ -4830,20 +4913,21 @@ func (x *InlineQueryResultGif) UnmarshalJSON(rawBytes []byte) (err error) {
 
 // Represents a link to a video animation (H.264/MPEG-4 AVC video without sound). By default, this animated MPEG-4 file will be sent by the user with optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
 type InlineQueryResultMpeg4Gif struct {
-	Type                string                `json:"type"`                            // Type of the result, must be mpeg4_gif
-	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-	Mpeg4Url            string                `json:"mpeg4_url"`                       // A valid URL for the MPEG4 file. File size must not exceed 1MB
-	Mpeg4Width          int64                 `json:"mpeg4_width,omitempty"`           // Optional. Video width
-	Mpeg4Height         int64                 `json:"mpeg4_height,omitempty"`          // Optional. Video height
-	Mpeg4Duration       int64                 `json:"mpeg4_duration,omitempty"`        // Optional. Video duration in seconds
-	ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
-	ThumbnailMimeType   string                `json:"thumbnail_mime_type,omitempty"`   // Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
-	Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-	Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing
-	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video animation
+	Type                  string                `json:"type"`                               // Type of the result, must be mpeg4_gif
+	Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+	Mpeg4Url              string                `json:"mpeg4_url"`                          // A valid URL for the MPEG4 file. File size must not exceed 1MB
+	Mpeg4Width            int64                 `json:"mpeg4_width,omitempty"`              // Optional. Video width
+	Mpeg4Height           int64                 `json:"mpeg4_height,omitempty"`             // Optional. Video height
+	Mpeg4Duration         int64                 `json:"mpeg4_duration,omitempty"`           // Optional. Video duration in seconds
+	ThumbnailUrl          string                `json:"thumbnail_url"`                      // URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+	ThumbnailMimeType     string                `json:"thumbnail_mime_type,omitempty"`      // Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
+	Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+	Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing
+	ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+	ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+	InputMessageContent   InputMessageContent   `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the video animation
 }
 
 func (InlineQueryResultMpeg4Gif) IsInlineQueryResult() {}
@@ -4854,20 +4938,21 @@ func (x *InlineQueryResultMpeg4Gif) UnmarshalJSON(rawBytes []byte) (err error) {
 	}
 
 	type temp struct {
-		Type                string                `json:"type"`                            // Type of the result, must be mpeg4_gif
-		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-		Mpeg4Url            string                `json:"mpeg4_url"`                       // A valid URL for the MPEG4 file. File size must not exceed 1MB
-		Mpeg4Width          int64                 `json:"mpeg4_width,omitempty"`           // Optional. Video width
-		Mpeg4Height         int64                 `json:"mpeg4_height,omitempty"`          // Optional. Video height
-		Mpeg4Duration       int64                 `json:"mpeg4_duration,omitempty"`        // Optional. Video duration in seconds
-		ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
-		ThumbnailMimeType   string                `json:"thumbnail_mime_type,omitempty"`   // Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
-		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing
-		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
-		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video animation
+		Type                  string                `json:"type"`                               // Type of the result, must be mpeg4_gif
+		Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+		Mpeg4Url              string                `json:"mpeg4_url"`                          // A valid URL for the MPEG4 file. File size must not exceed 1MB
+		Mpeg4Width            int64                 `json:"mpeg4_width,omitempty"`              // Optional. Video width
+		Mpeg4Height           int64                 `json:"mpeg4_height,omitempty"`             // Optional. Video height
+		Mpeg4Duration         int64                 `json:"mpeg4_duration,omitempty"`           // Optional. Video duration in seconds
+		ThumbnailUrl          string                `json:"thumbnail_url"`                      // URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
+		ThumbnailMimeType     string                `json:"thumbnail_mime_type,omitempty"`      // Optional. MIME type of the thumbnail, must be one of “image/jpeg”, “image/gif”, or “video/mp4”. Defaults to “image/jpeg”
+		Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+		Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing
+		ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+		CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+		ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+		InputMessageContent   json.RawMessage       `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the video animation
 	}
 	raw := &temp{}
 
@@ -4892,6 +4977,7 @@ func (x *InlineQueryResultMpeg4Gif) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.Caption = raw.Caption
 	x.ParseMode = raw.ParseMode
 	x.CaptionEntities = raw.CaptionEntities
+	x.ShowCaptionAboveMedia = raw.ShowCaptionAboveMedia
 	x.ReplyMarkup = raw.ReplyMarkup
 
 	return nil
@@ -4900,22 +4986,24 @@ func (x *InlineQueryResultMpeg4Gif) UnmarshalJSON(rawBytes []byte) (err error) {
 // Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
 //
 // If an InlineQueryResultVideo message contains an embedded video (e.g., YouTube), you must replace its content using input_message_content.
+//
 type InlineQueryResultVideo struct {
-	Type                string                `json:"type"`                            // Type of the result, must be video
-	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-	VideoUrl            string                `json:"video_url"`                       // A valid URL for the embedded video player or video file
-	MimeType            string                `json:"mime_type"`                       // MIME type of the content of the video URL, “text/html” or “video/mp4”
-	ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the thumbnail (JPEG only) for the video
-	Title               string                `json:"title"`                           // Title for the result
-	Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
-	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-	VideoWidth          int64                 `json:"video_width,omitempty"`           // Optional. Video width
-	VideoHeight         int64                 `json:"video_height,omitempty"`          // Optional. Video height
-	VideoDuration       int64                 `json:"video_duration,omitempty"`        // Optional. Video duration in seconds
-	Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
-	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video. This field is required if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
+	Type                  string                `json:"type"`                               // Type of the result, must be video
+	Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+	VideoUrl              string                `json:"video_url"`                          // A valid URL for the embedded video player or video file
+	MimeType              string                `json:"mime_type"`                          // MIME type of the content of the video URL, “text/html” or “video/mp4”
+	ThumbnailUrl          string                `json:"thumbnail_url"`                      // URL of the thumbnail (JPEG only) for the video
+	Title                 string                `json:"title"`                              // Title for the result
+	Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
+	ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+	VideoWidth            int64                 `json:"video_width,omitempty"`              // Optional. Video width
+	VideoHeight           int64                 `json:"video_height,omitempty"`             // Optional. Video height
+	VideoDuration         int64                 `json:"video_duration,omitempty"`           // Optional. Video duration in seconds
+	Description           string                `json:"description,omitempty"`              // Optional. Short description of the result
+	ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+	InputMessageContent   InputMessageContent   `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the video. This field is required if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
 }
 
 func (InlineQueryResultVideo) IsInlineQueryResult() {}
@@ -4926,21 +5014,22 @@ func (x *InlineQueryResultVideo) UnmarshalJSON(rawBytes []byte) (err error) {
 	}
 
 	type temp struct {
-		Type                string                `json:"type"`                            // Type of the result, must be video
-		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-		VideoUrl            string                `json:"video_url"`                       // A valid URL for the embedded video player or video file
-		MimeType            string                `json:"mime_type"`                       // MIME type of the content of the video URL, “text/html” or “video/mp4”
-		ThumbnailUrl        string                `json:"thumbnail_url"`                   // URL of the thumbnail (JPEG only) for the video
-		Title               string                `json:"title"`                           // Title for the result
-		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
-		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
-		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-		VideoWidth          int64                 `json:"video_width,omitempty"`           // Optional. Video width
-		VideoHeight         int64                 `json:"video_height,omitempty"`          // Optional. Video height
-		VideoDuration       int64                 `json:"video_duration,omitempty"`        // Optional. Video duration in seconds
-		Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
-		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video. This field is required if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
+		Type                  string                `json:"type"`                               // Type of the result, must be video
+		Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+		VideoUrl              string                `json:"video_url"`                          // A valid URL for the embedded video player or video file
+		MimeType              string                `json:"mime_type"`                          // MIME type of the content of the video URL, “text/html” or “video/mp4”
+		ThumbnailUrl          string                `json:"thumbnail_url"`                      // URL of the thumbnail (JPEG only) for the video
+		Title                 string                `json:"title"`                              // Title for the result
+		Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
+		ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
+		CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+		VideoWidth            int64                 `json:"video_width,omitempty"`              // Optional. Video width
+		VideoHeight           int64                 `json:"video_height,omitempty"`             // Optional. Video height
+		VideoDuration         int64                 `json:"video_duration,omitempty"`           // Optional. Video duration in seconds
+		Description           string                `json:"description,omitempty"`              // Optional. Short description of the result
+		ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+		InputMessageContent   json.RawMessage       `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the video. This field is required if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video).
 	}
 	raw := &temp{}
 
@@ -4962,6 +5051,7 @@ func (x *InlineQueryResultVideo) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.Caption = raw.Caption
 	x.ParseMode = raw.ParseMode
 	x.CaptionEntities = raw.CaptionEntities
+	x.ShowCaptionAboveMedia = raw.ShowCaptionAboveMedia
 	x.VideoWidth = raw.VideoWidth
 	x.VideoHeight = raw.VideoHeight
 	x.VideoDuration = raw.VideoDuration
@@ -5370,16 +5460,17 @@ func (InlineQueryResultGame) IsInlineQueryResult() {}
 
 // Represents a link to a photo stored on the Telegram servers. By default, this photo will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the photo.
 type InlineQueryResultCachedPhoto struct {
-	Type                string                `json:"type"`                            // Type of the result, must be photo
-	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-	PhotoFileId         string                `json:"photo_file_id"`                   // A valid file identifier of the photo
-	Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-	Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
-	Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
-	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the photo
+	Type                  string                `json:"type"`                               // Type of the result, must be photo
+	Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+	PhotoFileId           string                `json:"photo_file_id"`                      // A valid file identifier of the photo
+	Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+	Description           string                `json:"description,omitempty"`              // Optional. Short description of the result
+	Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
+	ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+	ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+	InputMessageContent   InputMessageContent   `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the photo
 }
 
 func (InlineQueryResultCachedPhoto) IsInlineQueryResult() {}
@@ -5390,16 +5481,17 @@ func (x *InlineQueryResultCachedPhoto) UnmarshalJSON(rawBytes []byte) (err error
 	}
 
 	type temp struct {
-		Type                string                `json:"type"`                            // Type of the result, must be photo
-		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-		PhotoFileId         string                `json:"photo_file_id"`                   // A valid file identifier of the photo
-		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-		Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
-		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
-		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
-		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the photo
+		Type                  string                `json:"type"`                               // Type of the result, must be photo
+		Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+		PhotoFileId           string                `json:"photo_file_id"`                      // A valid file identifier of the photo
+		Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+		Description           string                `json:"description,omitempty"`              // Optional. Short description of the result
+		Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the photo to be sent, 0-1024 characters after entities parsing
+		ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the photo caption. See formatting options for more details.
+		CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+		ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+		InputMessageContent   json.RawMessage       `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the photo
 	}
 	raw := &temp{}
 
@@ -5420,6 +5512,7 @@ func (x *InlineQueryResultCachedPhoto) UnmarshalJSON(rawBytes []byte) (err error
 	x.Caption = raw.Caption
 	x.ParseMode = raw.ParseMode
 	x.CaptionEntities = raw.CaptionEntities
+	x.ShowCaptionAboveMedia = raw.ShowCaptionAboveMedia
 	x.ReplyMarkup = raw.ReplyMarkup
 
 	return nil
@@ -5427,15 +5520,16 @@ func (x *InlineQueryResultCachedPhoto) UnmarshalJSON(rawBytes []byte) (err error
 
 // Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with specified content instead of the animation.
 type InlineQueryResultCachedGif struct {
-	Type                string                `json:"type"`                            // Type of the result, must be gif
-	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-	GifFileId           string                `json:"gif_file_id"`                     // A valid file identifier for the GIF file
-	Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-	Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
-	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the GIF animation
+	Type                  string                `json:"type"`                               // Type of the result, must be gif
+	Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+	GifFileId             string                `json:"gif_file_id"`                        // A valid file identifier for the GIF file
+	Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+	Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
+	ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+	ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+	InputMessageContent   InputMessageContent   `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the GIF animation
 }
 
 func (InlineQueryResultCachedGif) IsInlineQueryResult() {}
@@ -5446,15 +5540,16 @@ func (x *InlineQueryResultCachedGif) UnmarshalJSON(rawBytes []byte) (err error) 
 	}
 
 	type temp struct {
-		Type                string                `json:"type"`                            // Type of the result, must be gif
-		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-		GifFileId           string                `json:"gif_file_id"`                     // A valid file identifier for the GIF file
-		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
-		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
-		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the GIF animation
+		Type                  string                `json:"type"`                               // Type of the result, must be gif
+		Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+		GifFileId             string                `json:"gif_file_id"`                        // A valid file identifier for the GIF file
+		Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+		Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the GIF file to be sent, 0-1024 characters after entities parsing
+		ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+		CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+		ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+		InputMessageContent   json.RawMessage       `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the GIF animation
 	}
 	raw := &temp{}
 
@@ -5474,6 +5569,7 @@ func (x *InlineQueryResultCachedGif) UnmarshalJSON(rawBytes []byte) (err error) 
 	x.Caption = raw.Caption
 	x.ParseMode = raw.ParseMode
 	x.CaptionEntities = raw.CaptionEntities
+	x.ShowCaptionAboveMedia = raw.ShowCaptionAboveMedia
 	x.ReplyMarkup = raw.ReplyMarkup
 
 	return nil
@@ -5481,15 +5577,16 @@ func (x *InlineQueryResultCachedGif) UnmarshalJSON(rawBytes []byte) (err error) 
 
 // Represents a link to a video animation (H.264/MPEG-4 AVC video without sound) stored on the Telegram servers. By default, this animated MPEG-4 file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the animation.
 type InlineQueryResultCachedMpeg4Gif struct {
-	Type                string                `json:"type"`                            // Type of the result, must be mpeg4_gif
-	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-	Mpeg4FileId         string                `json:"mpeg4_file_id"`                   // A valid file identifier for the MPEG4 file
-	Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-	Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing
-	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video animation
+	Type                  string                `json:"type"`                               // Type of the result, must be mpeg4_gif
+	Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+	Mpeg4FileId           string                `json:"mpeg4_file_id"`                      // A valid file identifier for the MPEG4 file
+	Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+	Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing
+	ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+	ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+	InputMessageContent   InputMessageContent   `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the video animation
 }
 
 func (InlineQueryResultCachedMpeg4Gif) IsInlineQueryResult() {}
@@ -5500,15 +5597,16 @@ func (x *InlineQueryResultCachedMpeg4Gif) UnmarshalJSON(rawBytes []byte) (err er
 	}
 
 	type temp struct {
-		Type                string                `json:"type"`                            // Type of the result, must be mpeg4_gif
-		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-		Mpeg4FileId         string                `json:"mpeg4_file_id"`                   // A valid file identifier for the MPEG4 file
-		Title               string                `json:"title,omitempty"`                 // Optional. Title for the result
-		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing
-		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the caption. See formatting options for more details.
-		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video animation
+		Type                  string                `json:"type"`                               // Type of the result, must be mpeg4_gif
+		Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+		Mpeg4FileId           string                `json:"mpeg4_file_id"`                      // A valid file identifier for the MPEG4 file
+		Title                 string                `json:"title,omitempty"`                    // Optional. Title for the result
+		Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing
+		ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the caption. See formatting options for more details.
+		CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+		ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+		InputMessageContent   json.RawMessage       `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the video animation
 	}
 	raw := &temp{}
 
@@ -5528,6 +5626,7 @@ func (x *InlineQueryResultCachedMpeg4Gif) UnmarshalJSON(rawBytes []byte) (err er
 	x.Caption = raw.Caption
 	x.ParseMode = raw.ParseMode
 	x.CaptionEntities = raw.CaptionEntities
+	x.ShowCaptionAboveMedia = raw.ShowCaptionAboveMedia
 	x.ReplyMarkup = raw.ReplyMarkup
 
 	return nil
@@ -5634,16 +5733,17 @@ func (x *InlineQueryResultCachedDocument) UnmarshalJSON(rawBytes []byte) (err er
 
 // Represents a link to a video file stored on the Telegram servers. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
 type InlineQueryResultCachedVideo struct {
-	Type                string                `json:"type"`                            // Type of the result, must be video
-	Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-	VideoFileId         string                `json:"video_file_id"`                   // A valid file identifier for the video file
-	Title               string                `json:"title"`                           // Title for the result
-	Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
-	Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
-	ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
-	CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-	ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-	InputMessageContent InputMessageContent   `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video
+	Type                  string                `json:"type"`                               // Type of the result, must be video
+	Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+	VideoFileId           string                `json:"video_file_id"`                      // A valid file identifier for the video file
+	Title                 string                `json:"title"`                              // Title for the result
+	Description           string                `json:"description,omitempty"`              // Optional. Short description of the result
+	Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
+	ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+	ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+	InputMessageContent   InputMessageContent   `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the video
 }
 
 func (InlineQueryResultCachedVideo) IsInlineQueryResult() {}
@@ -5654,16 +5754,17 @@ func (x *InlineQueryResultCachedVideo) UnmarshalJSON(rawBytes []byte) (err error
 	}
 
 	type temp struct {
-		Type                string                `json:"type"`                            // Type of the result, must be video
-		Id                  string                `json:"id"`                              // Unique identifier for this result, 1-64 bytes
-		VideoFileId         string                `json:"video_file_id"`                   // A valid file identifier for the video file
-		Title               string                `json:"title"`                           // Title for the result
-		Description         string                `json:"description,omitempty"`           // Optional. Short description of the result
-		Caption             string                `json:"caption,omitempty"`               // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
-		ParseMode           ParseMode             `json:"parse_mode,omitempty"`            // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
-		CaptionEntities     []*MessageEntity      `json:"caption_entities,omitempty"`      // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
-		ReplyMarkup         *InlineKeyboardMarkup `json:"reply_markup,omitempty"`          // Optional. Inline keyboard attached to the message
-		InputMessageContent json.RawMessage       `json:"input_message_content,omitempty"` // Optional. Content of the message to be sent instead of the video
+		Type                  string                `json:"type"`                               // Type of the result, must be video
+		Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
+		VideoFileId           string                `json:"video_file_id"`                      // A valid file identifier for the video file
+		Title                 string                `json:"title"`                              // Title for the result
+		Description           string                `json:"description,omitempty"`              // Optional. Short description of the result
+		Caption               string                `json:"caption,omitempty"`                  // Optional. Caption of the video to be sent, 0-1024 characters after entities parsing
+		ParseMode             ParseMode             `json:"parse_mode,omitempty"`               // Optional. Mode for parsing entities in the video caption. See formatting options for more details.
+		CaptionEntities       []*MessageEntity      `json:"caption_entities,omitempty"`         // Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
+		ShowCaptionAboveMedia bool                  `json:"show_caption_above_media,omitempty"` // Optional. Pass True, if the caption must be shown above the message media
+		ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // Optional. Inline keyboard attached to the message
+		InputMessageContent   json.RawMessage       `json:"input_message_content,omitempty"`    // Optional. Content of the message to be sent instead of the video
 	}
 	raw := &temp{}
 
@@ -5684,6 +5785,7 @@ func (x *InlineQueryResultCachedVideo) UnmarshalJSON(rawBytes []byte) (err error
 	x.Caption = raw.Caption
 	x.ParseMode = raw.ParseMode
 	x.CaptionEntities = raw.CaptionEntities
+	x.ShowCaptionAboveMedia = raw.ShowCaptionAboveMedia
 	x.ReplyMarkup = raw.ReplyMarkup
 
 	return nil
@@ -5852,23 +5954,23 @@ type InputInvoiceMessageContent struct {
 	Title                     string          `json:"title"`                                   // Product name, 1-32 characters
 	Description               string          `json:"description"`                             // Product description, 1-255 characters
 	Payload                   string          `json:"payload"`                                 // Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.
-	ProviderToken             string          `json:"provider_token"`                          // Payment provider token, obtained via @BotFather
-	Currency                  string          `json:"currency"`                                // Three-letter ISO 4217 currency code, see more on currencies
-	Prices                    []*LabeledPrice `json:"prices"`                                  // Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
-	MaxTipAmount              int64           `json:"max_tip_amount,omitempty"`                // Optional. The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0
+	ProviderToken             string          `json:"provider_token,omitempty"`                // Optional. Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars.
+	Currency                  string          `json:"currency"`                                // Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars.
+	Prices                    []*LabeledPrice `json:"prices"`                                  // Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
+	MaxTipAmount              int64           `json:"max_tip_amount,omitempty"`                // Optional. The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
 	SuggestedTipAmounts       []int64         `json:"suggested_tip_amounts,omitempty"`         // Optional. A JSON-serialized array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount.
 	ProviderData              string          `json:"provider_data,omitempty"`                 // Optional. A JSON-serialized object for data about the invoice, which will be shared with the payment provider. A detailed description of the required fields should be provided by the payment provider.
 	PhotoUrl                  string          `json:"photo_url,omitempty"`                     // Optional. URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service.
 	PhotoSize                 int64           `json:"photo_size,omitempty"`                    // Optional. Photo size in bytes
 	PhotoWidth                int64           `json:"photo_width,omitempty"`                   // Optional. Photo width
 	PhotoHeight               int64           `json:"photo_height,omitempty"`                  // Optional. Photo height
-	NeedName                  bool            `json:"need_name,omitempty"`                     // Optional. Pass True if you require the user's full name to complete the order
-	NeedPhoneNumber           bool            `json:"need_phone_number,omitempty"`             // Optional. Pass True if you require the user's phone number to complete the order
-	NeedEmail                 bool            `json:"need_email,omitempty"`                    // Optional. Pass True if you require the user's email address to complete the order
-	NeedShippingAddress       bool            `json:"need_shipping_address,omitempty"`         // Optional. Pass True if you require the user's shipping address to complete the order
-	SendPhoneNumberToProvider bool            `json:"send_phone_number_to_provider,omitempty"` // Optional. Pass True if the user's phone number should be sent to provider
-	SendEmailToProvider       bool            `json:"send_email_to_provider,omitempty"`        // Optional. Pass True if the user's email address should be sent to provider
-	IsFlexible                bool            `json:"is_flexible,omitempty"`                   // Optional. Pass True if the final price depends on the shipping method
+	NeedName                  bool            `json:"need_name,omitempty"`                     // Optional. Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars.
+	NeedPhoneNumber           bool            `json:"need_phone_number,omitempty"`             // Optional. Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars.
+	NeedEmail                 bool            `json:"need_email,omitempty"`                    // Optional. Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars.
+	NeedShippingAddress       bool            `json:"need_shipping_address,omitempty"`         // Optional. Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars.
+	SendPhoneNumberToProvider bool            `json:"send_phone_number_to_provider,omitempty"` // Optional. Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars.
+	SendEmailToProvider       bool            `json:"send_email_to_provider,omitempty"`        // Optional. Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars.
+	IsFlexible                bool            `json:"is_flexible,omitempty"`                   // Optional. Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars.
 }
 
 func (InputInvoiceMessageContent) IsInputMessageContent() {}
@@ -5906,10 +6008,10 @@ type SendInvoice struct {
 	Title                     string                `json:"title"`                                   // Product name, 1-32 characters
 	Description               string                `json:"description"`                             // Product description, 1-255 characters
 	Payload                   string                `json:"payload"`                                 // Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.
-	ProviderToken             string                `json:"provider_token"`                          // Payment provider token, obtained via @BotFather
-	Currency                  string                `json:"currency"`                                // Three-letter ISO 4217 currency code, see more on currencies
-	Prices                    []*LabeledPrice       `json:"prices"`                                  // Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
-	MaxTipAmount              int64                 `json:"max_tip_amount,omitempty"`                // The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0
+	ProviderToken             string                `json:"provider_token,omitempty"`                // Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars.
+	Currency                  string                `json:"currency"`                                // Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars.
+	Prices                    []*LabeledPrice       `json:"prices"`                                  // Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
+	MaxTipAmount              int64                 `json:"max_tip_amount,omitempty"`                // The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
 	SuggestedTipAmounts       []int64               `json:"suggested_tip_amounts,omitempty"`         // A JSON-serialized array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount.
 	StartParameter            string                `json:"start_parameter,omitempty"`               // Unique deep-linking parameter. If left empty, forwarded copies of the sent message will have a Pay button, allowing multiple users to pay directly from the forwarded message, using the same invoice. If non-empty, forwarded copies of the sent message will have a URL button with a deep link to the bot (instead of a Pay button), with the value used as the start parameter
 	ProviderData              string                `json:"provider_data,omitempty"`                 // JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
@@ -5917,15 +6019,16 @@ type SendInvoice struct {
 	PhotoSize                 int64                 `json:"photo_size,omitempty"`                    // Photo size in bytes
 	PhotoWidth                int64                 `json:"photo_width,omitempty"`                   // Photo width
 	PhotoHeight               int64                 `json:"photo_height,omitempty"`                  // Photo height
-	NeedName                  bool                  `json:"need_name,omitempty"`                     // Pass True if you require the user's full name to complete the order
-	NeedPhoneNumber           bool                  `json:"need_phone_number,omitempty"`             // Pass True if you require the user's phone number to complete the order
-	NeedEmail                 bool                  `json:"need_email,omitempty"`                    // Pass True if you require the user's email address to complete the order
-	NeedShippingAddress       bool                  `json:"need_shipping_address,omitempty"`         // Pass True if you require the user's shipping address to complete the order
-	SendPhoneNumberToProvider bool                  `json:"send_phone_number_to_provider,omitempty"` // Pass True if the user's phone number should be sent to provider
-	SendEmailToProvider       bool                  `json:"send_email_to_provider,omitempty"`        // Pass True if the user's email address should be sent to provider
-	IsFlexible                bool                  `json:"is_flexible,omitempty"`                   // Pass True if the final price depends on the shipping method
+	NeedName                  bool                  `json:"need_name,omitempty"`                     // Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars.
+	NeedPhoneNumber           bool                  `json:"need_phone_number,omitempty"`             // Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars.
+	NeedEmail                 bool                  `json:"need_email,omitempty"`                    // Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars.
+	NeedShippingAddress       bool                  `json:"need_shipping_address,omitempty"`         // Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars.
+	SendPhoneNumberToProvider bool                  `json:"send_phone_number_to_provider,omitempty"` // Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars.
+	SendEmailToProvider       bool                  `json:"send_email_to_provider,omitempty"`        // Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars.
+	IsFlexible                bool                  `json:"is_flexible,omitempty"`                   // Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars.
 	DisableNotification       bool                  `json:"disable_notification,omitempty"`          // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent            bool                  `json:"protect_content,omitempty"`               // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId           string                `json:"message_effect_id,omitempty"`             // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters           *ReplyParameters      `json:"reply_parameters,omitempty"`              // Description of the message to reply to
 	ReplyMarkup               *InlineKeyboardMarkup `json:"reply_markup,omitempty"`                  // A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.
 }
@@ -5940,23 +6043,23 @@ type CreateInvoiceLink struct {
 	Title                     string          `json:"title"`                                   // Product name, 1-32 characters
 	Description               string          `json:"description"`                             // Product description, 1-255 characters
 	Payload                   string          `json:"payload"`                                 // Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.
-	ProviderToken             string          `json:"provider_token"`                          // Payment provider token, obtained via BotFather
-	Currency                  string          `json:"currency"`                                // Three-letter ISO 4217 currency code, see more on currencies
-	Prices                    []*LabeledPrice `json:"prices"`                                  // Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)
-	MaxTipAmount              int64           `json:"max_tip_amount,omitempty"`                // The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0
+	ProviderToken             string          `json:"provider_token,omitempty"`                // Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars.
+	Currency                  string          `json:"currency"`                                // Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars.
+	Prices                    []*LabeledPrice `json:"prices"`                                  // Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
+	MaxTipAmount              int64           `json:"max_tip_amount,omitempty"`                // The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
 	SuggestedTipAmounts       []int64         `json:"suggested_tip_amounts,omitempty"`         // A JSON-serialized array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount.
 	ProviderData              string          `json:"provider_data,omitempty"`                 // JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
 	PhotoUrl                  string          `json:"photo_url,omitempty"`                     // URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service.
 	PhotoSize                 int64           `json:"photo_size,omitempty"`                    // Photo size in bytes
 	PhotoWidth                int64           `json:"photo_width,omitempty"`                   // Photo width
 	PhotoHeight               int64           `json:"photo_height,omitempty"`                  // Photo height
-	NeedName                  bool            `json:"need_name,omitempty"`                     // Pass True if you require the user's full name to complete the order
-	NeedPhoneNumber           bool            `json:"need_phone_number,omitempty"`             // Pass True if you require the user's phone number to complete the order
-	NeedEmail                 bool            `json:"need_email,omitempty"`                    // Pass True if you require the user's email address to complete the order
-	NeedShippingAddress       bool            `json:"need_shipping_address,omitempty"`         // Pass True if you require the user's shipping address to complete the order
-	SendPhoneNumberToProvider bool            `json:"send_phone_number_to_provider,omitempty"` // Pass True if the user's phone number should be sent to the provider
-	SendEmailToProvider       bool            `json:"send_email_to_provider,omitempty"`        // Pass True if the user's email address should be sent to the provider
-	IsFlexible                bool            `json:"is_flexible,omitempty"`                   // Pass True if the final price depends on the shipping method
+	NeedName                  bool            `json:"need_name,omitempty"`                     // Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars.
+	NeedPhoneNumber           bool            `json:"need_phone_number,omitempty"`             // Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars.
+	NeedEmail                 bool            `json:"need_email,omitempty"`                    // Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars.
+	NeedShippingAddress       bool            `json:"need_shipping_address,omitempty"`         // Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars.
+	SendPhoneNumberToProvider bool            `json:"send_phone_number_to_provider,omitempty"` // Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars.
+	SendEmailToProvider       bool            `json:"send_email_to_provider,omitempty"`        // Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars.
+	IsFlexible                bool            `json:"is_flexible,omitempty"`                   // Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars.
 }
 
 // createInvoiceLink is used to create a link for an invoice. Returns the created invoice link as String on success.
@@ -5989,6 +6092,17 @@ func (api *API) AnswerPreCheckoutQuery(payload *AnswerPreCheckoutQuery) (bool, e
 	return callJson[bool](api, "answerPreCheckoutQuery", payload)
 }
 
+// Refunds a successful payment in Telegram Stars. Returns True on success.
+type RefundStarPayment struct {
+	UserId                  int64  `json:"user_id"`                    // Identifier of the user whose payment will be refunded
+	TelegramPaymentChargeId string `json:"telegram_payment_charge_id"` // Telegram payment identifier
+}
+
+// Refunds a successful payment in Telegram Stars. Returns True on success.
+func (api *API) RefundStarPayment(payload *RefundStarPayment) (bool, error) {
+	return callJson[bool](api, "refundStarPayment", payload)
+}
+
 // LabeledPrice represents a portion of the price for goods or services.
 type LabeledPrice struct {
 	Label  string `json:"label"`  // Portion label
@@ -6000,7 +6114,7 @@ type Invoice struct {
 	Title          string `json:"title"`           // Product name
 	Description    string `json:"description"`     // Product description
 	StartParameter string `json:"start_parameter"` // Unique bot deep-linking parameter that can be used to generate this invoice
-	Currency       string `json:"currency"`        // Three-letter ISO 4217 currency code
+	Currency       string `json:"currency"`        // Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars
 	TotalAmount    int64  `json:"total_amount"`    // Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
 }
 
@@ -6031,7 +6145,7 @@ type ShippingOption struct {
 
 // SuccessfulPayment contains basic information about a successful payment.
 type SuccessfulPayment struct {
-	Currency                string     `json:"currency"`                     // Three-letter ISO 4217 currency code
+	Currency                string     `json:"currency"`                     // Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars
 	TotalAmount             int64      `json:"total_amount"`                 // Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
 	InvoicePayload          string     `json:"invoice_payload"`              // Bot specified invoice payload
 	ShippingOptionId        string     `json:"shipping_option_id,omitempty"` // Optional. Identifier of the shipping option chosen by the user
@@ -6052,7 +6166,7 @@ type ShippingQuery struct {
 type PreCheckoutQuery struct {
 	Id               string     `json:"id"`                           // Unique query identifier
 	From             User       `json:"from"`                         // User who sent the query
-	Currency         string     `json:"currency"`                     // Three-letter ISO 4217 currency code
+	Currency         string     `json:"currency"`                     // Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars
 	TotalAmount      int64      `json:"total_amount"`                 // Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
 	InvoicePayload   string     `json:"invoice_payload"`              // Bot specified invoice payload
 	ShippingOptionId string     `json:"shipping_option_id,omitempty"` // Optional. Identifier of the shipping option chosen by the user
@@ -6213,6 +6327,7 @@ type SendGame struct {
 	GameShortName        string                `json:"game_short_name"`                  // Short name of the game, serves as the unique identifier for the game. Set up your games via @BotFather.
 	DisableNotification  bool                  `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool                  `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	MessageEffectId      string                `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters      `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game.
 }
@@ -6254,6 +6369,7 @@ func (api *API) SetGameScore(payload *SetGameScore) (*Message, error) {
 // getGameHighScores is used to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
 //
 // This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change.
+//
 type GetGameHighScores struct {
 	UserId          int64  `json:"user_id"`                     // Target user id
 	ChatId          int64  `json:"chat_id,omitempty"`           // Required if inline_message_id is not specified. Unique identifier for the target chat
@@ -6264,6 +6380,7 @@ type GetGameHighScores struct {
 // getGameHighScores is used to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
 //
 // This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change.
+//
 func (api *API) GetGameHighScores(payload *GetGameHighScores) ([]*GameHighScore, error) {
 	return callJson[[]*GameHighScore](api, "getGameHighScores", payload)
 }
