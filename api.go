@@ -8,14 +8,12 @@ import (
 	"net/http"
 )
 
-//go:generate go run ./cmd
-
 const TelegramHost = "https://api.telegram.org"
 
 type httpResponse[T any] struct {
 	OK     bool `json:"ok"`
 	Result T    `json:"result,omitempty"`
-	*Error
+	Error
 }
 
 // API is a telegram bot API client instance.
