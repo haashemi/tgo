@@ -1,6 +1,7 @@
 package tgo
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 )
@@ -259,4 +260,16 @@ func unmarshalInputMessageContent(rawBytes json.RawMessage) (data InputMessageCo
 
 	err = json.Unmarshal(rawBytes, data)
 	return data, err
+}
+
+func unmarshalChatID(data json.RawMessage) (ChatID, error) {
+	if bytes.HasPrefix(data, []byte("\"")) {
+		var username Username
+		err := json.Unmarshal(data, &username)
+		return username, err
+	} else {
+		var id ID
+		err := json.Unmarshal(data, &id)
+		return id, err
+	}
 }
