@@ -1,6 +1,9 @@
 # TGO
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/haashemi/tgo.svg)](https://pkg.go.dev/github.com/haashemi/tgo)
+[![Go Report Card](https://goreportcard.com/badge/github.com/haashemi/tgo)](https://goreportcard.com/report/github.com/haashemi/tgo)
+[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/haashemi/tgo/go.yml)](https://github.com/haashemi/tgo/actions)
+[![License](http://img.shields.io/badge/license-mit-blue.svg)](https://raw.githubusercontent.com/haashemi/tgo/master/LICENSE)
 
 TGO is a simple, flexible, and fully featured telegram-bot-api framework for Go developers.
 
