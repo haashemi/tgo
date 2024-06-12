@@ -21,8 +21,8 @@ func GetChatAndSenderID(msg *Message) (chatID, senderID int64) {
 	return chatID, senderID
 }
 
-// GetAskUID returns a unique identifier for the ask operation based on the chat ID and sender ID.
-func GetAskUID(chatID, senderID int64) string {
+// getAskUID returns a unique identifier for the ask operation based on the chat ID and sender ID.
+func getAskUID(chatID, senderID int64) string {
 	return fmt.Sprintf("ask:%d:%d", chatID, senderID)
 }
 
@@ -56,10 +56,10 @@ func (bot *Bot) waitForAnswer(uid string, timeout time.Duration) (*Message, erro
 }
 
 // sendAnswerIfAsked sends the message into the asks channel if it was a response to an ask.
-// It returns true if the messsage was the response to an ask or false otherwise.
+// It returns true if the message was the response to an ask or false otherwise.
 func (bot *Bot) sendAnswerIfAsked(msg *Message) (sent bool) {
 	bot.askMut.RLock()
-	receiver, ok := bot.asks[GetAskUID(GetChatAndSenderID(msg))]
+	receiver, ok := bot.asks[getAskUID(GetChatAndSenderID(msg))]
 	bot.askMut.RUnlock()
 
 	if ok {
@@ -81,6 +81,6 @@ func (bot *Bot) Ask(chatId, userId int64, msg Sendable, timeout time.Duration) (
 		return nil, nil, err
 	}
 
-	answer, err = bot.waitForAnswer(GetAskUID(chatId, userId), timeout)
+	answer, err = bot.waitForAnswer(getAskUID(chatId, userId), timeout)
 	return question, answer, err
 }
