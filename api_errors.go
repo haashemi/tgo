@@ -41,6 +41,8 @@ var (
 	ErrBotCantSendMessageToBots = Error{ErrorCode: 403, Description: "Forbidden: bot can't send messages to bots"}
 
 	// Occurs when a group chat has been converted/migrated to a supergroup.
+	//
+	// NOTE: DO NOT use this error as it doesn't contain parameters. use IsGroupMigratedToSupergroupErr instead.
 	ErrGroupMigratedToSupergroup = Error{ErrorCode: 400, Description: "Bad Request: group chat was migrated to a supergroup chat"}
 
 	// The file id you are trying to retrieve doesn't exist.
@@ -91,7 +93,9 @@ func IsGroupMigratedToSupergroupErr(err error) (newChatID int64, yes bool) {
 		return 0, false
 	}
 
-	if tgErr == ErrGroupMigratedToSupergroup && tgErr.Parameters != nil {
+	if tgErr.ErrorCode == ErrGroupMigratedToSupergroup.ErrorCode &&
+		tgErr.Description == ErrGroupMigratedToSupergroup.Description &&
+		tgErr.Parameters != nil {
 		return tgErr.Parameters.MigrateToChatId, true
 	}
 
