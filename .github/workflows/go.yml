@@ -1,0 +1,47 @@
+name: Test & Check
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.19'
+
+    - name: Run golint
+      run: |
+        go install golang.org/x/lint/golint@latest
+        golint -set_exit_status ./...
+
+    - name: Run staticcheck
+      run: |
+        go install honnef.co/go/tools/cmd/staticcheck@latest
+        staticcheck ./...
+
+    - name: Run govulncheck
+      run: |
+        go version
+        go install golang.org/x/vuln/cmd/govulncheck@latest
+        govulncheck ./...
+    
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.19'
+
+    - name: Test
+      run: go test -v ./...
