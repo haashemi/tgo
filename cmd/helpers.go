@@ -10,9 +10,6 @@ import (
 )
 
 var returnTypePatterns = []*regexp.Regexp{
-	regexp.MustCompile(`Returns the [a-z ]+ as ?a? (?P<type>[A-Za-z]+) `),
-	regexp.MustCompile(`Returns the uploaded (?P<type>[A-Za-z]+)`),
-	regexp.MustCompile(`Returns the (?P<type>[A-Za-z]+)`),
 	regexp.MustCompile(`On success, an (?P<type>array of [A-Za-z]+) of the sent messages is returned`),
 	regexp.MustCompile(`On success, the stopped (?P<type>[A-Za-z]+) is`),
 	regexp.MustCompile(`On success, returns a (?P<type>[A-Za-z]+) object`),
@@ -20,6 +17,9 @@ var returnTypePatterns = []*regexp.Regexp{
 	regexp.MustCompile(`On success, a (?P<type>[A-Za-z]+) object is returned`),
 	regexp.MustCompile(`On success, an (?P<type>array of [A-Za-z]+)s that were sent is returned`),
 	regexp.MustCompile(`On success, the sent (?P<type>[A-Za-z]+) is returned`),
+	regexp.MustCompile(`Returns the [a-z ]+ as ?a? (?P<type>[A-Za-z]+) `),
+	regexp.MustCompile(`Returns the uploaded (?P<type>[A-Za-z]+)`),
+	regexp.MustCompile(`Returns the (?P<type>[A-Za-z]+)`),
 	regexp.MustCompile(`an (?P<type>Array of [A-Za-z]+) objects`),
 	regexp.MustCompile(`a (?P<type>[A-Za-z]+) object`),
 	regexp.MustCompile(`(?P<type>[A-Za-z]+) is returned`),
