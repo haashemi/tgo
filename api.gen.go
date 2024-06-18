@@ -36,7 +36,6 @@ type Update struct {
 // getUpdates is used to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
 //
 // Notes1. This method will not work if an outgoing webhook is set up.2. In order to avoid getting duplicate updates, recalculate offset after each server response.
-//
 type GetUpdates struct {
 	Offset         int64    `json:"offset,omitempty"`          // Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id. The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue. All previous updates will be forgotten.
 	Limit          int64    `json:"limit,omitempty"`           // Limits the number of updates to be retrieved. Values between 1-100 are accepted. Defaults to 100.
@@ -47,7 +46,6 @@ type GetUpdates struct {
 // getUpdates is used to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
 //
 // Notes1. This method will not work if an outgoing webhook is set up.2. In order to avoid getting duplicate updates, recalculate offset after each server response.
-//
 func (api *API) GetUpdates(payload *GetUpdates) ([]*Update, error) {
 	return callJson[[]*Update](api, "getUpdates", payload)
 }
@@ -57,7 +55,6 @@ func (api *API) GetUpdates(payload *GetUpdates) ([]*Update, error) {
 //
 // Notes1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.3. Ports currently supported for webhooks: 443, 80, 88, 8443.
 // If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks.
-//
 type SetWebhook struct {
 	Url                string     `json:"url"`                            // HTTPS URL to send updates to. Use an empty string to remove webhook integration
 	Certificate        *InputFile `json:"certificate,omitempty"`          // Upload your public key certificate so that the root certificate in use can be checked. See our self-signed guide for details.
@@ -112,7 +109,6 @@ func (x *SetWebhook) getParams() (map[string]string, error) {
 //
 // Notes1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.3. Ports currently supported for webhooks: 443, 80, 88, 8443.
 // If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks.
-//
 func (api *API) SetWebhook(payload *SetWebhook) (bool, error) {
 	if files := payload.getFiles(); len(files) != 0 {
 		params, err := payload.getParams()
@@ -1213,7 +1209,6 @@ type UserProfilePhotos struct {
 // File represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
 //
 // The maximum file size to download is 20 MB
-//
 type File struct {
 	FileId       string `json:"file_id"`             // Identifier for this file, which can be used to download or reuse the file
 	FileUniqueId string `json:"file_unique_id"`      // Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
@@ -1300,7 +1295,7 @@ func (InlineKeyboardMarkup) IsReplyMarkup() {}
 type InlineKeyboardButton struct {
 	Text                         string                       `json:"text"`                                       // Label text on the button
 	Url                          string                       `json:"url,omitempty"`                              // Optional. HTTP or tg:// URL to be opened when the button is pressed. Links tg://user?id=<user_id> can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings.
-	CallbackData                 string                       `json:"callback_data,omitempty"`                    // Optional. Data to be sent in a callback query to the bot when button is pressed, 1-64 bytes. Not supported for messages sent on behalf of a Telegram Business account.
+	CallbackData                 string                       `json:"callback_data,omitempty"`                    // Optional. Data to be sent in a callback query to the bot when the button is pressed, 1-64 bytes
 	WebApp                       *WebAppInfo                  `json:"web_app,omitempty"`                          // Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a Telegram Business account.
 	LoginUrl                     *LoginUrl                    `json:"login_url,omitempty"`                        // Optional. An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget.
 	SwitchInlineQuery            string                       `json:"switch_inline_query,omitempty"`              // Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent on behalf of a Telegram Business account.
@@ -1314,7 +1309,6 @@ type InlineKeyboardButton struct {
 // Telegram apps support these buttons as of version 5.7.
 //
 // Sample bot: @discussbot
-//
 type LoginUrl struct {
 	Url                string `json:"url"`                            // An HTTPS URL to be opened with user authorization data added to the query string when the button is pressed. If the user refuses to provide authorization data, the original URL without information about the user will be opened. The data added is the same as described in Receiving authorization data.NOTE: You must always check the hash of the received data to verify the authentication and the integrity of the data as described in Checking authorization.
 	ForwardText        string `json:"forward_text,omitempty"`         // Optional. New text of the button in forwarded messages.
@@ -1334,7 +1328,6 @@ type SwitchInlineQueryChosenChat struct {
 // CallbackQuery represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present.
 //
 // NOTE: After the user presses a callback button, Telegram clients will display a progress bar until you call answerCallbackQuery. It is, therefore, necessary to react by calling answerCallbackQuery even if no notification to the user is needed (e.g., without specifying any of the optional parameters).
-//
 type CallbackQuery struct {
 	Id              string                   `json:"id"`                          // Unique identifier for this query
 	From            User                     `json:"from"`                        // Sender
@@ -1388,7 +1381,6 @@ func (x *CallbackQuery) UnmarshalJSON(rawBytes []byte) (err error) {
 // Guide the user through a step-by-step process. 'Please send me your question', 'Cool, now let's add the first answer option', 'Great. Keep adding answer options, then send /done when you're ready'.
 //
 // The last option is definitely more attractive. And if you use ForceReply in your bot's questions, it will receive the user's answers even if it only receives replies, commands and mentions - without any extra work for the user.
-//
 type ForceReply struct {
 	ForceReply            bool   `json:"force_reply"`                       // Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
 	InputFieldPlaceholder string `json:"input_field_placeholder,omitempty"` // Optional. The placeholder to be shown in the input field when the reply is active; 1-64 characters
@@ -3446,7 +3438,6 @@ func (api *API) SetChatPermissions(payload *SetChatPermissions) (bool, error) {
 // exportChatInviteLink is used to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.
 //
 // Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again.
-//
 type ExportChatInviteLink struct {
 	ChatId ChatID `json:"chat_id"` // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 }
@@ -3454,7 +3445,6 @@ type ExportChatInviteLink struct {
 // exportChatInviteLink is used to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.
 //
 // Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again.
-//
 func (api *API) ExportChatInviteLink(payload *ExportChatInviteLink) (string, error) {
 	return callJson[string](api, "exportChatInviteLink", payload)
 }
@@ -3843,7 +3833,6 @@ func (api *API) UnpinAllGeneralForumTopicMessages(payload *UnpinAllGeneralForumT
 // answerCallbackQuery is used to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
 //
 // Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
-//
 type AnswerCallbackQuery struct {
 	CallbackQueryId string `json:"callback_query_id"`    // Unique identifier for the query to be answered
 	Text            string `json:"text,omitempty"`       // Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters
@@ -3855,7 +3844,6 @@ type AnswerCallbackQuery struct {
 // answerCallbackQuery is used to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
 //
 // Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter.
-//
 func (api *API) AnswerCallbackQuery(payload *AnswerCallbackQuery) (bool, error) {
 	return callJson[bool](api, "answerCallbackQuery", payload)
 }
@@ -4024,25 +4012,27 @@ func (api *API) GetMyDefaultAdministratorRights(payload *GetMyDefaultAdministrat
 	return callJson[*ChatAdministratorRights](api, "getMyDefaultAdministratorRights", payload)
 }
 
-// editMessageText is used to edit text and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
+// editMessageText is used to edit text and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 type EditMessageText struct {
-	ChatId             ChatID                `json:"chat_id,omitempty"`              // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageId          int64                 `json:"message_id,omitempty"`           // Required if inline_message_id is not specified. Identifier of the message to edit
-	InlineMessageId    string                `json:"inline_message_id,omitempty"`    // Required if chat_id and message_id are not specified. Identifier of the inline message
-	Text               string                `json:"text"`                           // New text of the message, 1-4096 characters after entities parsing
-	ParseMode          ParseMode             `json:"parse_mode,omitempty"`           // Mode for parsing entities in the message text. See formatting options for more details.
-	Entities           []*MessageEntity      `json:"entities,omitempty"`             // A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode
-	LinkPreviewOptions *LinkPreviewOptions   `json:"link_preview_options,omitempty"` // Link preview generation options for the message
-	ReplyMarkup        *InlineKeyboardMarkup `json:"reply_markup,omitempty"`         // A JSON-serialized object for an inline keyboard.
+	BusinessConnectionId string                `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message to be edited was sent
+	ChatId               ChatID                `json:"chat_id,omitempty"`                // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageId            int64                 `json:"message_id,omitempty"`             // Required if inline_message_id is not specified. Identifier of the message to edit
+	InlineMessageId      string                `json:"inline_message_id,omitempty"`      // Required if chat_id and message_id are not specified. Identifier of the inline message
+	Text                 string                `json:"text"`                             // New text of the message, 1-4096 characters after entities parsing
+	ParseMode            ParseMode             `json:"parse_mode,omitempty"`             // Mode for parsing entities in the message text. See formatting options for more details.
+	Entities             []*MessageEntity      `json:"entities,omitempty"`               // A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode
+	LinkPreviewOptions   *LinkPreviewOptions   `json:"link_preview_options,omitempty"`   // Link preview generation options for the message
+	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // A JSON-serialized object for an inline keyboard.
 }
 
-// editMessageText is used to edit text and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
+// editMessageText is used to edit text and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 func (api *API) EditMessageText(payload *EditMessageText) (*Message, error) {
 	return callJson[*Message](api, "editMessageText", payload)
 }
 
-// editMessageCaption is used to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
+// editMessageCaption is used to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 type EditMessageCaption struct {
+	BusinessConnectionId  string                `json:"business_connection_id,omitempty"`   // Unique identifier of the business connection on behalf of which the message to be edited was sent
 	ChatId                ChatID                `json:"chat_id,omitempty"`                  // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageId             int64                 `json:"message_id,omitempty"`               // Required if inline_message_id is not specified. Identifier of the message to edit
 	InlineMessageId       string                `json:"inline_message_id,omitempty"`        // Required if chat_id and message_id are not specified. Identifier of the inline message
@@ -4053,18 +4043,19 @@ type EditMessageCaption struct {
 	ReplyMarkup           *InlineKeyboardMarkup `json:"reply_markup,omitempty"`             // A JSON-serialized object for an inline keyboard.
 }
 
-// editMessageCaption is used to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
+// editMessageCaption is used to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 func (api *API) EditMessageCaption(payload *EditMessageCaption) (*Message, error) {
 	return callJson[*Message](api, "editMessageCaption", payload)
 }
 
-// editMessageMedia is used to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
+// editMessageMedia is used to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 type EditMessageMedia struct {
-	ChatId          ChatID                `json:"chat_id,omitempty"`           // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageId       int64                 `json:"message_id,omitempty"`        // Required if inline_message_id is not specified. Identifier of the message to edit
-	InlineMessageId string                `json:"inline_message_id,omitempty"` // Required if chat_id and message_id are not specified. Identifier of the inline message
-	Media           InputMedia            `json:"media"`                       // A JSON-serialized object for a new media content of the message
-	ReplyMarkup     *InlineKeyboardMarkup `json:"reply_markup,omitempty"`      // A JSON-serialized object for a new inline keyboard.
+	BusinessConnectionId string                `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message to be edited was sent
+	ChatId               ChatID                `json:"chat_id,omitempty"`                // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageId            int64                 `json:"message_id,omitempty"`             // Required if inline_message_id is not specified. Identifier of the message to edit
+	InlineMessageId      string                `json:"inline_message_id,omitempty"`      // Required if chat_id and message_id are not specified. Identifier of the inline message
+	Media                InputMedia            `json:"media"`                            // A JSON-serialized object for a new media content of the message
+	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // A JSON-serialized object for a new inline keyboard.
 }
 
 func (x *EditMessageMedia) getFiles() map[string]*InputFile {
@@ -4080,6 +4071,9 @@ func (x *EditMessageMedia) getFiles() map[string]*InputFile {
 func (x *EditMessageMedia) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
+	if x.BusinessConnectionId != "" {
+		payload["business_connection_id"] = x.BusinessConnectionId
+	}
 	if x.ChatId != nil {
 		if bb, err := json.Marshal(x.ChatId); err != nil {
 			return nil, err
@@ -4109,7 +4103,7 @@ func (x *EditMessageMedia) getParams() (map[string]string, error) {
 	return payload, nil
 }
 
-// editMessageMedia is used to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
+// editMessageMedia is used to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 func (api *API) EditMessageMedia(payload *EditMessageMedia) (*Message, error) {
 	if files := payload.getFiles(); len(files) != 0 {
 		params, err := payload.getParams()
@@ -4123,6 +4117,7 @@ func (api *API) EditMessageMedia(payload *EditMessageMedia) (*Message, error) {
 
 // editMessageLiveLocation is used to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
 type EditMessageLiveLocation struct {
+	BusinessConnectionId string                `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message to be edited was sent
 	ChatId               ChatID                `json:"chat_id,omitempty"`                // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageId            int64                 `json:"message_id,omitempty"`             // Required if inline_message_id is not specified. Identifier of the message to edit
 	InlineMessageId      string                `json:"inline_message_id,omitempty"`      // Required if chat_id and message_id are not specified. Identifier of the inline message
@@ -4142,10 +4137,11 @@ func (api *API) EditMessageLiveLocation(payload *EditMessageLiveLocation) (*Mess
 
 // stopMessageLiveLocation is used to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned.
 type StopMessageLiveLocation struct {
-	ChatId          ChatID                `json:"chat_id,omitempty"`           // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageId       int64                 `json:"message_id,omitempty"`        // Required if inline_message_id is not specified. Identifier of the message with live location to stop
-	InlineMessageId string                `json:"inline_message_id,omitempty"` // Required if chat_id and message_id are not specified. Identifier of the inline message
-	ReplyMarkup     *InlineKeyboardMarkup `json:"reply_markup,omitempty"`      // A JSON-serialized object for a new inline keyboard.
+	BusinessConnectionId string                `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message to be edited was sent
+	ChatId               ChatID                `json:"chat_id,omitempty"`                // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageId            int64                 `json:"message_id,omitempty"`             // Required if inline_message_id is not specified. Identifier of the message with live location to stop
+	InlineMessageId      string                `json:"inline_message_id,omitempty"`      // Required if chat_id and message_id are not specified. Identifier of the inline message
+	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // A JSON-serialized object for a new inline keyboard.
 }
 
 // stopMessageLiveLocation is used to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned.
@@ -4153,24 +4149,26 @@ func (api *API) StopMessageLiveLocation(payload *StopMessageLiveLocation) (*Mess
 	return callJson[*Message](api, "stopMessageLiveLocation", payload)
 }
 
-// editMessageReplyMarkup is used to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
+// editMessageReplyMarkup is used to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 type EditMessageReplyMarkup struct {
-	ChatId          ChatID                `json:"chat_id,omitempty"`           // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageId       int64                 `json:"message_id,omitempty"`        // Required if inline_message_id is not specified. Identifier of the message to edit
-	InlineMessageId string                `json:"inline_message_id,omitempty"` // Required if chat_id and message_id are not specified. Identifier of the inline message
-	ReplyMarkup     *InlineKeyboardMarkup `json:"reply_markup,omitempty"`      // A JSON-serialized object for an inline keyboard.
+	BusinessConnectionId string                `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message to be edited was sent
+	ChatId               ChatID                `json:"chat_id,omitempty"`                // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageId            int64                 `json:"message_id,omitempty"`             // Required if inline_message_id is not specified. Identifier of the message to edit
+	InlineMessageId      string                `json:"inline_message_id,omitempty"`      // Required if chat_id and message_id are not specified. Identifier of the inline message
+	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // A JSON-serialized object for an inline keyboard.
 }
 
-// editMessageReplyMarkup is used to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned.
+// editMessageReplyMarkup is used to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 func (api *API) EditMessageReplyMarkup(payload *EditMessageReplyMarkup) (*Message, error) {
 	return callJson[*Message](api, "editMessageReplyMarkup", payload)
 }
 
 // stopPoll is used to stop a poll which was sent by the bot. On success, the stopped Poll is returned.
 type StopPoll struct {
-	ChatId      ChatID                `json:"chat_id"`                // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageId   int64                 `json:"message_id"`             // Identifier of the original message with the poll
-	ReplyMarkup *InlineKeyboardMarkup `json:"reply_markup,omitempty"` // A JSON-serialized object for a new message inline keyboard.
+	BusinessConnectionId string                `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message to be edited was sent
+	ChatId               ChatID                `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageId            int64                 `json:"message_id"`                       // Identifier of the original message with the poll
+	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // A JSON-serialized object for a new message inline keyboard.
 }
 
 // stopPoll is used to stop a poll which was sent by the bot. On success, the stopped Poll is returned.
@@ -4986,7 +4984,6 @@ func (x *InlineQueryResultMpeg4Gif) UnmarshalJSON(rawBytes []byte) (err error) {
 // Represents a link to a page containing an embedded video player or a video file. By default, this video file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the video.
 //
 // If an InlineQueryResultVideo message contains an embedded video (e.g., YouTube), you must replace its content using input_message_content.
-//
 type InlineQueryResultVideo struct {
 	Type                  string                `json:"type"`                               // Type of the result, must be video
 	Id                    string                `json:"id"`                                 // Unique identifier for this result, 1-64 bytes
@@ -6092,6 +6089,17 @@ func (api *API) AnswerPreCheckoutQuery(payload *AnswerPreCheckoutQuery) (bool, e
 	return callJson[bool](api, "answerPreCheckoutQuery", payload)
 }
 
+// Returns the bot's Telegram Star transactions in chronological order. On success, returns a StarTransactions object.
+type GetStarTransactions struct {
+	Offset int64 `json:"offset,omitempty"` // Number of transactions to skip in the response
+	Limit  int64 `json:"limit,omitempty"`  // The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100.
+}
+
+// Returns the bot's Telegram Star transactions in chronological order. On success, returns a StarTransactions object.
+func (api *API) GetStarTransactions(payload *GetStarTransactions) (*StarTransactions, error) {
+	return callJson[*StarTransactions](api, "getStarTransactions", payload)
+}
+
 // Refunds a successful payment in Telegram Stars. Returns True on success.
 type RefundStarPayment struct {
 	UserId                  int64  `json:"user_id"`                    // Identifier of the user whose payment will be refunded
@@ -6171,6 +6179,141 @@ type PreCheckoutQuery struct {
 	InvoicePayload   string     `json:"invoice_payload"`              // Bot specified invoice payload
 	ShippingOptionId string     `json:"shipping_option_id,omitempty"` // Optional. Identifier of the shipping option chosen by the user
 	OrderInfo        *OrderInfo `json:"order_info,omitempty"`         // Optional. Order information provided by the user
+}
+
+// RevenueWithdrawalState describes the state of a revenue withdrawal operation. Currently, it can be one of
+// RevenueWithdrawalStatePending, RevenueWithdrawalStateSucceeded, RevenueWithdrawalStateFailed
+type RevenueWithdrawalState interface {
+	// IsRevenueWithdrawalState does nothing and is only used to enforce type-safety
+	IsRevenueWithdrawalState()
+}
+
+// The withdrawal is in progress.
+type RevenueWithdrawalStatePending struct {
+	Type string `json:"type"` // Type of the state, always “pending”
+}
+
+func (RevenueWithdrawalStatePending) IsRevenueWithdrawalState() {}
+
+// The withdrawal succeeded.
+type RevenueWithdrawalStateSucceeded struct {
+	Type string `json:"type"` // Type of the state, always “succeeded”
+	Date int64  `json:"date"` // Date the withdrawal was completed in Unix time
+	Url  string `json:"url"`  // An HTTPS URL that can be used to see transaction details
+}
+
+func (RevenueWithdrawalStateSucceeded) IsRevenueWithdrawalState() {}
+
+// The withdrawal failed and the transaction was refunded.
+type RevenueWithdrawalStateFailed struct {
+	Type string `json:"type"` // Type of the state, always “failed”
+}
+
+func (RevenueWithdrawalStateFailed) IsRevenueWithdrawalState() {}
+
+// TransactionPartner describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
+// TransactionPartnerFragment, TransactionPartnerUser, TransactionPartnerOther
+type TransactionPartner interface {
+	// IsTransactionPartner does nothing and is only used to enforce type-safety
+	IsTransactionPartner()
+}
+
+// Describes a withdrawal transaction with Fragment.
+type TransactionPartnerFragment struct {
+	Type            string                 `json:"type"`                       // Type of the transaction partner, always “fragment”
+	WithdrawalState RevenueWithdrawalState `json:"withdrawal_state,omitempty"` // Optional. State of the transaction if the transaction is outgoing
+}
+
+func (TransactionPartnerFragment) IsTransactionPartner() {}
+
+func (x *TransactionPartnerFragment) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
+	type temp struct {
+		Type            string          `json:"type"`                       // Type of the transaction partner, always “fragment”
+		WithdrawalState json.RawMessage `json:"withdrawal_state,omitempty"` // Optional. State of the transaction if the transaction is outgoing
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalRevenueWithdrawalState(raw.WithdrawalState); err != nil {
+		return err
+	} else {
+		x.WithdrawalState = data
+	}
+	x.Type = raw.Type
+
+	return nil
+}
+
+// Describes a transaction with a user.
+type TransactionPartnerUser struct {
+	Type string `json:"type"` // Type of the transaction partner, always “user”
+	User User   `json:"user"` // Information about the user
+}
+
+func (TransactionPartnerUser) IsTransactionPartner() {}
+
+// Describes a transaction with an unknown source or recipient.
+type TransactionPartnerOther struct {
+	Type string `json:"type"` // Type of the transaction partner, always “other”
+}
+
+func (TransactionPartnerOther) IsTransactionPartner() {}
+
+// Describes a Telegram Star transaction.
+type StarTransaction struct {
+	Id       string             `json:"id"`                 // Unique identifier of the transaction. Coincides with the identifer of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users.
+	Amount   int64              `json:"amount"`             // Number of Telegram Stars transferred by the transaction
+	Date     int64              `json:"date"`               // Date the transaction was created in Unix time
+	Source   TransactionPartner `json:"source,omitempty"`   // Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
+	Receiver TransactionPartner `json:"receiver,omitempty"` // Optional. Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
+}
+
+func (x *StarTransaction) UnmarshalJSON(rawBytes []byte) (err error) {
+	if len(rawBytes) == 0 {
+		return nil
+	}
+
+	type temp struct {
+		Id       string          `json:"id"`                 // Unique identifier of the transaction. Coincides with the identifer of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users.
+		Amount   int64           `json:"amount"`             // Number of Telegram Stars transferred by the transaction
+		Date     int64           `json:"date"`               // Date the transaction was created in Unix time
+		Source   json.RawMessage `json:"source,omitempty"`   // Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
+		Receiver json.RawMessage `json:"receiver,omitempty"` // Optional. Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
+	}
+	raw := &temp{}
+
+	if err = json.Unmarshal(rawBytes, raw); err != nil {
+		return err
+	}
+
+	if data, err := unmarshalTransactionPartner(raw.Source); err != nil {
+		return err
+	} else {
+		x.Source = data
+	}
+
+	if data, err := unmarshalTransactionPartner(raw.Receiver); err != nil {
+		return err
+	} else {
+		x.Receiver = data
+	}
+	x.Id = raw.Id
+	x.Amount = raw.Amount
+	x.Date = raw.Date
+
+	return nil
+}
+
+// Contains a list of Telegram Star transactions.
+type StarTransactions struct {
+	Transactions []*StarTransaction `json:"transactions"` // The list of transactions
 }
 
 // Describes Telegram Passport data shared with the bot by the user.
@@ -6369,7 +6512,6 @@ func (api *API) SetGameScore(payload *SetGameScore) (*Message, error) {
 // getGameHighScores is used to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
 //
 // This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change.
-//
 type GetGameHighScores struct {
 	UserId          int64  `json:"user_id"`                     // Target user id
 	ChatId          int64  `json:"chat_id,omitempty"`           // Required if inline_message_id is not specified. Unique identifier for the target chat
@@ -6380,7 +6522,6 @@ type GetGameHighScores struct {
 // getGameHighScores is used to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
 //
 // This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change.
-//
 func (api *API) GetGameHighScores(payload *GetGameHighScores) ([]*GameHighScore, error) {
 	return callJson[[]*GameHighScore](api, "getGameHighScores", payload)
 }

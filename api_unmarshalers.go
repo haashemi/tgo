@@ -262,6 +262,60 @@ func unmarshalInputMessageContent(rawBytes json.RawMessage) (data InputMessageCo
 	return data, err
 }
 
+func unmarshalRevenueWithdrawalState(rawBytes json.RawMessage) (data RevenueWithdrawalState, err error) {
+	if len(rawBytes) == 0 {
+		return nil, nil
+	}
+
+	var temp struct {
+		Type string `json:"type"`
+	}
+	if err = json.Unmarshal(rawBytes, &temp); err != nil {
+		return nil, err
+	}
+
+	switch temp.Type {
+	case "pending":
+		data = &RevenueWithdrawalStatePending{}
+	case "succeeded":
+		data = &RevenueWithdrawalStateSucceeded{}
+	case "failed":
+		data = &RevenueWithdrawalStateFailed{}
+	default:
+		return nil, errors.New("unknown type")
+	}
+
+	err = json.Unmarshal(rawBytes, data)
+	return data, err
+}
+
+func unmarshalTransactionPartner(rawBytes json.RawMessage) (data TransactionPartner, err error) {
+	if len(rawBytes) == 0 {
+		return nil, nil
+	}
+
+	var temp struct {
+		Type string `json:"type"`
+	}
+	if err = json.Unmarshal(rawBytes, &temp); err != nil {
+		return nil, err
+	}
+
+	switch temp.Type {
+	case "fragment":
+		data = &TransactionPartnerFragment{}
+	case "user":
+		data = &TransactionPartnerUser{}
+	case "other":
+		data = &TransactionPartnerOther{}
+	default:
+		return nil, errors.New("unknown type")
+	}
+
+	err = json.Unmarshal(rawBytes, data)
+	return data, err
+}
+
 func unmarshalChatID(data json.RawMessage) (ChatID, error) {
 	if bytes.HasPrefix(data, []byte("\"")) {
 		var username Username
