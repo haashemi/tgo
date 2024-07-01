@@ -1,7 +1,6 @@
 package tgo
 
 import (
-	//"fmt"
 	"encoding/json"
 	"strconv"
 )
@@ -208,6 +207,7 @@ type ChatFullInfo struct {
 	InviteLink                         string                `json:"invite_link,omitempty"`                             // Optional. Primary invite link, for groups, supergroups and channel chats
 	PinnedMessage                      *Message              `json:"pinned_message,omitempty"`                          // Optional. The most recent pinned message (by sending date)
 	Permissions                        *ChatPermissions      `json:"permissions,omitempty"`                             // Optional. Default chat member permissions, for groups and supergroups
+	CanSendPaidMedia                   bool                  `json:"can_send_paid_media,omitempty"`                     // Optional. True, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats.
 	SlowModeDelay                      int64                 `json:"slow_mode_delay,omitempty"`                         // Optional. For supergroups, the minimum allowed delay between consecutive messages sent by each unprivileged user; in seconds
 	UnrestrictBoostCount               int64                 `json:"unrestrict_boost_count,omitempty"`                  // Optional. For supergroups, the minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions
 	MessageAutoDeleteTime              int64                 `json:"message_auto_delete_time,omitempty"`                // Optional. The time after which all messages sent to the chat will be automatically deleted; in seconds
@@ -253,13 +253,14 @@ type Message struct {
 	Animation                     *Animation                     `json:"animation,omitempty"`                         // Optional. Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
 	Audio                         *Audio                         `json:"audio,omitempty"`                             // Optional. Message is an audio file, information about the file
 	Document                      *Document                      `json:"document,omitempty"`                          // Optional. Message is a general file, information about the file
+	PaidMedia                     *PaidMediaInfo                 `json:"paid_media,omitempty"`                        // Optional. Message contains paid media; information about the paid media
 	Photo                         []*PhotoSize                   `json:"photo,omitempty"`                             // Optional. Message is a photo, available sizes of the photo
 	Sticker                       *Sticker                       `json:"sticker,omitempty"`                           // Optional. Message is a sticker, information about the sticker
 	Story                         *Story                         `json:"story,omitempty"`                             // Optional. Message is a forwarded story
 	Video                         *Video                         `json:"video,omitempty"`                             // Optional. Message is a video, information about the video
 	VideoNote                     *VideoNote                     `json:"video_note,omitempty"`                        // Optional. Message is a video note, information about the video message
 	Voice                         *Voice                         `json:"voice,omitempty"`                             // Optional. Message is a voice message, information about the file
-	Caption                       string                         `json:"caption,omitempty"`                           // Optional. Caption for the animation, audio, document, photo, video or voice
+	Caption                       string                         `json:"caption,omitempty"`                           // Optional. Caption for the animation, audio, document, paid media, photo, video or voice
 	CaptionEntities               []*MessageEntity               `json:"caption_entities,omitempty"`                  // Optional. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
 	ShowCaptionAboveMedia         bool                           `json:"show_caption_above_media,omitempty"`          // Optional. True, if the caption must be shown above the message media
 	HasMediaSpoiler               bool                           `json:"has_media_spoiler,omitempty"`                 // Optional. True, if the message media is covered by a spoiler animation
@@ -346,13 +347,14 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 		Animation                     *Animation                     `json:"animation,omitempty"`                         // Optional. Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set
 		Audio                         *Audio                         `json:"audio,omitempty"`                             // Optional. Message is an audio file, information about the file
 		Document                      *Document                      `json:"document,omitempty"`                          // Optional. Message is a general file, information about the file
+		PaidMedia                     *PaidMediaInfo                 `json:"paid_media,omitempty"`                        // Optional. Message contains paid media; information about the paid media
 		Photo                         []*PhotoSize                   `json:"photo,omitempty"`                             // Optional. Message is a photo, available sizes of the photo
 		Sticker                       *Sticker                       `json:"sticker,omitempty"`                           // Optional. Message is a sticker, information about the sticker
 		Story                         *Story                         `json:"story,omitempty"`                             // Optional. Message is a forwarded story
 		Video                         *Video                         `json:"video,omitempty"`                             // Optional. Message is a video, information about the video
 		VideoNote                     *VideoNote                     `json:"video_note,omitempty"`                        // Optional. Message is a video note, information about the video message
 		Voice                         *Voice                         `json:"voice,omitempty"`                             // Optional. Message is a voice message, information about the file
-		Caption                       string                         `json:"caption,omitempty"`                           // Optional. Caption for the animation, audio, document, photo, video or voice
+		Caption                       string                         `json:"caption,omitempty"`                           // Optional. Caption for the animation, audio, document, paid media, photo, video or voice
 		CaptionEntities               []*MessageEntity               `json:"caption_entities,omitempty"`                  // Optional. For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
 		ShowCaptionAboveMedia         bool                           `json:"show_caption_above_media,omitempty"`          // Optional. True, if the caption must be shown above the message media
 		HasMediaSpoiler               bool                           `json:"has_media_spoiler,omitempty"`                 // Optional. True, if the message media is covered by a spoiler animation
@@ -447,6 +449,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.Animation = raw.Animation
 	x.Audio = raw.Audio
 	x.Document = raw.Document
+	x.PaidMedia = raw.PaidMedia
 	x.Photo = raw.Photo
 	x.Sticker = raw.Sticker
 	x.Story = raw.Story
@@ -553,6 +556,7 @@ type ExternalReplyInfo struct {
 	Animation          *Animation          `json:"animation,omitempty"`            // Optional. Message is an animation, information about the animation
 	Audio              *Audio              `json:"audio,omitempty"`                // Optional. Message is an audio file, information about the file
 	Document           *Document           `json:"document,omitempty"`             // Optional. Message is a general file, information about the file
+	PaidMedia          *PaidMediaInfo      `json:"paid_media,omitempty"`           // Optional. Message contains paid media; information about the paid media
 	Photo              []*PhotoSize        `json:"photo,omitempty"`                // Optional. Message is a photo, available sizes of the photo
 	Sticker            *Sticker            `json:"sticker,omitempty"`              // Optional. Message is a sticker, information about the sticker
 	Story              *Story              `json:"story,omitempty"`                // Optional. Message is a forwarded story
@@ -584,6 +588,7 @@ func (x *ExternalReplyInfo) UnmarshalJSON(rawBytes []byte) (err error) {
 		Animation          *Animation          `json:"animation,omitempty"`            // Optional. Message is an animation, information about the animation
 		Audio              *Audio              `json:"audio,omitempty"`                // Optional. Message is an audio file, information about the file
 		Document           *Document           `json:"document,omitempty"`             // Optional. Message is a general file, information about the file
+		PaidMedia          *PaidMediaInfo      `json:"paid_media,omitempty"`           // Optional. Message contains paid media; information about the paid media
 		Photo              []*PhotoSize        `json:"photo,omitempty"`                // Optional. Message is a photo, available sizes of the photo
 		Sticker            *Sticker            `json:"sticker,omitempty"`              // Optional. Message is a sticker, information about the sticker
 		Story              *Story              `json:"story,omitempty"`                // Optional. Message is a forwarded story
@@ -619,6 +624,7 @@ func (x *ExternalReplyInfo) UnmarshalJSON(rawBytes []byte) (err error) {
 	x.Animation = raw.Animation
 	x.Audio = raw.Audio
 	x.Document = raw.Document
+	x.PaidMedia = raw.PaidMedia
 	x.Photo = raw.Photo
 	x.Sticker = raw.Sticker
 	x.Story = raw.Story
@@ -743,12 +749,12 @@ type PhotoSize struct {
 type Animation struct {
 	FileId       string     `json:"file_id"`             // Identifier for this file, which can be used to download or reuse the file
 	FileUniqueId string     `json:"file_unique_id"`      // Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-	Width        int64      `json:"width"`               // Video width as defined by sender
-	Height       int64      `json:"height"`              // Video height as defined by sender
-	Duration     int64      `json:"duration"`            // Duration of the video in seconds as defined by sender
-	Thumbnail    *PhotoSize `json:"thumbnail,omitempty"` // Optional. Animation thumbnail as defined by sender
-	FileName     string     `json:"file_name,omitempty"` // Optional. Original animation filename as defined by sender
-	MimeType     string     `json:"mime_type,omitempty"` // Optional. MIME type of the file as defined by sender
+	Width        int64      `json:"width"`               // Video width as defined by the sender
+	Height       int64      `json:"height"`              // Video height as defined by the sender
+	Duration     int64      `json:"duration"`            // Duration of the video in seconds as defined by the sender
+	Thumbnail    *PhotoSize `json:"thumbnail,omitempty"` // Optional. Animation thumbnail as defined by the sender
+	FileName     string     `json:"file_name,omitempty"` // Optional. Original animation filename as defined by the sender
+	MimeType     string     `json:"mime_type,omitempty"` // Optional. MIME type of the file as defined by the sender
 	FileSize     int64      `json:"file_size,omitempty"` // Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
 }
 
@@ -756,11 +762,11 @@ type Animation struct {
 type Audio struct {
 	FileId       string     `json:"file_id"`             // Identifier for this file, which can be used to download or reuse the file
 	FileUniqueId string     `json:"file_unique_id"`      // Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-	Duration     int64      `json:"duration"`            // Duration of the audio in seconds as defined by sender
-	Performer    string     `json:"performer,omitempty"` // Optional. Performer of the audio as defined by sender or by audio tags
-	Title        string     `json:"title,omitempty"`     // Optional. Title of the audio as defined by sender or by audio tags
-	FileName     string     `json:"file_name,omitempty"` // Optional. Original filename as defined by sender
-	MimeType     string     `json:"mime_type,omitempty"` // Optional. MIME type of the file as defined by sender
+	Duration     int64      `json:"duration"`            // Duration of the audio in seconds as defined by the sender
+	Performer    string     `json:"performer,omitempty"` // Optional. Performer of the audio as defined by the sender or by audio tags
+	Title        string     `json:"title,omitempty"`     // Optional. Title of the audio as defined by the sender or by audio tags
+	FileName     string     `json:"file_name,omitempty"` // Optional. Original filename as defined by the sender
+	MimeType     string     `json:"mime_type,omitempty"` // Optional. MIME type of the file as defined by the sender
 	FileSize     int64      `json:"file_size,omitempty"` // Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
 	Thumbnail    *PhotoSize `json:"thumbnail,omitempty"` // Optional. Thumbnail of the album cover to which the music file belongs
 }
@@ -769,9 +775,9 @@ type Audio struct {
 type Document struct {
 	FileId       string     `json:"file_id"`             // Identifier for this file, which can be used to download or reuse the file
 	FileUniqueId string     `json:"file_unique_id"`      // Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-	Thumbnail    *PhotoSize `json:"thumbnail,omitempty"` // Optional. Document thumbnail as defined by sender
-	FileName     string     `json:"file_name,omitempty"` // Optional. Original filename as defined by sender
-	MimeType     string     `json:"mime_type,omitempty"` // Optional. MIME type of the file as defined by sender
+	Thumbnail    *PhotoSize `json:"thumbnail,omitempty"` // Optional. Document thumbnail as defined by the sender
+	FileName     string     `json:"file_name,omitempty"` // Optional. Original filename as defined by the sender
+	MimeType     string     `json:"mime_type,omitempty"` // Optional. MIME type of the file as defined by the sender
 	FileSize     int64      `json:"file_size,omitempty"` // Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
 }
 
@@ -785,12 +791,12 @@ type Story struct {
 type Video struct {
 	FileId       string     `json:"file_id"`             // Identifier for this file, which can be used to download or reuse the file
 	FileUniqueId string     `json:"file_unique_id"`      // Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-	Width        int64      `json:"width"`               // Video width as defined by sender
-	Height       int64      `json:"height"`              // Video height as defined by sender
-	Duration     int64      `json:"duration"`            // Duration of the video in seconds as defined by sender
+	Width        int64      `json:"width"`               // Video width as defined by the sender
+	Height       int64      `json:"height"`              // Video height as defined by the sender
+	Duration     int64      `json:"duration"`            // Duration of the video in seconds as defined by the sender
 	Thumbnail    *PhotoSize `json:"thumbnail,omitempty"` // Optional. Video thumbnail
-	FileName     string     `json:"file_name,omitempty"` // Optional. Original filename as defined by sender
-	MimeType     string     `json:"mime_type,omitempty"` // Optional. MIME type of the file as defined by sender
+	FileName     string     `json:"file_name,omitempty"` // Optional. Original filename as defined by the sender
+	MimeType     string     `json:"mime_type,omitempty"` // Optional. MIME type of the file as defined by the sender
 	FileSize     int64      `json:"file_size,omitempty"` // Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
 }
 
@@ -798,8 +804,8 @@ type Video struct {
 type VideoNote struct {
 	FileId       string     `json:"file_id"`             // Identifier for this file, which can be used to download or reuse the file
 	FileUniqueId string     `json:"file_unique_id"`      // Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-	Length       int64      `json:"length"`              // Video width and height (diameter of the video message) as defined by sender
-	Duration     int64      `json:"duration"`            // Duration of the video in seconds as defined by sender
+	Length       int64      `json:"length"`              // Video width and height (diameter of the video message) as defined by the sender
+	Duration     int64      `json:"duration"`            // Duration of the video in seconds as defined by the sender
 	Thumbnail    *PhotoSize `json:"thumbnail,omitempty"` // Optional. Video thumbnail
 	FileSize     int64      `json:"file_size,omitempty"` // Optional. File size in bytes
 }
@@ -808,10 +814,49 @@ type VideoNote struct {
 type Voice struct {
 	FileId       string `json:"file_id"`             // Identifier for this file, which can be used to download or reuse the file
 	FileUniqueId string `json:"file_unique_id"`      // Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
-	Duration     int64  `json:"duration"`            // Duration of the audio in seconds as defined by sender
-	MimeType     string `json:"mime_type,omitempty"` // Optional. MIME type of the file as defined by sender
+	Duration     int64  `json:"duration"`            // Duration of the audio in seconds as defined by the sender
+	MimeType     string `json:"mime_type,omitempty"` // Optional. MIME type of the file as defined by the sender
 	FileSize     int64  `json:"file_size,omitempty"` // Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
 }
+
+// Describes the paid media added to a message.
+type PaidMediaInfo struct {
+	StarCount int64       `json:"star_count"` // The number of Telegram Stars that must be paid to buy access to the media
+	PaidMedia []PaidMedia `json:"paid_media"` // Information about the paid media
+}
+
+// PaidMedia describes paid media. Currently, it can be one of
+// PaidMediaPreview, PaidMediaPhoto, PaidMediaVideo
+type PaidMedia interface {
+	// IsPaidMedia does nothing and is only used to enforce type-safety
+	IsPaidMedia()
+}
+
+// The paid media isn't available before the payment.
+type PaidMediaPreview struct {
+	Type     string `json:"type"`               // Type of the paid media, always “preview”
+	Width    int64  `json:"width,omitempty"`    // Optional. Media width as defined by the sender
+	Height   int64  `json:"height,omitempty"`   // Optional. Media height as defined by the sender
+	Duration int64  `json:"duration,omitempty"` // Optional. Duration of the media in seconds as defined by the sender
+}
+
+func (PaidMediaPreview) IsPaidMedia() {}
+
+// The paid media is a photo.
+type PaidMediaPhoto struct {
+	Type  string       `json:"type"`  // Type of the paid media, always “photo”
+	Photo []*PhotoSize `json:"photo"` // The photo
+}
+
+func (PaidMediaPhoto) IsPaidMedia() {}
+
+// The paid media is a video.
+type PaidMediaVideo struct {
+	Type  string `json:"type"`  // Type of the paid media, always “video”
+	Video Video  `json:"video"` // The video
+}
+
+func (PaidMediaVideo) IsPaidMedia() {}
 
 // Contact represents a phone contact.
 type Contact struct {
@@ -835,7 +880,7 @@ type PollOption struct {
 	VoterCount   int64            `json:"voter_count"`             // Number of users that voted for this option
 }
 
-// InputPollOption contains information about one answer option in a poll to send.
+// InputPollOption contains information about one answer option in a poll to be sent.
 type InputPollOption struct {
 	Text          string           `json:"text"`                      // Option text, 1-100 characters
 	TextParseMode string           `json:"text_parse_mode,omitempty"` // Optional. Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed
@@ -870,8 +915,8 @@ type Poll struct {
 
 // Location represents a point on the map.
 type Location struct {
-	Latitude             float64 `json:"latitude"`                         // Latitude as defined by sender
-	Longitude            float64 `json:"longitude"`                        // Longitude as defined by sender
+	Latitude             float64 `json:"latitude"`                         // Latitude as defined by the sender
+	Longitude            float64 `json:"longitude"`                        // Longitude as defined by the sender
 	HorizontalAccuracy   float64 `json:"horizontal_accuracy,omitempty"`    // Optional. The radius of uncertainty for the location, measured in meters; 0-1500
 	LivePeriod           int64   `json:"live_period,omitempty"`            // Optional. Time relative to the message sending date, during which the location can be updated; in seconds. For active live locations only.
 	Heading              int64   `json:"heading,omitempty"`                // Optional. The direction in which user is moving, in degrees; 1-360. For active live locations only.
@@ -1898,7 +1943,7 @@ func (MenuButtonCommands) IsMenuButton() {}
 type MenuButtonWebApp struct {
 	Type   string     `json:"type"`    // Type of the button, must be web_app
 	Text   string     `json:"text"`    // Text on the button
-	WebApp WebAppInfo `json:"web_app"` // Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery.
+	WebApp WebAppInfo `json:"web_app"` // Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Alternatively, a t.me link to a Web App of the bot can be specified in the object instead of the Web App's URL, in which case the Web App will be opened as if the user pressed the link.
 }
 
 func (MenuButtonWebApp) IsMenuButton() {}
@@ -2216,6 +2261,65 @@ func (x *InputMediaDocument) getFiles() map[string]*InputFile {
 	return media
 }
 
+// InputPaidMedia describes the paid media to be sent. Currently, it can be one of
+// InputPaidMediaPhoto, InputPaidMediaVideo
+type InputPaidMedia interface {
+	// IsInputPaidMedia does nothing and is only used to enforce type-safety
+	IsInputPaidMedia()
+
+	getFiles() map[string]*InputFile
+}
+
+// The paid media to send is a photo.
+type InputPaidMediaPhoto struct {
+	Type  string     `json:"type"`  // Type of the media, must be photo
+	Media *InputFile `json:"media"` // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
+}
+
+func (InputPaidMediaPhoto) IsInputPaidMedia() {}
+
+func (x *InputPaidMediaPhoto) getFiles() map[string]*InputFile {
+	media := map[string]*InputFile{}
+
+	if x.Media != nil {
+		if x.Media.IsUploadable() {
+			media[x.Media.Value] = x.Media
+		}
+	}
+
+	return media
+}
+
+// The paid media to send is a video.
+type InputPaidMediaVideo struct {
+	Type              string     `json:"type"`                         // Type of the media, must be video
+	Media             *InputFile `json:"media"`                        // File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files »
+	Thumbnail         *InputFile `json:"thumbnail,omitempty"`          // Optional. Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
+	Width             int64      `json:"width,omitempty"`              // Optional. Video width
+	Height            int64      `json:"height,omitempty"`             // Optional. Video height
+	Duration          int64      `json:"duration,omitempty"`           // Optional. Video duration in seconds
+	SupportsStreaming bool       `json:"supports_streaming,omitempty"` // Optional. Pass True if the uploaded video is suitable for streaming
+}
+
+func (InputPaidMediaVideo) IsInputPaidMedia() {}
+
+func (x *InputPaidMediaVideo) getFiles() map[string]*InputFile {
+	media := map[string]*InputFile{}
+
+	if x.Media != nil {
+		if x.Media.IsUploadable() {
+			media[x.Media.Value] = x.Media
+		}
+	}
+	if x.Thumbnail != nil {
+		if x.Thumbnail.IsUploadable() {
+			media[x.Thumbnail.Value] = x.Thumbnail
+		}
+	}
+
+	return media
+}
+
 // A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object.
 func (api *API) GetMe() (*User, error) {
 	return callJson[*User](api, "getMe", nil)
@@ -2282,7 +2386,7 @@ func (api *API) ForwardMessages(payload *ForwardMessages) ([]*MessageId, error) 
 	return callJson[[]*MessageId](api, "forwardMessages", payload)
 }
 
-// copyMessage is used to copy messages of any kind. Service messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
+// copyMessage is used to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
 type CopyMessage struct {
 	ChatId                ChatID           `json:"chat_id"`                            // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageThreadId       int64            `json:"message_thread_id,omitempty"`        // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
@@ -2298,12 +2402,12 @@ type CopyMessage struct {
 	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`             // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
 
-// copyMessage is used to copy messages of any kind. Service messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
+// copyMessage is used to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
 func (api *API) CopyMessage(payload *CopyMessage) (*MessageId, error) {
 	return callJson[*MessageId](api, "copyMessage", payload)
 }
 
-// copyMessages is used to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned.
+// copyMessages is used to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned.
 type CopyMessages struct {
 	ChatId              ChatID  `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageThreadId     int64   `json:"message_thread_id,omitempty"`    // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
@@ -2314,7 +2418,7 @@ type CopyMessages struct {
 	RemoveCaption       bool    `json:"remove_caption,omitempty"`       // Pass True to copy the messages without their captions
 }
 
-// copyMessages is used to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned.
+// copyMessages is used to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned.
 func (api *API) CopyMessages(payload *CopyMessages) ([]*MessageId, error) {
 	return callJson[[]*MessageId](api, "copyMessages", payload)
 }
@@ -3071,6 +3175,99 @@ func (api *API) SendVideoNote(payload *SendVideoNote) (*Message, error) {
 		return callMultipart[*Message](api, "sendVideoNote", params, files)
 	}
 	return callJson[*Message](api, "sendVideoNote", payload)
+}
+
+// sendPaidMedia is used to send paid media to channel chats. On success, the sent Message is returned.
+type SendPaidMedia struct {
+	ChatId                ChatID           `json:"chat_id"`                            // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	StarCount             int64            `json:"star_count"`                         // The number of Telegram Stars that must be paid to buy access to the media
+	Media                 []InputPaidMedia `json:"media"`                              // A JSON-serialized array describing the media to be sent; up to 10 items
+	Caption               string           `json:"caption,omitempty"`                  // Media caption, 0-1024 characters after entities parsing
+	ParseMode             ParseMode        `json:"parse_mode,omitempty"`               // Mode for parsing entities in the media caption. See formatting options for more details.
+	CaptionEntities       []*MessageEntity `json:"caption_entities,omitempty"`         // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
+	ShowCaptionAboveMedia bool             `json:"show_caption_above_media,omitempty"` // Pass True, if the caption must be shown above the message media
+	DisableNotification   bool             `json:"disable_notification,omitempty"`     // Sends the message silently. Users will receive a notification with no sound.
+	ProtectContent        bool             `json:"protect_content,omitempty"`          // Protects the contents of the sent message from forwarding and saving
+	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`         // Description of the message to reply to
+	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`             // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
+}
+
+func (x *SendPaidMedia) getFiles() map[string]*InputFile {
+	media := map[string]*InputFile{}
+
+	for _, m := range x.Media {
+		for key, value := range m.getFiles() {
+			media[key] = value
+		}
+	}
+
+	return media
+}
+
+func (x *SendPaidMedia) getParams() (map[string]string, error) {
+	payload := map[string]string{}
+
+	if bb, err := json.Marshal(x.ChatId); err != nil {
+		return nil, err
+	} else {
+		payload["chat_id"] = string(bb)
+	}
+	payload["star_count"] = strconv.FormatInt(x.StarCount, 10)
+	if bb, err := json.Marshal(x.Media); err != nil {
+		return nil, err
+	} else {
+		payload["media"] = string(bb)
+	}
+	if x.Caption != "" {
+		payload["caption"] = x.Caption
+	}
+	if x.ParseMode != ParseModeNone {
+		payload["parse_mode"] = string(x.ParseMode)
+	}
+	if x.CaptionEntities != nil {
+		if bb, err := json.Marshal(x.CaptionEntities); err != nil {
+			return nil, err
+		} else {
+			payload["caption_entities"] = string(bb)
+		}
+	}
+	if x.ShowCaptionAboveMedia {
+		payload["show_caption_above_media"] = strconv.FormatBool(x.ShowCaptionAboveMedia)
+	}
+	if x.DisableNotification {
+		payload["disable_notification"] = strconv.FormatBool(x.DisableNotification)
+	}
+	if x.ProtectContent {
+		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
+	}
+	if x.ReplyParameters != nil {
+		if bb, err := json.Marshal(x.ReplyParameters); err != nil {
+			return nil, err
+		} else {
+			payload["reply_parameters"] = string(bb)
+		}
+	}
+	if x.ReplyMarkup != nil {
+		if bb, err := json.Marshal(x.ReplyMarkup); err != nil {
+			return nil, err
+		} else {
+			payload["reply_markup"] = string(bb)
+		}
+	}
+
+	return payload, nil
+}
+
+// sendPaidMedia is used to send paid media to channel chats. On success, the sent Message is returned.
+func (api *API) SendPaidMedia(payload *SendPaidMedia) (*Message, error) {
+	if files := payload.getFiles(); len(files) != 0 {
+		params, err := payload.getParams()
+		if err != nil {
+			return nil, err
+		}
+		return callMultipart[*Message](api, "sendPaidMedia", params, files)
+	}
+	return callJson[*Message](api, "sendPaidMedia", payload)
 }
 
 // sendMediaGroup is used to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Messages that were sent is returned.
@@ -6155,7 +6352,7 @@ type ShippingOption struct {
 type SuccessfulPayment struct {
 	Currency                string     `json:"currency"`                     // Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars
 	TotalAmount             int64      `json:"total_amount"`                 // Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
-	InvoicePayload          string     `json:"invoice_payload"`              // Bot specified invoice payload
+	InvoicePayload          string     `json:"invoice_payload"`              // Bot-specified invoice payload
 	ShippingOptionId        string     `json:"shipping_option_id,omitempty"` // Optional. Identifier of the shipping option chosen by the user
 	OrderInfo               *OrderInfo `json:"order_info,omitempty"`         // Optional. Order information provided by the user
 	TelegramPaymentChargeId string     `json:"telegram_payment_charge_id"`   // Telegram payment identifier
@@ -6166,7 +6363,7 @@ type SuccessfulPayment struct {
 type ShippingQuery struct {
 	Id              string          `json:"id"`               // Unique query identifier
 	From            User            `json:"from"`             // User who sent the query
-	InvoicePayload  string          `json:"invoice_payload"`  // Bot specified invoice payload
+	InvoicePayload  string          `json:"invoice_payload"`  // Bot-specified invoice payload
 	ShippingAddress ShippingAddress `json:"shipping_address"` // User specified shipping address
 }
 
@@ -6176,7 +6373,7 @@ type PreCheckoutQuery struct {
 	From             User       `json:"from"`                         // User who sent the query
 	Currency         string     `json:"currency"`                     // Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars
 	TotalAmount      int64      `json:"total_amount"`                 // Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
-	InvoicePayload   string     `json:"invoice_payload"`              // Bot specified invoice payload
+	InvoicePayload   string     `json:"invoice_payload"`              // Bot-specified invoice payload
 	ShippingOptionId string     `json:"shipping_option_id,omitempty"` // Optional. Identifier of the shipping option chosen by the user
 	OrderInfo        *OrderInfo `json:"order_info,omitempty"`         // Optional. Order information provided by the user
 }
@@ -6212,11 +6409,20 @@ type RevenueWithdrawalStateFailed struct {
 func (RevenueWithdrawalStateFailed) IsRevenueWithdrawalState() {}
 
 // TransactionPartner describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
-// TransactionPartnerFragment, TransactionPartnerUser, TransactionPartnerOther
+// TransactionPartnerUser, TransactionPartnerFragment, TransactionPartnerTelegramAds, TransactionPartnerOther
 type TransactionPartner interface {
 	// IsTransactionPartner does nothing and is only used to enforce type-safety
 	IsTransactionPartner()
 }
+
+// Describes a transaction with a user.
+type TransactionPartnerUser struct {
+	Type           string `json:"type"`                      // Type of the transaction partner, always “user”
+	User           User   `json:"user"`                      // Information about the user
+	InvoicePayload string `json:"invoice_payload,omitempty"` // Optional. Bot-specified invoice payload
+}
+
+func (TransactionPartnerUser) IsTransactionPartner() {}
 
 // Describes a withdrawal transaction with Fragment.
 type TransactionPartnerFragment struct {
@@ -6251,13 +6457,12 @@ func (x *TransactionPartnerFragment) UnmarshalJSON(rawBytes []byte) (err error) 
 	return nil
 }
 
-// Describes a transaction with a user.
-type TransactionPartnerUser struct {
-	Type string `json:"type"` // Type of the transaction partner, always “user”
-	User User   `json:"user"` // Information about the user
+// Describes a withdrawal transaction to the Telegram Ads platform.
+type TransactionPartnerTelegramAds struct {
+	Type string `json:"type"` // Type of the transaction partner, always “telegram_ads”
 }
 
-func (TransactionPartnerUser) IsTransactionPartner() {}
+func (TransactionPartnerTelegramAds) IsTransactionPartner() {}
 
 // Describes a transaction with an unknown source or recipient.
 type TransactionPartnerOther struct {
