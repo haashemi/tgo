@@ -155,7 +155,7 @@ func getNestedMediaFields(all []Section, s Section) (fields []Field) {
 		ft = strings.TrimPrefix(ft, "[]")
 		ft = strings.TrimPrefix(ft, "*")
 
-		if ft == "InputMedia" {
+		if ft == "InputMedia" || ft == "InputPaidMedia" {
 			fields = append(fields, f)
 			continue
 		}

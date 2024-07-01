@@ -14,7 +14,7 @@
 		// Is{{ .Name }} does nothing and is only used to enforce type-safety
 		Is{{ .Name }}()
 
-		{{ if eq .Name "InputMedia" }}getFiles() map[string]*InputFile{{ end }}
+		{{ if or (eq .Name "InputMedia") (eq .Name "InputPaidMedia") }}getFiles() map[string]*InputFile{{ end }}
 	}
 
 	{{/*  Due to lack of knowledge and its complexity, I decided to write this functuon by hand.
