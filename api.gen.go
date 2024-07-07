@@ -284,6 +284,7 @@ type Message struct {
 	PinnedMessage                 MaybeInaccessibleMessage       `json:"pinned_message,omitempty"`                    // Optional. Specified message was pinned. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply.
 	Invoice                       *Invoice                       `json:"invoice,omitempty"`                           // Optional. Message is an invoice for a payment, information about the invoice. More about payments »
 	SuccessfulPayment             *SuccessfulPayment             `json:"successful_payment,omitempty"`                // Optional. Message is a service message about a successful payment, information about the payment. More about payments »
+	RefundedPayment               *RefundedPayment               `json:"refunded_payment,omitempty"`                  // Optional. Message is a service message about a refunded payment, information about the payment. More about payments »
 	UsersShared                   *UsersShared                   `json:"users_shared,omitempty"`                      // Optional. Service message: users were shared with the bot
 	ChatShared                    *ChatShared                    `json:"chat_shared,omitempty"`                       // Optional. Service message: a chat was shared with the bot
 	ConnectedWebsite              string                         `json:"connected_website,omitempty"`                 // Optional. The domain name of the website on which the user has logged in. More about Telegram Login »
@@ -378,6 +379,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 		PinnedMessage                 json.RawMessage                `json:"pinned_message,omitempty"`                    // Optional. Specified message was pinned. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply.
 		Invoice                       *Invoice                       `json:"invoice,omitempty"`                           // Optional. Message is an invoice for a payment, information about the invoice. More about payments »
 		SuccessfulPayment             *SuccessfulPayment             `json:"successful_payment,omitempty"`                // Optional. Message is a service message about a successful payment, information about the payment. More about payments »
+		RefundedPayment               *RefundedPayment               `json:"refunded_payment,omitempty"`                  // Optional. Message is a service message about a refunded payment, information about the payment. More about payments »
 		UsersShared                   *UsersShared                   `json:"users_shared,omitempty"`                      // Optional. Service message: users were shared with the bot
 		ChatShared                    *ChatShared                    `json:"chat_shared,omitempty"`                       // Optional. Service message: a chat was shared with the bot
 		ConnectedWebsite              string                         `json:"connected_website,omitempty"`                 // Optional. The domain name of the website on which the user has logged in. More about Telegram Login »
@@ -480,6 +482,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 
 	x.Invoice = raw.Invoice
 	x.SuccessfulPayment = raw.SuccessfulPayment
+	x.RefundedPayment = raw.RefundedPayment
 	x.UsersShared = raw.UsersShared
 	x.ChatShared = raw.ChatShared
 	x.ConnectedWebsite = raw.ConnectedWebsite
@@ -6357,6 +6360,15 @@ type SuccessfulPayment struct {
 	OrderInfo               *OrderInfo `json:"order_info,omitempty"`         // Optional. Order information provided by the user
 	TelegramPaymentChargeId string     `json:"telegram_payment_charge_id"`   // Telegram payment identifier
 	ProviderPaymentChargeId string     `json:"provider_payment_charge_id"`   // Provider payment identifier
+}
+
+// RefundedPayment contains basic information about a refunded payment.
+type RefundedPayment struct {
+	Currency                string `json:"currency"`                             // Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars. Currently, always “XTR”
+	TotalAmount             int64  `json:"total_amount"`                         // Total refunded price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45, total_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
+	InvoicePayload          string `json:"invoice_payload"`                      // Bot-specified invoice payload
+	TelegramPaymentChargeId string `json:"telegram_payment_charge_id"`           // Telegram payment identifier
+	ProviderPaymentChargeId string `json:"provider_payment_charge_id,omitempty"` // Optional. Provider payment identifier
 }
 
 // ShippingQuery contains information about an incoming shipping query.
