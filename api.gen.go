@@ -161,6 +161,7 @@ type User struct {
 	CanReadAllGroupMessages bool   `json:"can_read_all_group_messages,omitempty"` // Optional. True, if privacy mode is disabled for the bot. Returned only in getMe.
 	SupportsInlineQueries   bool   `json:"supports_inline_queries,omitempty"`     // Optional. True, if the bot supports inline queries. Returned only in getMe.
 	CanConnectToBusiness    bool   `json:"can_connect_to_business,omitempty"`     // Optional. True, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in getMe.
+	HasMainWebApp           bool   `json:"has_main_web_app,omitempty"`            // Optional. True, if the bot has a main Web App. Returned only in getMe.
 }
 
 // Chat represents a chat.
@@ -3787,9 +3788,10 @@ func (api *API) SetChatDescription(payload *SetChatDescription) (bool, error) {
 
 // pinChatMessage is used to add a message to the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success.
 type PinChatMessage struct {
-	ChatId              ChatID `json:"chat_id"`                        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageId           int64  `json:"message_id"`                     // Identifier of a message to pin
-	DisableNotification bool   `json:"disable_notification,omitempty"` // Pass True if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats.
+	BusinessConnectionId string `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be pinned
+	ChatId               ChatID `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageId            int64  `json:"message_id"`                       // Identifier of a message to pin
+	DisableNotification  bool   `json:"disable_notification,omitempty"`   // Pass True if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats.
 }
 
 // pinChatMessage is used to add a message to the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success.
@@ -3799,8 +3801,9 @@ func (api *API) PinChatMessage(payload *PinChatMessage) (bool, error) {
 
 // unpinChatMessage is used to remove a message from the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success.
 type UnpinChatMessage struct {
-	ChatId    ChatID `json:"chat_id"`              // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	MessageId int64  `json:"message_id,omitempty"` // Identifier of a message to unpin. If not specified, the most recent pinned message (by sending date) will be unpinned.
+	BusinessConnectionId string `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message will be unpinned
+	ChatId               ChatID `json:"chat_id"`                          // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	MessageId            int64  `json:"message_id,omitempty"`             // Identifier of the message to unpin. Required if business_connection_id is specified. If not specified, the most recent pinned message (by sending date) will be unpinned.
 }
 
 // unpinChatMessage is used to remove a message from the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success.
@@ -4809,7 +4812,7 @@ func (api *API) SetStickerSetTitle(payload *SetStickerSetTitle) (bool, error) {
 type SetStickerSetThumbnail struct {
 	Name      string     `json:"name"`                // Sticker set name
 	UserId    int64      `json:"user_id"`             // User identifier of the sticker set owner
-	Thumbnail *InputFile `json:"thumbnail,omitempty"` // A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see https://core.telegram.org/stickers#animated-sticker-requirements for animated sticker technical requirements), or a WEBM video with the thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-sticker-requirements for video sticker technical requirements. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files ». Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail.
+	Thumbnail *InputFile `json:"thumbnail,omitempty"` // A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see https://core.telegram.org/stickers#animation-requirements for animated sticker technical requirements), or a WEBM video with the thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-requirements for video sticker technical requirements. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files ». Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail.
 	Format    string     `json:"format"`              // Format of the thumbnail, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, or “video” for a WEBM video
 }
 
