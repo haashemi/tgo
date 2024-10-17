@@ -23,6 +23,7 @@ type Update struct {
 	CallbackQuery           *CallbackQuery               `json:"callback_query,omitempty"`            // Optional. New incoming callback query
 	ShippingQuery           *ShippingQuery               `json:"shipping_query,omitempty"`            // Optional. New incoming shipping query. Only for invoices with flexible price
 	PreCheckoutQuery        *PreCheckoutQuery            `json:"pre_checkout_query,omitempty"`        // Optional. New incoming pre-checkout query. Contains full information about checkout
+	PurchasedPaidMedia      *PaidMediaPurchased          `json:"purchased_paid_media,omitempty"`      // Optional. A user purchased paid media with a non-empty payload sent by the bot in a non-channel chat
 	Poll                    *Poll                        `json:"poll,omitempty"`                      // Optional. New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot
 	PollAnswer              *PollAnswer                  `json:"poll_answer,omitempty"`               // Optional. A user changed their answer in a non-anonymous poll. Bots receive new votes only in polls that were sent by the bot itself.
 	MyChatMember            *ChatMemberUpdated           `json:"my_chat_member,omitempty"`            // Optional. The bot's chat member status was updated in a chat. For private chats, this update is received only when the bot is blocked or unblocked by the user.
@@ -227,8 +228,8 @@ type ChatFullInfo struct {
 type Message struct {
 	MessageId                     int64                          `json:"message_id"`                                  // Unique message identifier inside this chat
 	MessageThreadId               int64                          `json:"message_thread_id,omitempty"`                 // Optional. Unique identifier of a message thread to which the message belongs; for supergroups only
-	From                          *User                          `json:"from,omitempty"`                              // Optional. Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-	SenderChat                    *Chat                          `json:"sender_chat,omitempty"`                       // Optional. Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field from contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+	From                          *User                          `json:"from,omitempty"`                              // Optional. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
+	SenderChat                    *Chat                          `json:"sender_chat,omitempty"`                       // Optional. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
 	SenderBoostCount              int64                          `json:"sender_boost_count,omitempty"`                // Optional. If the sender of the message boosted the chat, the number of boosts added by the user
 	SenderBusinessBot             *User                          `json:"sender_business_bot,omitempty"`               // Optional. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
 	Date                          int64                          `json:"date"`                                        // Date the message was sent in Unix time. It is always a positive number, representing a valid date.
@@ -322,8 +323,8 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 	type temp struct {
 		MessageId                     int64                          `json:"message_id"`                                  // Unique message identifier inside this chat
 		MessageThreadId               int64                          `json:"message_thread_id,omitempty"`                 // Optional. Unique identifier of a message thread to which the message belongs; for supergroups only
-		From                          *User                          `json:"from,omitempty"`                              // Optional. Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
-		SenderChat                    *Chat                          `json:"sender_chat,omitempty"`                       // Optional. Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field from contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat.
+		From                          *User                          `json:"from,omitempty"`                              // Optional. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
+		SenderChat                    *Chat                          `json:"sender_chat,omitempty"`                       // Optional. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
 		SenderBoostCount              int64                          `json:"sender_boost_count,omitempty"`                // Optional. If the sender of the message boosted the chat, the number of boosts added by the user
 		SenderBusinessBot             *User                          `json:"sender_business_bot,omitempty"`               // Optional. The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account.
 		Date                          int64                          `json:"date"`                                        // Date the message was sent in Unix time. It is always a positive number, representing a valid date.
@@ -1203,8 +1204,10 @@ type VideoChatParticipantsInvited struct {
 	Users []*User `json:"users"` // New members that were invited to the video chat
 }
 
-// GiveawayCreated represents a service message about the creation of a scheduled giveaway. Currently holds no information.
-type GiveawayCreated struct{}
+// GiveawayCreated represents a service message about the creation of a scheduled giveaway.
+type GiveawayCreated struct {
+	PrizeStarCount int64 `json:"prize_star_count,omitempty"` // Optional. The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
+}
 
 // Giveaway represents a message about a scheduled giveaway.
 type Giveaway struct {
@@ -1215,7 +1218,8 @@ type Giveaway struct {
 	HasPublicWinners              bool     `json:"has_public_winners,omitempty"`               // Optional. True, if the list of giveaway winners will be visible to everyone
 	PrizeDescription              string   `json:"prize_description,omitempty"`                // Optional. Description of additional giveaway prize
 	CountryCodes                  []string `json:"country_codes,omitempty"`                    // Optional. A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways.
-	PremiumSubscriptionMonthCount int64    `json:"premium_subscription_month_count,omitempty"` // Optional. The number of months the Telegram Premium subscription won from the giveaway will be active for
+	PrizeStarCount                int64    `json:"prize_star_count,omitempty"`                 // Optional. The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
+	PremiumSubscriptionMonthCount int64    `json:"premium_subscription_month_count,omitempty"` // Optional. The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only
 }
 
 // GiveawayWinners represents a message about the completion of a giveaway with public winners.
@@ -1226,7 +1230,8 @@ type GiveawayWinners struct {
 	WinnerCount                   int64   `json:"winner_count"`                               // Total number of winners in the giveaway
 	Winners                       []*User `json:"winners"`                                    // List of up to 100 winners of the giveaway
 	AdditionalChatCount           int64   `json:"additional_chat_count,omitempty"`            // Optional. The number of other chats the user had to join in order to be eligible for the giveaway
-	PremiumSubscriptionMonthCount int64   `json:"premium_subscription_month_count,omitempty"` // Optional. The number of months the Telegram Premium subscription won from the giveaway will be active for
+	PrizeStarCount                int64   `json:"prize_star_count,omitempty"`                 // Optional. The number of Telegram Stars that were split between giveaway winners; for Telegram Star giveaways only
+	PremiumSubscriptionMonthCount int64   `json:"premium_subscription_month_count,omitempty"` // Optional. The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only
 	UnclaimedPrizeCount           int64   `json:"unclaimed_prize_count,omitempty"`            // Optional. Number of undistributed prizes
 	OnlyNewMembers                bool    `json:"only_new_members,omitempty"`                 // Optional. True, if only users who had joined the chats after the giveaway started were eligible to win
 	WasRefunded                   bool    `json:"was_refunded,omitempty"`                     // Optional. True, if the giveaway was canceled because the payment for it was refunded
@@ -1238,6 +1243,7 @@ type GiveawayCompleted struct {
 	WinnerCount         int64    `json:"winner_count"`                    // Number of winners in the giveaway
 	UnclaimedPrizeCount int64    `json:"unclaimed_prize_count,omitempty"` // Optional. Number of undistributed prizes
 	GiveawayMessage     *Message `json:"giveaway_message,omitempty"`      // Optional. Message with the giveaway that was completed, if it wasn't deleted
+	IsStarGiveaway      bool     `json:"is_star_giveaway,omitempty"`      // Optional. True, if the giveaway is a Telegram Star giveaway. Otherwise, currently, the giveaway is a Telegram Premium giveaway.
 }
 
 // Describes the options used for link preview generation.
@@ -1457,6 +1463,8 @@ type ChatInviteLink struct {
 	ExpireDate              int64  `json:"expire_date,omitempty"`                // Optional. Point in time (Unix timestamp) when the link will expire or has been expired
 	MemberLimit             int64  `json:"member_limit,omitempty"`               // Optional. The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
 	PendingJoinRequestCount int64  `json:"pending_join_request_count,omitempty"` // Optional. Number of pending join requests created using this link
+	SubscriptionPeriod      int64  `json:"subscription_period,omitempty"`        // Optional. The number of seconds the subscription will be active for before the next payment
+	SubscriptionPrice       int64  `json:"subscription_price,omitempty"`         // Optional. The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat using the link
 }
 
 // Represents the rights of an administrator in a chat.
@@ -1576,8 +1584,9 @@ func (ChatMemberAdministrator) IsChatMember() {}
 
 // Represents a chat member that has no additional privileges or restrictions.
 type ChatMemberMember struct {
-	Status string `json:"status"` // The member's status in the chat, always “member”
-	User   User   `json:"user"`   // Information about the user
+	Status    string `json:"status"`               // The member's status in the chat, always “member”
+	User      User   `json:"user"`                 // Information about the user
+	UntilDate int64  `json:"until_date,omitempty"` // Optional. Date when the user's subscription will expire; Unix time
 }
 
 func (ChatMemberMember) IsChatMember() {}
@@ -1690,7 +1699,7 @@ type ChatLocation struct {
 }
 
 // ReactionType describes the type of a reaction. Currently, it can be one of
-// ReactionTypeEmoji, ReactionTypeCustomEmoji
+// ReactionTypeEmoji, ReactionTypeCustomEmoji, ReactionTypePaid
 type ReactionType interface {
 	// IsReactionType does nothing and is only used to enforce type-safety
 	IsReactionType()
@@ -1711,6 +1720,13 @@ type ReactionTypeCustomEmoji struct {
 }
 
 func (ReactionTypeCustomEmoji) IsReactionType() {}
+
+// The reaction is paid.
+type ReactionTypePaid struct {
+	Type string `json:"type"` // Type of the reaction, always “paid”
+}
+
+func (ReactionTypePaid) IsReactionType() {}
 
 // Represents a reaction added to a message along with the number of times it was added.
 type ReactionCount struct {
@@ -1982,12 +1998,13 @@ type ChatBoostSourceGiftCode struct {
 
 func (ChatBoostSourceGiftCode) IsChatBoostSource() {}
 
-// The boost was obtained by the creation of a Telegram Premium giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription.
+// The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and prize_star_count / 500 times for one year for Telegram Star giveaways.
 type ChatBoostSourceGiveaway struct {
-	Source            string `json:"source"`                 // Source of the boost, always “giveaway”
-	GiveawayMessageId int64  `json:"giveaway_message_id"`    // Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet.
-	User              *User  `json:"user,omitempty"`         // Optional. User that won the prize in the giveaway if any
-	IsUnclaimed       bool   `json:"is_unclaimed,omitempty"` // Optional. True, if the giveaway was completed, but there was no user to win the prize
+	Source            string `json:"source"`                     // Source of the boost, always “giveaway”
+	GiveawayMessageId int64  `json:"giveaway_message_id"`        // Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet.
+	User              *User  `json:"user,omitempty"`             // Optional. User that won the prize in the giveaway if any; for Telegram Premium giveaways only
+	PrizeStarCount    int64  `json:"prize_star_count,omitempty"` // Optional. The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only
+	IsUnclaimed       bool   `json:"is_unclaimed,omitempty"`     // Optional. True, if the giveaway was completed, but there was no user to win the prize
 }
 
 func (ChatBoostSourceGiveaway) IsChatBoostSource() {}
@@ -3181,11 +3198,13 @@ func (api *API) SendVideoNote(payload *SendVideoNote) (*Message, error) {
 	return callJson[*Message](api, "sendVideoNote", payload)
 }
 
-// sendPaidMedia is used to send paid media to channel chats. On success, the sent Message is returned.
+// sendPaidMedia is used to send paid media. On success, the sent Message is returned.
 type SendPaidMedia struct {
-	ChatId                ChatID           `json:"chat_id"`                            // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-	StarCount             int64            `json:"star_count"`                         // The number of Telegram Stars that must be paid to buy access to the media
+	BusinessConnectionId  string           `json:"business_connection_id,omitempty"`   // Unique identifier of the business connection on behalf of which the message will be sent
+	ChatId                ChatID           `json:"chat_id"`                            // Unique identifier for the target chat or username of the target channel (in the format @channelusername). If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance.
+	StarCount             int64            `json:"star_count"`                         // The number of Telegram Stars that must be paid to buy access to the media; 1-2500
 	Media                 []InputPaidMedia `json:"media"`                              // A JSON-serialized array describing the media to be sent; up to 10 items
+	Payload               string           `json:"payload,omitempty"`                  // Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user, use it for your internal processes.
 	Caption               string           `json:"caption,omitempty"`                  // Media caption, 0-1024 characters after entities parsing
 	ParseMode             ParseMode        `json:"parse_mode,omitempty"`               // Mode for parsing entities in the media caption. See formatting options for more details.
 	CaptionEntities       []*MessageEntity `json:"caption_entities,omitempty"`         // A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
@@ -3211,6 +3230,9 @@ func (x *SendPaidMedia) getFiles() map[string]*InputFile {
 func (x *SendPaidMedia) getParams() (map[string]string, error) {
 	payload := map[string]string{}
 
+	if x.BusinessConnectionId != "" {
+		payload["business_connection_id"] = x.BusinessConnectionId
+	}
 	if bb, err := json.Marshal(x.ChatId); err != nil {
 		return nil, err
 	} else {
@@ -3221,6 +3243,9 @@ func (x *SendPaidMedia) getParams() (map[string]string, error) {
 		return nil, err
 	} else {
 		payload["media"] = string(bb)
+	}
+	if x.Payload != "" {
+		payload["payload"] = x.Payload
 	}
 	if x.Caption != "" {
 		payload["caption"] = x.Caption
@@ -3262,7 +3287,7 @@ func (x *SendPaidMedia) getParams() (map[string]string, error) {
 	return payload, nil
 }
 
-// sendPaidMedia is used to send paid media to channel chats. On success, the sent Message is returned.
+// sendPaidMedia is used to send paid media. On success, the sent Message is returned.
 func (api *API) SendPaidMedia(payload *SendPaidMedia) (*Message, error) {
 	if files := payload.getFiles(); len(files) != 0 {
 		params, err := payload.getParams()
@@ -3488,15 +3513,15 @@ func (api *API) SendChatAction(payload *SendChatAction) (bool, error) {
 	return callJson[bool](api, "sendChatAction", payload)
 }
 
-// setMessageReaction is used to change the chosen reactions on a message. Service messages can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. Returns True on success.
+// setMessageReaction is used to change the chosen reactions on a message. Service messages can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. Bots can't use paid reactions. Returns True on success.
 type SetMessageReaction struct {
 	ChatId    ChatID         `json:"chat_id"`            // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
 	MessageId int64          `json:"message_id"`         // Identifier of the target message. If the message belongs to a media group, the reaction is set to the first non-deleted message in the group instead.
-	Reaction  []ReactionType `json:"reaction,omitempty"` // A JSON-serialized list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators.
+	Reaction  []ReactionType `json:"reaction,omitempty"` // A JSON-serialized list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators. Paid reactions can't be used by bots.
 	IsBig     bool           `json:"is_big,omitempty"`   // Pass True to set the reaction with a big animation
 }
 
-// setMessageReaction is used to change the chosen reactions on a message. Service messages can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. Returns True on success.
+// setMessageReaction is used to change the chosen reactions on a message. Service messages can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. Bots can't use paid reactions. Returns True on success.
 func (api *API) SetMessageReaction(payload *SetMessageReaction) (bool, error) {
 	return callJson[bool](api, "setMessageReaction", payload)
 }
@@ -3677,6 +3702,31 @@ type EditChatInviteLink struct {
 // editChatInviteLink is used to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the edited invite link as a ChatInviteLink object.
 func (api *API) EditChatInviteLink(payload *EditChatInviteLink) (*ChatInviteLink, error) {
 	return callJson[*ChatInviteLink](api, "editChatInviteLink", payload)
+}
+
+// createChatSubscriptionInviteLink is used to create a subscription invite link for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method editChatSubscriptionInviteLink or revoked using the method revokeChatInviteLink. Returns the new invite link as a ChatInviteLink object.
+type CreateChatSubscriptionInviteLink struct {
+	ChatId             ChatID `json:"chat_id"`             // Unique identifier for the target channel chat or username of the target channel (in the format @channelusername)
+	Name               string `json:"name,omitempty"`      // Invite link name; 0-32 characters
+	SubscriptionPeriod int64  `json:"subscription_period"` // The number of seconds the subscription will be active for before the next payment. Currently, it must always be 2592000 (30 days).
+	SubscriptionPrice  int64  `json:"subscription_price"`  // The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat; 1-2500
+}
+
+// createChatSubscriptionInviteLink is used to create a subscription invite link for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method editChatSubscriptionInviteLink or revoked using the method revokeChatInviteLink. Returns the new invite link as a ChatInviteLink object.
+func (api *API) CreateChatSubscriptionInviteLink(payload *CreateChatSubscriptionInviteLink) (*ChatInviteLink, error) {
+	return callJson[*ChatInviteLink](api, "createChatSubscriptionInviteLink", payload)
+}
+
+// editChatSubscriptionInviteLink is used to edit a subscription invite link created by the bot. The bot must have the can_invite_users administrator rights. Returns the edited invite link as a ChatInviteLink object.
+type EditChatSubscriptionInviteLink struct {
+	ChatId     ChatID `json:"chat_id"`        // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+	InviteLink string `json:"invite_link"`    // The invite link to edit
+	Name       string `json:"name,omitempty"` // Invite link name; 0-32 characters
+}
+
+// editChatSubscriptionInviteLink is used to edit a subscription invite link created by the bot. The bot must have the can_invite_users administrator rights. Returns the edited invite link as a ChatInviteLink object.
+func (api *API) EditChatSubscriptionInviteLink(payload *EditChatSubscriptionInviteLink) (*ChatInviteLink, error) {
+	return callJson[*ChatInviteLink](api, "editChatSubscriptionInviteLink", payload)
 }
 
 // revokeChatInviteLink is used to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as ChatInviteLink object.
@@ -3915,7 +3965,7 @@ func (api *API) CreateForumTopic(payload *CreateForumTopic) (*ForumTopic, error)
 	return callJson[*ForumTopic](api, "createForumTopic", payload)
 }
 
-// editForumTopic is used to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success.
+// editForumTopic is used to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success.
 type EditForumTopic struct {
 	ChatId            ChatID `json:"chat_id"`                        // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
 	MessageThreadId   int64  `json:"message_thread_id"`              // Unique identifier for the target message thread of the forum topic
@@ -3923,7 +3973,7 @@ type EditForumTopic struct {
 	IconCustomEmojiId string `json:"icon_custom_emoji_id,omitempty"` // New unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept
 }
 
-// editForumTopic is used to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success.
+// editForumTopic is used to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success.
 func (api *API) EditForumTopic(payload *EditForumTopic) (bool, error) {
 	return callJson[bool](api, "editForumTopic", payload)
 }
@@ -3972,13 +4022,13 @@ func (api *API) UnpinAllForumTopicMessages(payload *UnpinAllForumTopicMessages) 
 	return callJson[bool](api, "unpinAllForumTopicMessages", payload)
 }
 
-// editGeneralForumTopic is used to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have can_manage_topics administrator rights. Returns True on success.
+// editGeneralForumTopic is used to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
 type EditGeneralForumTopic struct {
 	ChatId ChatID `json:"chat_id"` // Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername)
 	Name   string `json:"name"`    // New topic name, 1-128 characters
 }
 
-// editGeneralForumTopic is used to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have can_manage_topics administrator rights. Returns True on success.
+// editGeneralForumTopic is used to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success.
 func (api *API) EditGeneralForumTopic(payload *EditGeneralForumTopic) (bool, error) {
 	return callJson[bool](api, "editGeneralForumTopic", payload)
 }
@@ -6153,7 +6203,7 @@ func (InputContactMessageContent) IsInputMessageContent() {}
 type InputInvoiceMessageContent struct {
 	Title                     string          `json:"title"`                                   // Product name, 1-32 characters
 	Description               string          `json:"description"`                             // Product description, 1-255 characters
-	Payload                   string          `json:"payload"`                                 // Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.
+	Payload                   string          `json:"payload"`                                 // Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
 	ProviderToken             string          `json:"provider_token,omitempty"`                // Optional. Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars.
 	Currency                  string          `json:"currency"`                                // Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars.
 	Prices                    []*LabeledPrice `json:"prices"`                                  // Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
@@ -6207,7 +6257,7 @@ type SendInvoice struct {
 	MessageThreadId           int64                 `json:"message_thread_id,omitempty"`             // Unique identifier for the target message thread (topic) of the forum; for forum supergroups only
 	Title                     string                `json:"title"`                                   // Product name, 1-32 characters
 	Description               string                `json:"description"`                             // Product description, 1-255 characters
-	Payload                   string                `json:"payload"`                                 // Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.
+	Payload                   string                `json:"payload"`                                 // Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
 	ProviderToken             string                `json:"provider_token,omitempty"`                // Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars.
 	Currency                  string                `json:"currency"`                                // Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars.
 	Prices                    []*LabeledPrice       `json:"prices"`                                  // Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
@@ -6242,7 +6292,7 @@ func (api *API) SendInvoice(payload *SendInvoice) (*Message, error) {
 type CreateInvoiceLink struct {
 	Title                     string          `json:"title"`                                   // Product name, 1-32 characters
 	Description               string          `json:"description"`                             // Product description, 1-255 characters
-	Payload                   string          `json:"payload"`                                 // Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.
+	Payload                   string          `json:"payload"`                                 // Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
 	ProviderToken             string          `json:"provider_token,omitempty"`                // Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars.
 	Currency                  string          `json:"currency"`                                // Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars.
 	Prices                    []*LabeledPrice `json:"prices"`                                  // Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
@@ -6393,6 +6443,12 @@ type PreCheckoutQuery struct {
 	OrderInfo        *OrderInfo `json:"order_info,omitempty"`         // Optional. Order information provided by the user
 }
 
+// PaidMediaPurchased contains information about a paid media purchase.
+type PaidMediaPurchased struct {
+	From             User   `json:"from"`               // User who purchased the media
+	PaidMediaPayload string `json:"paid_media_payload"` // Bot-specified paid media payload
+}
+
 // RevenueWithdrawalState describes the state of a revenue withdrawal operation. Currently, it can be one of
 // RevenueWithdrawalStatePending, RevenueWithdrawalStateSucceeded, RevenueWithdrawalStateFailed
 type RevenueWithdrawalState interface {
@@ -6432,9 +6488,11 @@ type TransactionPartner interface {
 
 // Describes a transaction with a user.
 type TransactionPartnerUser struct {
-	Type           string `json:"type"`                      // Type of the transaction partner, always “user”
-	User           User   `json:"user"`                      // Information about the user
-	InvoicePayload string `json:"invoice_payload,omitempty"` // Optional. Bot-specified invoice payload
+	Type             string      `json:"type"`                         // Type of the transaction partner, always “user”
+	User             User        `json:"user"`                         // Information about the user
+	InvoicePayload   string      `json:"invoice_payload,omitempty"`    // Optional. Bot-specified invoice payload
+	PaidMedia        []PaidMedia `json:"paid_media,omitempty"`         // Optional. Information about the paid media bought by the user
+	PaidMediaPayload string      `json:"paid_media_payload,omitempty"` // Optional. Bot-specified paid media payload
 }
 
 func (TransactionPartnerUser) IsTransactionPartner() {}

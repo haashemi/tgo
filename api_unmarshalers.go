@@ -164,6 +164,8 @@ func unmarshalReactionType(rawBytes json.RawMessage) (data ReactionType, err err
 		data = &ReactionTypeEmoji{}
 	case "custom_emoji":
 		data = &ReactionTypeCustomEmoji{}
+	case "paid":
+		data = &ReactionTypePaid{}
 	default:
 		return nil, errors.New("unknown type")
 	}
