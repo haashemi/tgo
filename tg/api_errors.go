@@ -1,4 +1,4 @@
-package tgo
+package tg
 
 import (
 	"regexp"
