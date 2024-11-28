@@ -304,10 +304,14 @@ func unmarshalTransactionPartner(rawBytes json.RawMessage) (data TransactionPart
 	}
 
 	switch temp.Type {
-	case "fragment":
-		data = &TransactionPartnerFragment{}
 	case "user":
 		data = &TransactionPartnerUser{}
+	case "fragment":
+		data = &TransactionPartnerFragment{}
+	case "telegram_ads":
+		data = &TransactionPartnerTelegramAds{}
+	case "telegram_api":
+		data = &TransactionPartnerTelegramApi{}
 	case "other":
 		data = &TransactionPartnerOther{}
 	default:

@@ -226,7 +226,7 @@ type ChatFullInfo struct {
 
 // Message represents a message.
 type Message struct {
-	MessageId                     int64                          `json:"message_id"`                                  // Unique message identifier inside this chat
+	MessageId                     int64                          `json:"message_id"`                                  // Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
 	MessageThreadId               int64                          `json:"message_thread_id,omitempty"`                 // Optional. Unique identifier of a message thread to which the message belongs; for supergroups only
 	From                          *User                          `json:"from,omitempty"`                              // Optional. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
 	SenderChat                    *Chat                          `json:"sender_chat,omitempty"`                       // Optional. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
@@ -321,7 +321,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 	}
 
 	type temp struct {
-		MessageId                     int64                          `json:"message_id"`                                  // Unique message identifier inside this chat
+		MessageId                     int64                          `json:"message_id"`                                  // Unique message identifier inside this chat. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
 		MessageThreadId               int64                          `json:"message_thread_id,omitempty"`                 // Optional. Unique identifier of a message thread to which the message belongs; for supergroups only
 		From                          *User                          `json:"from,omitempty"`                              // Optional. Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats
 		SenderChat                    *Chat                          `json:"sender_chat,omitempty"`                       // Optional. Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats.
@@ -514,7 +514,7 @@ func (x *Message) UnmarshalJSON(rawBytes []byte) (err error) {
 
 // MessageId represents a unique message identifier.
 type MessageId struct {
-	MessageId int64 `json:"message_id"` // Unique message identifier
+	MessageId int64 `json:"message_id"` // Unique message identifier. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent
 }
 
 // InaccessibleMessage describes a message that was deleted or is otherwise inaccessible to the bot.
@@ -535,7 +535,7 @@ type MaybeInaccessibleMessage interface {
 
 // MessageEntity represents one special entity in a text message. For example, hashtags, usernames, URLs, etc.
 type MessageEntity struct {
-	Type          string `json:"type"`                      // Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag), “cashtag” ($USD), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers)
+	Type          string `json:"type"`                      // Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers)
 	Offset        int64  `json:"offset"`                    // Offset in UTF-16 code units to the start of the entity
 	Length        int64  `json:"length"`                    // Length of the entity in UTF-16 code units
 	Url           string `json:"url,omitempty"`             // Optional. For “text_link” only, URL that will be opened after user taps on the text
@@ -1356,6 +1356,7 @@ type InlineKeyboardButton struct {
 	SwitchInlineQuery            string                       `json:"switch_inline_query,omitempty"`              // Optional. If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent on behalf of a Telegram Business account.
 	SwitchInlineQueryCurrentChat string                       `json:"switch_inline_query_current_chat,omitempty"` // Optional. If set, pressing the button will insert the bot's username and the specified inline query in the current chat's input field. May be empty, in which case only the bot's username will be inserted.This offers a quick way for the user to open your bot in inline mode in the same chat - good for selecting something from multiple options. Not supported in channels and for messages sent on behalf of a Telegram Business account.
 	SwitchInlineQueryChosenChat  *SwitchInlineQueryChosenChat `json:"switch_inline_query_chosen_chat,omitempty"`  // Optional. If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent on behalf of a Telegram Business account.
+	CopyText                     *CopyTextButton              `json:"copy_text,omitempty"`                        // Optional. Description of the button that copies the specified text to the clipboard.
 	CallbackGame                 *CallbackGame                `json:"callback_game,omitempty"`                    // Optional. Description of the game that will be launched when the user presses the button.NOTE: This type of button must always be the first button in the first row.
 	Pay                          bool                         `json:"pay,omitempty"`                              // Optional. Specify True, to send a Pay button. Substrings “” and “XTR” in the buttons's text will be replaced with a Telegram Star icon.NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages.
 }
@@ -1378,6 +1379,11 @@ type SwitchInlineQueryChosenChat struct {
 	AllowBotChats     bool   `json:"allow_bot_chats,omitempty"`     // Optional. True, if private chats with bots can be chosen
 	AllowGroupChats   bool   `json:"allow_group_chats,omitempty"`   // Optional. True, if group and supergroup chats can be chosen
 	AllowChannelChats bool   `json:"allow_channel_chats,omitempty"` // Optional. True, if channel chats can be chosen
+}
+
+// CopyTextButton represents an inline keyboard button that copies specified text to the clipboard.
+type CopyTextButton struct {
+	Text string `json:"text"` // The text to be copied to the clipboard; 1-256 characters
 }
 
 // CallbackQuery represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present.
@@ -2367,6 +2373,7 @@ type SendMessage struct {
 	LinkPreviewOptions   *LinkPreviewOptions `json:"link_preview_options,omitempty"`   // Link preview generation options for the message
 	DisableNotification  bool                `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool                `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast   bool                `json:"allow_paid_broadcast,omitempty"`   // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId      string              `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters    `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup         `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -2419,6 +2426,7 @@ type CopyMessage struct {
 	ShowCaptionAboveMedia bool             `json:"show_caption_above_media,omitempty"` // Pass True, if the caption must be shown above the message media. Ignored if a new caption isn't specified.
 	DisableNotification   bool             `json:"disable_notification,omitempty"`     // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent        bool             `json:"protect_content,omitempty"`          // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast    bool             `json:"allow_paid_broadcast,omitempty"`     // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`         // Description of the message to reply to
 	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`             // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -2457,6 +2465,7 @@ type SendPhoto struct {
 	HasSpoiler            bool             `json:"has_spoiler,omitempty"`              // Pass True if the photo needs to be covered with a spoiler animation
 	DisableNotification   bool             `json:"disable_notification,omitempty"`     // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent        bool             `json:"protect_content,omitempty"`          // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast    bool             `json:"allow_paid_broadcast,omitempty"`     // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId       string           `json:"message_effect_id,omitempty"`        // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`         // Description of the message to reply to
 	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`             // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -2513,6 +2522,9 @@ func (x *SendPhoto) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.AllowPaidBroadcast {
+		payload["allow_paid_broadcast"] = strconv.FormatBool(x.AllowPaidBroadcast)
+	}
 	if x.MessageEffectId != "" {
 		payload["message_effect_id"] = x.MessageEffectId
 	}
@@ -2562,6 +2574,7 @@ type SendAudio struct {
 	Thumbnail            *InputFile       `json:"thumbnail,omitempty"`              // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast   bool             `json:"allow_paid_broadcast,omitempty"`   // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -2626,6 +2639,9 @@ func (x *SendAudio) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.AllowPaidBroadcast {
+		payload["allow_paid_broadcast"] = strconv.FormatBool(x.AllowPaidBroadcast)
+	}
 	if x.MessageEffectId != "" {
 		payload["message_effect_id"] = x.MessageEffectId
 	}
@@ -2673,6 +2689,7 @@ type SendDocument struct {
 	DisableContentTypeDetection bool             `json:"disable_content_type_detection,omitempty"` // Disables automatic server-side content type detection for files uploaded using multipart/form-data
 	DisableNotification         bool             `json:"disable_notification,omitempty"`           // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent              bool             `json:"protect_content,omitempty"`                // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast          bool             `json:"allow_paid_broadcast,omitempty"`           // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId             string           `json:"message_effect_id,omitempty"`              // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters             *ReplyParameters `json:"reply_parameters,omitempty"`               // Description of the message to reply to
 	ReplyMarkup                 ReplyMarkup      `json:"reply_markup,omitempty"`                   // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -2731,6 +2748,9 @@ func (x *SendDocument) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.AllowPaidBroadcast {
+		payload["allow_paid_broadcast"] = strconv.FormatBool(x.AllowPaidBroadcast)
+	}
 	if x.MessageEffectId != "" {
 		payload["message_effect_id"] = x.MessageEffectId
 	}
@@ -2782,6 +2802,7 @@ type SendVideo struct {
 	SupportsStreaming     bool             `json:"supports_streaming,omitempty"`       // Pass True if the uploaded video is suitable for streaming
 	DisableNotification   bool             `json:"disable_notification,omitempty"`     // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent        bool             `json:"protect_content,omitempty"`          // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast    bool             `json:"allow_paid_broadcast,omitempty"`     // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId       string           `json:"message_effect_id,omitempty"`        // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`         // Description of the message to reply to
 	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`             // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -2855,6 +2876,9 @@ func (x *SendVideo) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.AllowPaidBroadcast {
+		payload["allow_paid_broadcast"] = strconv.FormatBool(x.AllowPaidBroadcast)
+	}
 	if x.MessageEffectId != "" {
 		payload["message_effect_id"] = x.MessageEffectId
 	}
@@ -2905,6 +2929,7 @@ type SendAnimation struct {
 	HasSpoiler            bool             `json:"has_spoiler,omitempty"`              // Pass True if the animation needs to be covered with a spoiler animation
 	DisableNotification   bool             `json:"disable_notification,omitempty"`     // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent        bool             `json:"protect_content,omitempty"`          // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast    bool             `json:"allow_paid_broadcast,omitempty"`     // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId       string           `json:"message_effect_id,omitempty"`        // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`         // Description of the message to reply to
 	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`             // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -2975,6 +3000,9 @@ func (x *SendAnimation) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.AllowPaidBroadcast {
+		payload["allow_paid_broadcast"] = strconv.FormatBool(x.AllowPaidBroadcast)
+	}
 	if x.MessageEffectId != "" {
 		payload["message_effect_id"] = x.MessageEffectId
 	}
@@ -3020,6 +3048,7 @@ type SendVoice struct {
 	Duration             int64            `json:"duration,omitempty"`               // Duration of the voice message in seconds
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast   bool             `json:"allow_paid_broadcast,omitempty"`   // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -3073,6 +3102,9 @@ func (x *SendVoice) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.AllowPaidBroadcast {
+		payload["allow_paid_broadcast"] = strconv.FormatBool(x.AllowPaidBroadcast)
+	}
 	if x.MessageEffectId != "" {
 		payload["message_effect_id"] = x.MessageEffectId
 	}
@@ -3117,6 +3149,7 @@ type SendVideoNote struct {
 	Thumbnail            *InputFile       `json:"thumbnail,omitempty"`              // Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. More information on Sending Files »
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast   bool             `json:"allow_paid_broadcast,omitempty"`   // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -3165,6 +3198,9 @@ func (x *SendVideoNote) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.AllowPaidBroadcast {
+		payload["allow_paid_broadcast"] = strconv.FormatBool(x.AllowPaidBroadcast)
+	}
 	if x.MessageEffectId != "" {
 		payload["message_effect_id"] = x.MessageEffectId
 	}
@@ -3211,6 +3247,7 @@ type SendPaidMedia struct {
 	ShowCaptionAboveMedia bool             `json:"show_caption_above_media,omitempty"` // Pass True, if the caption must be shown above the message media
 	DisableNotification   bool             `json:"disable_notification,omitempty"`     // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent        bool             `json:"protect_content,omitempty"`          // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast    bool             `json:"allow_paid_broadcast,omitempty"`     // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	ReplyParameters       *ReplyParameters `json:"reply_parameters,omitempty"`         // Description of the message to reply to
 	ReplyMarkup           ReplyMarkup      `json:"reply_markup,omitempty"`             // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
 }
@@ -3269,6 +3306,9 @@ func (x *SendPaidMedia) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.AllowPaidBroadcast {
+		payload["allow_paid_broadcast"] = strconv.FormatBool(x.AllowPaidBroadcast)
+	}
 	if x.ReplyParameters != nil {
 		if bb, err := json.Marshal(x.ReplyParameters); err != nil {
 			return nil, err
@@ -3307,6 +3347,7 @@ type SendMediaGroup struct {
 	Media                []InputMedia     `json:"media"`                            // A JSON-serialized array describing messages to be sent, must include 2-10 items
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends messages silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent messages from forwarding and saving
+	AllowPaidBroadcast   bool             `json:"allow_paid_broadcast,omitempty"`   // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 }
@@ -3348,6 +3389,9 @@ func (x *SendMediaGroup) getParams() (map[string]string, error) {
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
 	}
+	if x.AllowPaidBroadcast {
+		payload["allow_paid_broadcast"] = strconv.FormatBool(x.AllowPaidBroadcast)
+	}
 	if x.MessageEffectId != "" {
 		payload["message_effect_id"] = x.MessageEffectId
 	}
@@ -3387,6 +3431,7 @@ type SendLocation struct {
 	ProximityAlertRadius int64            `json:"proximity_alert_radius,omitempty"` // For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast   bool             `json:"allow_paid_broadcast,omitempty"`   // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -3412,6 +3457,7 @@ type SendVenue struct {
 	GooglePlaceType      string           `json:"google_place_type,omitempty"`      // Google Places type of the venue. (See supported types.)
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast   bool             `json:"allow_paid_broadcast,omitempty"`   // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -3433,6 +3479,7 @@ type SendContact struct {
 	Vcard                string           `json:"vcard,omitempty"`                  // Additional data about the contact in the form of a vCard, 0-2048 bytes
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast   bool             `json:"allow_paid_broadcast,omitempty"`   // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -3464,6 +3511,7 @@ type SendPoll struct {
 	IsClosed              bool               `json:"is_closed,omitempty"`               // Pass True if the poll needs to be immediately closed. This can be useful for poll preview.
 	DisableNotification   bool               `json:"disable_notification,omitempty"`    // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent        bool               `json:"protect_content,omitempty"`         // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast    bool               `json:"allow_paid_broadcast,omitempty"`    // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId       string             `json:"message_effect_id,omitempty"`       // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters       *ReplyParameters   `json:"reply_parameters,omitempty"`        // Description of the message to reply to
 	ReplyMarkup           ReplyMarkup        `json:"reply_markup,omitempty"`            // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -3482,6 +3530,7 @@ type SendDice struct {
 	Emoji                string           `json:"emoji,omitempty"`                  // Emoji on which the dice throw animation is based. Currently, must be one of “”, “”, “”, “”, “”, or “”. Dice can have values 1-6 for “”, “” and “”, values 1-5 for “” and “”, and values 1-64 for “”. Defaults to “”
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding
+	AllowPaidBroadcast   bool             `json:"allow_paid_broadcast,omitempty"`   // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -3536,6 +3585,18 @@ type GetUserProfilePhotos struct {
 // getUserProfilePhotos is used to get a list of profile pictures for a user. Returns a UserProfilePhotos object.
 func (api *API) GetUserProfilePhotos(payload *GetUserProfilePhotos) (*UserProfilePhotos, error) {
 	return callJson[*UserProfilePhotos](api, "getUserProfilePhotos", payload)
+}
+
+// Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method requestEmojiStatusAccess. Returns True on success.
+type SetUserEmojiStatus struct {
+	UserId                    int64  `json:"user_id"`                                // Unique identifier of the target user
+	EmojiStatusCustomEmojiId  string `json:"emoji_status_custom_emoji_id,omitempty"` // Custom emoji identifier of the emoji status to set. Pass an empty string to remove the status.
+	EmojiStatusExpirationDate int64  `json:"emoji_status_expiration_date,omitempty"` // Expiration date of the emoji status, if any
+}
+
+// Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method requestEmojiStatusAccess. Returns True on success.
+func (api *API) SetUserEmojiStatus(payload *SetUserEmojiStatus) (bool, error) {
+	return callJson[bool](api, "setUserEmojiStatus", payload)
 }
 
 // getFile is used to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a File object is returned. The file can then be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile again.
@@ -4301,7 +4362,7 @@ func (api *API) EditMessageCaption(payload *EditMessageCaption) (*Message, error
 	return callJson[*Message](api, "editMessageCaption", payload)
 }
 
-// editMessageMedia is used to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
+// editMessageMedia is used to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 type EditMessageMedia struct {
 	BusinessConnectionId string                `json:"business_connection_id,omitempty"` // Unique identifier of the business connection on behalf of which the message to be edited was sent
 	ChatId               ChatID                `json:"chat_id,omitempty"`                // Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
@@ -4356,7 +4417,7 @@ func (x *EditMessageMedia) getParams() (map[string]string, error) {
 	return payload, nil
 }
 
-// editMessageMedia is used to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
+// editMessageMedia is used to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
 func (api *API) EditMessageMedia(payload *EditMessageMedia) (*Message, error) {
 	if files := payload.getFiles(); len(files) != 0 {
 		params, err := payload.getParams()
@@ -4517,6 +4578,7 @@ type SendSticker struct {
 	Emoji                string           `json:"emoji,omitempty"`                  // Emoji associated with the sticker; only for just uploaded stickers
 	DisableNotification  bool             `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool             `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast   bool             `json:"allow_paid_broadcast,omitempty"`   // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId      string           `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          ReplyMarkup      `json:"reply_markup,omitempty"`           // Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user
@@ -4556,6 +4618,9 @@ func (x *SendSticker) getParams() (map[string]string, error) {
 	}
 	if x.ProtectContent {
 		payload["protect_content"] = strconv.FormatBool(x.ProtectContent)
+	}
+	if x.AllowPaidBroadcast {
+		payload["allow_paid_broadcast"] = strconv.FormatBool(x.AllowPaidBroadcast)
 	}
 	if x.MessageEffectId != "" {
 		payload["message_effect_id"] = x.MessageEffectId
@@ -4919,6 +4984,39 @@ type DeleteStickerSet struct {
 // deleteStickerSet is used to delete a sticker set that was created by the bot. Returns True on success.
 func (api *API) DeleteStickerSet(payload *DeleteStickerSet) (bool, error) {
 	return callJson[bool](api, "deleteStickerSet", payload)
+}
+
+// Gift represents a gift that can be sent by the bot.
+type Gift struct {
+	Id             string  `json:"id"`                        // Unique identifier of the gift
+	Sticker        Sticker `json:"sticker"`                   // The sticker that represents the gift
+	StarCount      int64   `json:"star_count"`                // The number of Telegram Stars that must be paid to send the sticker
+	TotalCount     int64   `json:"total_count,omitempty"`     // Optional. The total number of the gifts of this type that can be sent; for limited gifts only
+	RemainingCount int64   `json:"remaining_count,omitempty"` // Optional. The number of remaining gifts of this type that can be sent; for limited gifts only
+}
+
+// Gifts represent a list of gifts.
+type Gifts struct {
+	Gifts []*Gift `json:"gifts"` // The list of gifts
+}
+
+// Returns the list of gifts that can be sent by the bot to users. Requires no parameters. Returns a Gifts object.
+func (api *API) GetAvailableGifts() (*Gifts, error) {
+	return callJson[*Gifts](api, "getAvailableGifts", nil)
+}
+
+// Sends a gift to the given user. The gift can't be converted to Telegram Stars by the user. Returns True on success.
+type SendGift struct {
+	UserId        int64            `json:"user_id"`                   // Unique identifier of the target user that will receive the gift
+	GiftId        string           `json:"gift_id"`                   // Identifier of the gift
+	Text          string           `json:"text,omitempty"`            // Text that will be shown along with the gift; 0-255 characters
+	TextParseMode string           `json:"text_parse_mode,omitempty"` // Mode for parsing entities in the text. See formatting options for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom_emoji” are ignored.
+	TextEntities  []*MessageEntity `json:"text_entities,omitempty"`   // A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom_emoji” are ignored.
+}
+
+// Sends a gift to the given user. The gift can't be converted to Telegram Stars by the user. Returns True on success.
+func (api *API) SendGift(payload *SendGift) (bool, error) {
+	return callJson[bool](api, "sendGift", payload)
 }
 
 // InlineQuery represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results.
@@ -6251,6 +6349,27 @@ type SentWebAppMessage struct {
 	InlineMessageId string `json:"inline_message_id,omitempty"` // Optional. Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message.
 }
 
+// Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object.
+type SavePreparedInlineMessage struct {
+	UserId            int64             `json:"user_id"`                       // Unique identifier of the target user that can use the prepared message
+	Result            InlineQueryResult `json:"result"`                        // A JSON-serialized object describing the message to be sent
+	AllowUserChats    bool              `json:"allow_user_chats,omitempty"`    // Pass True if the message can be sent to private chats with users
+	AllowBotChats     bool              `json:"allow_bot_chats,omitempty"`     // Pass True if the message can be sent to private chats with bots
+	AllowGroupChats   bool              `json:"allow_group_chats,omitempty"`   // Pass True if the message can be sent to group and supergroup chats
+	AllowChannelChats bool              `json:"allow_channel_chats,omitempty"` // Pass True if the message can be sent to channel chats
+}
+
+// Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object.
+func (api *API) SavePreparedInlineMessage(payload *SavePreparedInlineMessage) (*PreparedInlineMessage, error) {
+	return callJson[*PreparedInlineMessage](api, "savePreparedInlineMessage", payload)
+}
+
+// Describes an inline message to be sent by a user of a Mini App.
+type PreparedInlineMessage struct {
+	Id             string `json:"id"`              // Unique identifier of the prepared message
+	ExpirationDate int64  `json:"expiration_date"` // Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used
+}
+
 // sendInvoice is used to send invoices. On success, the sent Message is returned.
 type SendInvoice struct {
 	ChatId                    ChatID                `json:"chat_id"`                                 // Unique identifier for the target chat or username of the target channel (in the format @channelusername)
@@ -6278,6 +6397,7 @@ type SendInvoice struct {
 	IsFlexible                bool                  `json:"is_flexible,omitempty"`                   // Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars.
 	DisableNotification       bool                  `json:"disable_notification,omitempty"`          // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent            bool                  `json:"protect_content,omitempty"`               // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast        bool                  `json:"allow_paid_broadcast,omitempty"`          // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId           string                `json:"message_effect_id,omitempty"`             // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters           *ReplyParameters      `json:"reply_parameters,omitempty"`              // Description of the message to reply to
 	ReplyMarkup               *InlineKeyboardMarkup `json:"reply_markup,omitempty"`                  // A JSON-serialized object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button.
@@ -6290,12 +6410,14 @@ func (api *API) SendInvoice(payload *SendInvoice) (*Message, error) {
 
 // createInvoiceLink is used to create a link for an invoice. Returns the created invoice link as String on success.
 type CreateInvoiceLink struct {
+	BusinessConnectionId      string          `json:"business_connection_id,omitempty"`        // Unique identifier of the business connection on behalf of which the link will be created. For payments in Telegram Stars only.
 	Title                     string          `json:"title"`                                   // Product name, 1-32 characters
 	Description               string          `json:"description"`                             // Product description, 1-255 characters
 	Payload                   string          `json:"payload"`                                 // Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
 	ProviderToken             string          `json:"provider_token,omitempty"`                // Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars.
 	Currency                  string          `json:"currency"`                                // Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars.
 	Prices                    []*LabeledPrice `json:"prices"`                                  // Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
+	SubscriptionPeriod        int64           `json:"subscription_period,omitempty"`           // The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user.
 	MaxTipAmount              int64           `json:"max_tip_amount,omitempty"`                // The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
 	SuggestedTipAmounts       []int64         `json:"suggested_tip_amounts,omitempty"`         // A JSON-serialized array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount.
 	ProviderData              string          `json:"provider_data,omitempty"`                 // JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
@@ -6364,6 +6486,18 @@ func (api *API) RefundStarPayment(payload *RefundStarPayment) (bool, error) {
 	return callJson[bool](api, "refundStarPayment", payload)
 }
 
+// Allows the bot to cancel or re-enable extension of a subscription paid in Telegram Stars. Returns True on success.
+type EditUserStarSubscription struct {
+	UserId                  int64  `json:"user_id"`                    // Identifier of the user whose subscription will be edited
+	TelegramPaymentChargeId string `json:"telegram_payment_charge_id"` // Telegram payment identifier for the subscription
+	IsCanceled              bool   `json:"is_canceled"`                // Pass True to cancel extension of the user subscription; the subscription must be active up to the end of the current subscription period. Pass False to allow the user to re-enable a subscription that was previously canceled by the bot.
+}
+
+// Allows the bot to cancel or re-enable extension of a subscription paid in Telegram Stars. Returns True on success.
+func (api *API) EditUserStarSubscription(payload *EditUserStarSubscription) (bool, error) {
+	return callJson[bool](api, "editUserStarSubscription", payload)
+}
+
 // LabeledPrice represents a portion of the price for goods or services.
 type LabeledPrice struct {
 	Label  string `json:"label"`  // Portion label
@@ -6406,13 +6540,16 @@ type ShippingOption struct {
 
 // SuccessfulPayment contains basic information about a successful payment.
 type SuccessfulPayment struct {
-	Currency                string     `json:"currency"`                     // Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars
-	TotalAmount             int64      `json:"total_amount"`                 // Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
-	InvoicePayload          string     `json:"invoice_payload"`              // Bot-specified invoice payload
-	ShippingOptionId        string     `json:"shipping_option_id,omitempty"` // Optional. Identifier of the shipping option chosen by the user
-	OrderInfo               *OrderInfo `json:"order_info,omitempty"`         // Optional. Order information provided by the user
-	TelegramPaymentChargeId string     `json:"telegram_payment_charge_id"`   // Telegram payment identifier
-	ProviderPaymentChargeId string     `json:"provider_payment_charge_id"`   // Provider payment identifier
+	Currency                   string     `json:"currency"`                               // Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars
+	TotalAmount                int64      `json:"total_amount"`                           // Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
+	InvoicePayload             string     `json:"invoice_payload"`                        // Bot-specified invoice payload
+	SubscriptionExpirationDate int64      `json:"subscription_expiration_date,omitempty"` // Optional. Expiration date of the subscription, in Unix time; for recurring payments only
+	IsRecurring                bool       `json:"is_recurring,omitempty"`                 // Optional. True, if the payment is a recurring payment for a subscription
+	IsFirstRecurring           bool       `json:"is_first_recurring,omitempty"`           // Optional. True, if the payment is the first payment for a subscription
+	ShippingOptionId           string     `json:"shipping_option_id,omitempty"`           // Optional. Identifier of the shipping option chosen by the user
+	OrderInfo                  *OrderInfo `json:"order_info,omitempty"`                   // Optional. Order information provided by the user
+	TelegramPaymentChargeId    string     `json:"telegram_payment_charge_id"`             // Telegram payment identifier
+	ProviderPaymentChargeId    string     `json:"provider_payment_charge_id"`             // Provider payment identifier
 }
 
 // RefundedPayment contains basic information about a refunded payment.
@@ -6480,7 +6617,7 @@ type RevenueWithdrawalStateFailed struct {
 func (RevenueWithdrawalStateFailed) IsRevenueWithdrawalState() {}
 
 // TransactionPartner describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
-// TransactionPartnerUser, TransactionPartnerFragment, TransactionPartnerTelegramAds, TransactionPartnerOther
+// TransactionPartnerUser, TransactionPartnerFragment, TransactionPartnerTelegramAds, TransactionPartnerTelegramApi, TransactionPartnerOther
 type TransactionPartner interface {
 	// IsTransactionPartner does nothing and is only used to enforce type-safety
 	IsTransactionPartner()
@@ -6488,11 +6625,13 @@ type TransactionPartner interface {
 
 // Describes a transaction with a user.
 type TransactionPartnerUser struct {
-	Type             string      `json:"type"`                         // Type of the transaction partner, always “user”
-	User             User        `json:"user"`                         // Information about the user
-	InvoicePayload   string      `json:"invoice_payload,omitempty"`    // Optional. Bot-specified invoice payload
-	PaidMedia        []PaidMedia `json:"paid_media,omitempty"`         // Optional. Information about the paid media bought by the user
-	PaidMediaPayload string      `json:"paid_media_payload,omitempty"` // Optional. Bot-specified paid media payload
+	Type               string      `json:"type"`                          // Type of the transaction partner, always “user”
+	User               User        `json:"user"`                          // Information about the user
+	InvoicePayload     string      `json:"invoice_payload,omitempty"`     // Optional. Bot-specified invoice payload
+	SubscriptionPeriod int64       `json:"subscription_period,omitempty"` // Optional. The duration of the paid subscription
+	PaidMedia          []PaidMedia `json:"paid_media,omitempty"`          // Optional. Information about the paid media bought by the user
+	PaidMediaPayload   string      `json:"paid_media_payload,omitempty"`  // Optional. Bot-specified paid media payload
+	Gift               *Gift       `json:"gift,omitempty"`                // Optional. The gift sent to the user by the bot
 }
 
 func (TransactionPartnerUser) IsTransactionPartner() {}
@@ -6537,6 +6676,14 @@ type TransactionPartnerTelegramAds struct {
 
 func (TransactionPartnerTelegramAds) IsTransactionPartner() {}
 
+// Describes a transaction with payment for paid broadcasting.
+type TransactionPartnerTelegramApi struct {
+	Type         string `json:"type"`          // Type of the transaction partner, always “telegram_api”
+	RequestCount int64  `json:"request_count"` // The number of successful requests that exceeded regular limits and were therefore billed
+}
+
+func (TransactionPartnerTelegramApi) IsTransactionPartner() {}
+
 // Describes a transaction with an unknown source or recipient.
 type TransactionPartnerOther struct {
 	Type string `json:"type"` // Type of the transaction partner, always “other”
@@ -6546,7 +6693,7 @@ func (TransactionPartnerOther) IsTransactionPartner() {}
 
 // Describes a Telegram Star transaction.
 type StarTransaction struct {
-	Id       string             `json:"id"`                 // Unique identifier of the transaction. Coincides with the identifer of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users.
+	Id       string             `json:"id"`                 // Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users.
 	Amount   int64              `json:"amount"`             // Number of Telegram Stars transferred by the transaction
 	Date     int64              `json:"date"`               // Date the transaction was created in Unix time
 	Source   TransactionPartner `json:"source,omitempty"`   // Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
@@ -6559,7 +6706,7 @@ func (x *StarTransaction) UnmarshalJSON(rawBytes []byte) (err error) {
 	}
 
 	type temp struct {
-		Id       string          `json:"id"`                 // Unique identifier of the transaction. Coincides with the identifer of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users.
+		Id       string          `json:"id"`                 // Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users.
 		Amount   int64           `json:"amount"`             // Number of Telegram Stars transferred by the transaction
 		Date     int64           `json:"date"`               // Date the transaction was created in Unix time
 		Source   json.RawMessage `json:"source,omitempty"`   // Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
@@ -6748,6 +6895,7 @@ type SendGame struct {
 	GameShortName        string                `json:"game_short_name"`                  // Short name of the game, serves as the unique identifier for the game. Set up your games via @BotFather.
 	DisableNotification  bool                  `json:"disable_notification,omitempty"`   // Sends the message silently. Users will receive a notification with no sound.
 	ProtectContent       bool                  `json:"protect_content,omitempty"`        // Protects the contents of the sent message from forwarding and saving
+	AllowPaidBroadcast   bool                  `json:"allow_paid_broadcast,omitempty"`   // Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance
 	MessageEffectId      string                `json:"message_effect_id,omitempty"`      // Unique identifier of the message effect to be added to the message; for private chats only
 	ReplyParameters      *ReplyParameters      `json:"reply_parameters,omitempty"`       // Description of the message to reply to
 	ReplyMarkup          *InlineKeyboardMarkup `json:"reply_markup,omitempty"`           // A JSON-serialized object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game.
