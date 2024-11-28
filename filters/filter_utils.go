@@ -1,8 +1,8 @@
 package filters
 
-import "github.com/haashemi/tgo"
+import "github.com/haashemi/tgo/tg"
 
-func extractUpdate(update *tgo.Update) any {
+func extractUpdate(update *tg.Update) any {
 	switch {
 	case update.Message != nil:
 		return update.Message
@@ -37,16 +37,16 @@ func extractUpdate(update *tgo.Update) any {
 	return nil
 }
 
-func extractUpdateText(update *tgo.Update) string {
+func extractUpdateText(update *tg.Update) string {
 	switch data := extractUpdate(update).(type) {
-	case *tgo.Message:
+	case *tg.Message:
 		if data.Caption != "" {
 			return data.Caption
 		}
 		return data.Text
-	case *tgo.CallbackQuery:
+	case *tg.CallbackQuery:
 		return data.Data
-	case *tgo.InlineQuery:
+	case *tg.InlineQuery:
 		return data.Query
 	}
 

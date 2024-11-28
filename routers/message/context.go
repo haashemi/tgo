@@ -5,11 +5,12 @@ import (
 	"time"
 
 	"github.com/haashemi/tgo"
+	"github.com/haashemi/tgo/tg"
 )
 
 type Context struct {
 	// Message contains the raw received message
-	*tgo.Message
+	*tg.Message
 
 	// Bot is the bot instance which got the update.
 	Bot *tgo.Bot
@@ -48,7 +49,7 @@ func (m *Context) String() string {
 
 // Send sends a message into the current chat with the preferred ParseMode.
 // It will set the target ChatId if not set.
-func (ctx *Context) Send(msg tgo.Sendable) (*tgo.Message, error) {
+func (ctx *Context) Send(msg tgo.Sendable) (*tg.Message, error) {
 	if msg.GetChatID() == nil {
 		msg.SetChatID(ctx.Chat.Id)
 	}
@@ -58,7 +59,7 @@ func (ctx *Context) Send(msg tgo.Sendable) (*tgo.Message, error) {
 
 // Reply replies to the current message with the preferred ParseMode.
 // It will pass/override the ChatId and ReplyToMessageId field.
-func (ctx *Context) Reply(msg tgo.Replyable) (*tgo.Message, error) {
+func (ctx *Context) Reply(msg tgo.Replyable) (*tg.Message, error) {
 	msg.SetChatID(ctx.Chat.Id)
 	msg.SetReplyToMessageId(ctx.MessageId)
 
@@ -79,6 +80,6 @@ func (ctx *Context) Ask(msg tgo.Sendable, timeout time.Duration) (question, answ
 
 // Delete deletes the received message.
 func (ctx *Context) Delete() error {
-	_, err := ctx.Bot.DeleteMessage(&tgo.DeleteMessage{ChatId: tgo.ID(ctx.Chat.Id), MessageId: ctx.MessageId})
+	_, err := ctx.Bot.DeleteMessage(&tg.DeleteMessage{ChatId: tg.ID(ctx.Chat.Id), MessageId: ctx.MessageId})
 	return err
 }

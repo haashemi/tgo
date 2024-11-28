@@ -1,12 +1,15 @@
 package routers
 
-import "github.com/haashemi/tgo"
+import (
+	"github.com/haashemi/tgo"
+	"github.com/haashemi/tgo/tg"
+)
 
 // Handler is a basic handler used in Route
-type Handler func(bot *tgo.Bot, upd *tgo.Update)
+type Handler func(bot *tgo.Bot, upd *tg.Update)
 
 // Middleware is a basic middleware used in Router and Route
-type Middleware func(bot *tgo.Bot, upd *tgo.Update) (ok bool)
+type Middleware func(bot *tgo.Bot, upd *tg.Update) (ok bool)
 
 // Route is a basic route for the Router
 type Route struct {
@@ -40,7 +43,7 @@ func (r *Router) Handle(filter tgo.Filter, handler Handler, middlewares ...Middl
 func (r *Router) Setup(bot *tgo.Bot) error { return nil }
 
 // HandleUpdate implements tgo.Router interface
-func (r *Router) HandleUpdate(bot *tgo.Bot, upd *tgo.Update) (used bool) {
+func (r *Router) HandleUpdate(bot *tgo.Bot, upd *tg.Update) (used bool) {
 	for _, route := range r.routes {
 		if !route.filter.Check(upd) {
 			continue

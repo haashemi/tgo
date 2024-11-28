@@ -7,16 +7,17 @@ import (
 	"strings"
 
 	"github.com/haashemi/tgo"
+	"github.com/haashemi/tgo/tg"
 )
 
 // FilterFunc tests the update with its own filters.
-type FilterFunc func(update *tgo.Update) bool
+type FilterFunc func(update *tg.Update) bool
 
 // Filter does nothing and just holds a FilterFunc.
 type Filter struct{ f FilterFunc }
 
 // Check calls the FilterFunc and returns the result.
-func (f Filter) Check(update *tgo.Update) bool { return f.f(update) }
+func (f Filter) Check(update *tg.Update) bool { return f.f(update) }
 
 // NewFilter returns a Filter from FilterFunc f.
 func NewFilter(f FilterFunc) *Filter { return &Filter{f: f} }
@@ -25,7 +26,7 @@ func NewFilter(f FilterFunc) *Filter { return &Filter{f: f} }
 //
 // Currently works with Message's caption and text, CallbackQuery's data, and InlineQuery's query.
 func Text(text string) tgo.Filter {
-	return NewFilter(func(update *tgo.Update) bool {
+	return NewFilter(func(update *tg.Update) bool {
 		return extractUpdateText(update) == text
 	})
 }
@@ -34,7 +35,7 @@ func Text(text string) tgo.Filter {
 //
 // Currently works with Message's caption and text, CallbackQuery's data, and InlineQuery's query.
 func Texts(texts ...string) tgo.Filter {
-	return NewFilter(func(update *tgo.Update) bool {
+	return NewFilter(func(update *tg.Update) bool {
 		raw := extractUpdateText(update)
 
 		for _, text := range texts {
@@ -51,7 +52,7 @@ func Texts(texts ...string) tgo.Filter {
 //
 // Currently works with Message's caption and text, CallbackQuery's data, and InlineQuery's query.
 func WithPrefix(prefix string) tgo.Filter {
-	return NewFilter(func(update *tgo.Update) bool {
+	return NewFilter(func(update *tg.Update) bool {
 		return strings.HasPrefix(extractUpdateText(update), prefix)
 	})
 }
@@ -60,7 +61,7 @@ func WithPrefix(prefix string) tgo.Filter {
 //
 // Currently works with Message's caption and text, CallbackQuery's data, and InlineQuery's query.
 func WithSuffix(suffix string) tgo.Filter {
-	return NewFilter(func(update *tgo.Update) bool {
+	return NewFilter(func(update *tg.Update) bool {
 		return strings.HasSuffix(extractUpdateText(update), suffix)
 	})
 }
@@ -69,7 +70,7 @@ func WithSuffix(suffix string) tgo.Filter {
 //
 // Currently works with Message's caption and text, CallbackQuery's data, and InlineQuery's query.
 func Regex(reg *regexp.Regexp) tgo.Filter {
-	return NewFilter(func(update *tgo.Update) bool {
+	return NewFilter(func(update *tg.Update) bool {
 		return reg.MatchString(extractUpdateText(update))
 	})
 }
@@ -78,7 +79,7 @@ func Regex(reg *regexp.Regexp) tgo.Filter {
 //
 // Currently works with Message and CallbackQuery, and InlineQuery.
 func Whitelist(IDs ...int64) tgo.Filter {
-	return NewFilter(func(update *tgo.Update) bool {
+	return NewFilter(func(update *tg.Update) bool {
 		var senderID int64
 
 		if update.Message != nil {

@@ -7,6 +7,7 @@ import (
 	"github.com/haashemi/tgo"
 	"github.com/haashemi/tgo/filters"
 	"github.com/haashemi/tgo/routers/message"
+	"github.com/haashemi/tgo/tg"
 )
 
 const BotToken = "bot_token"
@@ -14,7 +15,7 @@ const BotToken = "bot_token"
 func main() {
 	bot := tgo.NewBot(BotToken, tgo.Options{
 		// it will set this parse mode for all api call via bot.Send, ctx.Send, and ctx.Reply
-		DefaultParseMode: tgo.ParseModeHTML,
+		DefaultParseMode: tg.ParseModeHTML,
 	})
 
 	// initialize a new router to handle messages
@@ -54,7 +55,7 @@ func Hi(ctx *message.Context) {
 	text := fmt.Sprintf("Hi <i>%s</i>!", senderFirstName)
 
 	// HTML Parse mode will be automatically set
-	ctx.Reply(&tgo.SendMessage{
+	ctx.Reply(&tg.SendMessage{
 		Text: text,
 	})
 }
@@ -62,5 +63,5 @@ func Hi(ctx *message.Context) {
 // Echo just echoes with text
 func Echo(ctx *message.Context) {
 	// get text or caption of the sent message and send it back!
-	ctx.Send(&tgo.SendMessage{Text: ctx.String()})
+	ctx.Send(&tg.SendMessage{Text: ctx.String()})
 }

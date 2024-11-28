@@ -6,11 +6,12 @@ import (
 
 	"github.com/haashemi/tgo"
 	"github.com/haashemi/tgo/routers/message"
+	"github.com/haashemi/tgo/tg"
 )
 
 type Context struct {
 	// CallbackQuery contains the raw received query
-	*tgo.CallbackQuery
+	*tg.CallbackQuery
 
 	// Bot is the bot instance which got the update.
 	Bot *tgo.Bot
@@ -28,13 +29,13 @@ func (ctx *Context) Session() *sync.Map {
 
 // Send sends a message into the message's chat if exist, otherwise sends in the sender's chat, with the preferred ParseMode.
 // It will set the target ChatId if not set.
-func (ctx *Context) Send(msg tgo.Sendable) (*tgo.Message, error) {
+func (ctx *Context) Send(msg tgo.Sendable) (*tg.Message, error) {
 	if msg.GetChatID() == nil {
 		if ctx.Message != nil {
 			switch ctxMsg := ctx.Message.(type) {
-			case *tgo.InaccessibleMessage:
+			case *tg.InaccessibleMessage:
 				msg.SetChatID(ctxMsg.Chat.Id)
-			case *tgo.Message:
+			case *tg.Message:
 				msg.SetChatID(ctxMsg.Chat.Id)
 			}
 		} else {
@@ -50,9 +51,9 @@ func (ctx *Context) Ask(msg tgo.Sendable, timeout time.Duration) (question, answ
 	chatID := ctx.From.Id
 	if ctx.Message != nil {
 		switch ctxMsg := ctx.Message.(type) {
-		case *tgo.InaccessibleMessage:
+		case *tg.InaccessibleMessage:
 			chatID = ctxMsg.Chat.Id
-		case *tgo.Message:
+		case *tg.Message:
 			chatID = ctxMsg.Chat.Id
 		}
 	}
@@ -67,7 +68,7 @@ func (ctx *Context) Ask(msg tgo.Sendable, timeout time.Duration) (question, answ
 
 // Answer answers to the sent callback query.
 // it fills the CallbackQueryId field by default.
-func (ctx *Context) Answer(options *tgo.AnswerCallbackQuery) error {
+func (ctx *Context) Answer(options *tg.AnswerCallbackQuery) error {
 	options.CallbackQueryId = ctx.CallbackQuery.Id
 
 	_, err := ctx.Bot.AnswerCallbackQuery(options)

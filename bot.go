@@ -6,26 +6,28 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/haashemi/tgo/tg"
 )
 
 // Sendable is an interface that represents any object that can be sent using an API client.
 type Sendable interface {
 	// GetChatID returns the chat ID associated with the sendable object.
-	GetChatID() ChatID
+	GetChatID() tg.ChatID
 
 	// SetChatID sets the chat ID for the sendable object.
 	SetChatID(id int64)
 
 	// Send sends the sendable object using the provided API client.
 	// It returns the sent message and any error encountered.
-	Send(api *API) (*Message, error)
+	Send(api *tg.API) (*tg.Message, error)
 }
 
 // ParseModeSettable is an interface that represents any object that can have its ParseMode set
 // Or in other words, messages with captions.
 type ParseModeSettable interface {
-	GetParseMode() ParseMode
-	SetParseMode(mode ParseMode)
+	GetParseMode() tg.ParseMode
+	SetParseMode(mode tg.ParseMode)
 }
 
 // Replyable is an interface that represents any object that can be replied to.
@@ -34,19 +36,19 @@ type Replyable interface {
 	SetReplyToMessageId(id int64)
 }
 
-type Filter interface{ Check(update *Update) bool }
+type Filter interface{ Check(update *tg.Update) bool }
 
 type Router interface {
 	Setup(bot *Bot) error
-	HandleUpdate(bot *Bot, upd *Update) (used bool)
+	HandleUpdate(bot *Bot, upd *tg.Update) (used bool)
 }
 
 type Bot struct {
-	*API // embedding the api to add all api methods to the bot
+	*tg.API // embedding the api to add all api methods to the bot
 
-	DefaultParseMode ParseMode
+	DefaultParseMode tg.ParseMode
 
-	asks   map[string]chan<- *Message
+	asks   map[string]chan<- *tg.Message
 	askMut sync.RWMutex
 
 	routers []Router
@@ -58,16 +60,16 @@ type Bot struct {
 type Options struct {
 	Host             string
 	Client           *http.Client
-	DefaultParseMode ParseMode
+	DefaultParseMode tg.ParseMode
 }
 
 func NewBot(token string, opts Options) (bot *Bot) {
-	api := NewAPI(token, opts.Host, opts.Client)
+	api := tg.NewAPI(token, opts.Host, opts.Client)
 
 	return &Bot{
 		API:              api,
 		DefaultParseMode: opts.DefaultParseMode,
-		asks:             make(map[string]chan<- *Message),
+		asks:             make(map[string]chan<- *tg.Message),
 	}
 }
 
@@ -94,9 +96,9 @@ func (bot *Bot) AddRouter(router Router) error {
 }
 
 // Send sends a message with the preferred ParseMode.
-func (b *Bot) Send(msg Sendable) (*Message, error) {
+func (b *Bot) Send(msg Sendable) (*tg.Message, error) {
 	if x, ok := msg.(ParseModeSettable); ok {
-		if x.GetParseMode() == ParseModeNone {
+		if x.GetParseMode() == tg.ParseModeNone {
 			x.SetParseMode(b.DefaultParseMode)
 		}
 	}
@@ -112,7 +114,7 @@ func (bot *Bot) StartPolling(timeoutSeconds int64, allowedUpdates ...string) err
 	var offset int64
 
 	for {
-		data, err := bot.GetUpdates(&GetUpdates{
+		data, err := bot.GetUpdates(&tg.GetUpdates{
 			Offset:         offset, // Is there any better way to do this? open an issue/pull-request if you know. thx.
 			Timeout:        timeoutSeconds,
 			AllowedUpdates: allowedUpdates,
@@ -128,7 +130,7 @@ func (bot *Bot) StartPolling(timeoutSeconds int64, allowedUpdates ...string) err
 		for _, update := range data {
 			offset = update.UpdateId + 1
 
-			go func(update *Update) {
+			go func(update *tg.Update) {
 				if update.Message != nil && bot.sendAnswerIfAsked(update.Message) {
 					return
 				}

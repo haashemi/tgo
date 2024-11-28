@@ -1,6 +1,9 @@
 package callback
 
-import "github.com/haashemi/tgo"
+import (
+	"github.com/haashemi/tgo"
+	"github.com/haashemi/tgo/tg"
+)
 
 type Handler func(ctx *Context)
 
@@ -33,7 +36,7 @@ func (r *Router) Handle(filter tgo.Filter, handler Handler, middlewares ...Middl
 func (r *Router) Setup(bot *tgo.Bot) error { return nil }
 
 // HandleUpdate implements tgo.Router interface
-func (r *Router) HandleUpdate(bot *tgo.Bot, upd *tgo.Update) (used bool) {
+func (r *Router) HandleUpdate(bot *tgo.Bot, upd *tg.Update) (used bool) {
 	if upd.CallbackQuery == nil {
 		return false
 	}

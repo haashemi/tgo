@@ -79,13 +79,13 @@ Here is an example:
 
 ```go
 // It can be with a variable, fastest way.
-var myInlineFilter = filters.NewFilter(func(update *tgo.Update) bool {
+var myInlineFilter = filters.NewFilter(func(update *tg.Update) bool {
     // your filter's logic goes here
 })
 
 // Or it can be its own separated function.
 func MyFilter() *tgo.Filter {
-    return filters.NewFilter(func(update *tgo.Update) bool {
+    return filters.NewFilter(func(update *tg.Update) bool {
         // your filter's logic goes here
     })
 }

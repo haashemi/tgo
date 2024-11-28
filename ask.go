@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/haashemi/tgo/tg"
 )
 
 // GetChatAndSenderID extracts and returns the chat ID and sender ID from a given message.
-func GetChatAndSenderID(msg *Message) (chatID, senderID int64) {
+func GetChatAndSenderID(msg *tg.Message) (chatID, senderID int64) {
 	chatID = msg.Chat.Id
 
 	if msg.From != nil {
@@ -28,8 +30,8 @@ func getAskUID(chatID, senderID int64) string {
 
 // waitForAnswer waits for an answer from the given UID within the specified timeout duration.
 // It returns the received answer message or an error if the timeout is exceeded.
-func (bot *Bot) waitForAnswer(uid string, timeout time.Duration) (*Message, error) {
-	waiter := make(chan *Message, 1)
+func (bot *Bot) waitForAnswer(uid string, timeout time.Duration) (*tg.Message, error) {
+	waiter := make(chan *tg.Message, 1)
 
 	bot.askMut.Lock()
 	bot.asks[uid] = waiter
@@ -57,7 +59,7 @@ func (bot *Bot) waitForAnswer(uid string, timeout time.Duration) (*Message, erro
 
 // sendAnswerIfAsked sends the message into the asks channel if it was a response to an ask.
 // It returns true if the message was the response to an ask or false otherwise.
-func (bot *Bot) sendAnswerIfAsked(msg *Message) (sent bool) {
+func (bot *Bot) sendAnswerIfAsked(msg *tg.Message) (sent bool) {
 	bot.askMut.RLock()
 	receiver, ok := bot.asks[getAskUID(GetChatAndSenderID(msg))]
 	bot.askMut.RUnlock()
@@ -72,7 +74,7 @@ func (bot *Bot) sendAnswerIfAsked(msg *Message) (sent bool) {
 
 // Ask sends a question message to the specified chat and waits for an answer within the given timeout duration.
 // It returns the question message, the received answer message, and any error that occurred.
-func (bot *Bot) Ask(chatId, userId int64, msg Sendable, timeout time.Duration) (question, answer *Message, err error) {
+func (bot *Bot) Ask(chatId, userId int64, msg Sendable, timeout time.Duration) (question, answer *tg.Message, err error) {
 	if msg.GetChatID() == nil {
 		msg.SetChatID(chatId)
 	}

@@ -4,11 +4,12 @@ import (
 	"strings"
 
 	"github.com/haashemi/tgo"
+	"github.com/haashemi/tgo/tg"
 )
 
 // IsPrivate checks if the message (and only message) is inside the private chat.
 func IsPrivate() tgo.Filter {
-	return NewFilter(func(update *tgo.Update) bool {
+	return NewFilter(func(update *tg.Update) bool {
 		if msg := update.Message; msg != nil {
 			// if message sender's id is equal to the chat-id,
 			// then it's a private message.
@@ -38,7 +39,7 @@ func Commands(botUsername string, cmds ...string) tgo.Filter {
 		botUsername = "@" + botUsername
 	}
 
-	return NewFilter(func(update *tgo.Update) bool {
+	return NewFilter(func(update *tg.Update) bool {
 		if msg := update.Message; msg != nil {
 			text := msg.Text
 			if text == "" {
