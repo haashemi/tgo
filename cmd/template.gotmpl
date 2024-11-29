@@ -15,26 +15,6 @@
 
 		{{ if or (eq .Name "InputMedia") (eq .Name "InputPaidMedia") }}getFiles() map[string]*InputFile{{ end }}
 	}
-
-	{{/*  Due to lack of knowledge and its complexity, I decided to write this functuon by hand.
-
-	{{ if .InterfaceOf }}
-		func unmarshal{{.Name}}(rawBytes json.RawMessage) (data {{.Name}}, err error) {
-			{{ range $index, $type := .InterfaceOf -}}
-				data{{$type}} := &{{$type}}{}
-				if err = json.Unmarshal(rawBytes, data{{$type}}); err == nil {
-					return data{{$type}}, nil
-				}{{if eq $index 0 -}} 
-					else if _, ok := err.(*json.UnmarshalTypeError); err != nil && !ok {
-						return nil, err
-					}
-				{{ end }}
-			{{ end }}
-
-			return nil, errors.New("unknown type")
-		}
-	{{ end }}
-	*/}}
 {{ end }}
 
 {{ define "type" }}
