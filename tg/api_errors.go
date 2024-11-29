@@ -5,7 +5,8 @@ import (
 	"time"
 )
 
-var RateLimitDescriptionRegex = regexp.MustCompile(`^Too Many Requests: retry after [0-9]+$`)
+// rateLimitDescriptionRegex is a regexp pattern to check if the error message is for rate-limit.
+var rateLimitDescriptionRegex = regexp.MustCompile(`^Too Many Requests: retry after [0-9]+$`)
 
 type Error struct {
 	ErrorCode   int                 `json:"error_code,omitempty"`
@@ -76,7 +77,7 @@ func IsRateLimitErr(err error) (retryAfter time.Duration, yes bool) {
 	}
 
 	codeMatches := tgErr.ErrorCode == 429
-	descriptionMatches := RateLimitDescriptionRegex.Match([]byte(tgErr.Description))
+	descriptionMatches := rateLimitDescriptionRegex.Match([]byte(tgErr.Description))
 
 	if codeMatches && descriptionMatches && tgErr.Parameters != nil {
 		return time.Duration(tgErr.Parameters.RetryAfter) * time.Second, true
