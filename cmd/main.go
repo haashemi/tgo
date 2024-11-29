@@ -46,9 +46,9 @@ func main() {
 	}
 
 	if mewB, err := format.Source(buf.Bytes()); err != nil {
-		os.WriteFile("tg/api_gen.go", buf.Bytes(), os.ModePerm)
+		os.WriteFile("tg/api_generated.go", buf.Bytes(), os.ModePerm)
 	} else {
-		os.WriteFile("tg/api_gen.go", mewB, os.ModePerm)
+		os.WriteFile("tg/api_generated.go", mewB, os.ModePerm)
 	}
 
 	log.Println("generated in", time.Since(startTime))
