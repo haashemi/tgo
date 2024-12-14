@@ -19,13 +19,13 @@ func (ID) IsChatID() {}
 type ParseMode string
 
 const (
-	// does not parse the message
+	// ParseModeNone does not parse the message
 	ParseModeNone ParseMode = ""
-	// parses the message as Markdown
+	// ParseModeMarkdown parses the message as Markdown
 	ParseModeMarkdown ParseMode = "Markdown"
-	// parses the message as Markdown but using telegram's V2 markdown
+	// ParseModeMarkdownV2 parses the message as Markdown but using telegram's V2 markdown
 	ParseModeMarkdownV2 ParseMode = "MarkdownV2"
-	// parses the message as HTML
+	// ParseModeHTML parses the message as HTML
 	ParseModeHTML ParseMode = "HTML"
 )
 
