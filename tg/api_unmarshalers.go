@@ -306,6 +306,8 @@ func unmarshalTransactionPartner(rawBytes json.RawMessage) (data TransactionPart
 	switch temp.Type {
 	case "user":
 		data = &TransactionPartnerUser{}
+	case "affiliate_program":
+		data = &TransactionPartnerAffiliateProgram{}
 	case "fragment":
 		data = &TransactionPartnerFragment{}
 	case "telegram_ads":

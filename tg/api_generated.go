@@ -6417,7 +6417,7 @@ type CreateInvoiceLink struct {
 	ProviderToken             string          `json:"provider_token,omitempty"`                // Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars.
 	Currency                  string          `json:"currency"`                                // Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars.
 	Prices                    []*LabeledPrice `json:"prices"`                                  // Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
-	SubscriptionPeriod        int64           `json:"subscription_period,omitempty"`           // The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user.
+	SubscriptionPeriod        int64           `json:"subscription_period,omitempty"`           // The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must no exceed 2500 Telegram Stars.
 	MaxTipAmount              int64           `json:"max_tip_amount,omitempty"`                // The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.
 	SuggestedTipAmounts       []int64         `json:"suggested_tip_amounts,omitempty"`         // A JSON-serialized array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount.
 	ProviderData              string          `json:"provider_data,omitempty"`                 // JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider.
@@ -6616,8 +6616,17 @@ type RevenueWithdrawalStateFailed struct {
 
 func (RevenueWithdrawalStateFailed) IsRevenueWithdrawalState() {}
 
+// Contains information about the affiliate that received a commission via this transaction.
+type AffiliateInfo struct {
+	AffiliateUser      *User `json:"affiliate_user,omitempty"`  // Optional. The bot or the user that received an affiliate commission if it was received by a bot or a user
+	AffiliateChat      *Chat `json:"affiliate_chat,omitempty"`  // Optional. The chat that received an affiliate commission if it was received by a chat
+	CommissionPerMille int64 `json:"commission_per_mille"`      // The number of Telegram Stars received by the affiliate for each 1000 Telegram Stars received by the bot from referred users
+	Amount             int64 `json:"amount"`                    // Integer amount of Telegram Stars received by the affiliate from the transaction, rounded to 0; can be negative for refunds
+	NanostarAmount     int64 `json:"nanostar_amount,omitempty"` // Optional. The number of 1/1000000000 shares of Telegram Stars received by the affiliate; from -999999999 to 999999999; can be negative for refunds
+}
+
 // TransactionPartner describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
-// TransactionPartnerUser, TransactionPartnerFragment, TransactionPartnerTelegramAds, TransactionPartnerTelegramApi, TransactionPartnerOther
+// TransactionPartnerUser, TransactionPartnerAffiliateProgram, TransactionPartnerFragment, TransactionPartnerTelegramAds, TransactionPartnerTelegramApi, TransactionPartnerOther
 type TransactionPartner interface {
 	// IsTransactionPartner does nothing and is only used to enforce type-safety
 	IsTransactionPartner()
@@ -6625,16 +6634,26 @@ type TransactionPartner interface {
 
 // Describes a transaction with a user.
 type TransactionPartnerUser struct {
-	Type               string      `json:"type"`                          // Type of the transaction partner, always “user”
-	User               User        `json:"user"`                          // Information about the user
-	InvoicePayload     string      `json:"invoice_payload,omitempty"`     // Optional. Bot-specified invoice payload
-	SubscriptionPeriod int64       `json:"subscription_period,omitempty"` // Optional. The duration of the paid subscription
-	PaidMedia          []PaidMedia `json:"paid_media,omitempty"`          // Optional. Information about the paid media bought by the user
-	PaidMediaPayload   string      `json:"paid_media_payload,omitempty"`  // Optional. Bot-specified paid media payload
-	Gift               *Gift       `json:"gift,omitempty"`                // Optional. The gift sent to the user by the bot
+	Type               string         `json:"type"`                          // Type of the transaction partner, always “user”
+	User               User           `json:"user"`                          // Information about the user
+	Affiliate          *AffiliateInfo `json:"affiliate,omitempty"`           // Optional. Information about the affiliate that received a commission via this transaction
+	InvoicePayload     string         `json:"invoice_payload,omitempty"`     // Optional. Bot-specified invoice payload
+	SubscriptionPeriod int64          `json:"subscription_period,omitempty"` // Optional. The duration of the paid subscription
+	PaidMedia          []PaidMedia    `json:"paid_media,omitempty"`          // Optional. Information about the paid media bought by the user
+	PaidMediaPayload   string         `json:"paid_media_payload,omitempty"`  // Optional. Bot-specified paid media payload
+	Gift               *Gift          `json:"gift,omitempty"`                // Optional. The gift sent to the user by the bot
 }
 
 func (TransactionPartnerUser) IsTransactionPartner() {}
+
+// Describes the affiliate program that issued the affiliate commission received via this transaction.
+type TransactionPartnerAffiliateProgram struct {
+	Type               string `json:"type"`                   // Type of the transaction partner, always “affiliate_program”
+	SponsorUser        *User  `json:"sponsor_user,omitempty"` // Optional. Information about the bot that sponsored the affiliate program
+	CommissionPerMille int64  `json:"commission_per_mille"`   // The number of Telegram Stars received by the bot for each 1000 Telegram Stars received by the affiliate program sponsor from referred users
+}
+
+func (TransactionPartnerAffiliateProgram) IsTransactionPartner() {}
 
 // Describes a withdrawal transaction with Fragment.
 type TransactionPartnerFragment struct {
@@ -6693,11 +6712,12 @@ func (TransactionPartnerOther) IsTransactionPartner() {}
 
 // Describes a Telegram Star transaction.
 type StarTransaction struct {
-	Id       string             `json:"id"`                 // Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users.
-	Amount   int64              `json:"amount"`             // Number of Telegram Stars transferred by the transaction
-	Date     int64              `json:"date"`               // Date the transaction was created in Unix time
-	Source   TransactionPartner `json:"source,omitempty"`   // Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
-	Receiver TransactionPartner `json:"receiver,omitempty"` // Optional. Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
+	Id             string             `json:"id"`                        // Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users.
+	Amount         int64              `json:"amount"`                    // Integer amount of Telegram Stars transferred by the transaction
+	NanostarAmount int64              `json:"nanostar_amount,omitempty"` // Optional. The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
+	Date           int64              `json:"date"`                      // Date the transaction was created in Unix time
+	Source         TransactionPartner `json:"source,omitempty"`          // Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
+	Receiver       TransactionPartner `json:"receiver,omitempty"`        // Optional. Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
 }
 
 func (x *StarTransaction) UnmarshalJSON(rawBytes []byte) (err error) {
@@ -6706,11 +6726,12 @@ func (x *StarTransaction) UnmarshalJSON(rawBytes []byte) (err error) {
 	}
 
 	type temp struct {
-		Id       string          `json:"id"`                 // Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users.
-		Amount   int64           `json:"amount"`             // Number of Telegram Stars transferred by the transaction
-		Date     int64           `json:"date"`               // Date the transaction was created in Unix time
-		Source   json.RawMessage `json:"source,omitempty"`   // Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
-		Receiver json.RawMessage `json:"receiver,omitempty"` // Optional. Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
+		Id             string          `json:"id"`                        // Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users.
+		Amount         int64           `json:"amount"`                    // Integer amount of Telegram Stars transferred by the transaction
+		NanostarAmount int64           `json:"nanostar_amount,omitempty"` // Optional. The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
+		Date           int64           `json:"date"`                      // Date the transaction was created in Unix time
+		Source         json.RawMessage `json:"source,omitempty"`          // Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions
+		Receiver       json.RawMessage `json:"receiver,omitempty"`        // Optional. Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions
 	}
 	raw := &temp{}
 
@@ -6731,6 +6752,7 @@ func (x *StarTransaction) UnmarshalJSON(rawBytes []byte) (err error) {
 	}
 	x.Id = raw.Id
 	x.Amount = raw.Amount
+	x.NanostarAmount = raw.NanostarAmount
 	x.Date = raw.Date
 
 	return nil
