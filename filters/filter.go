@@ -1,4 +1,4 @@
-// Filters are set of functions that can be used with routers to determine which
+// Package filters are set of functions that can be used with routers to determine which
 // handler should be called and which should not.
 package filters // import "github.com/haashemi/tgo/filters"
 
@@ -10,32 +10,20 @@ import (
 	"github.com/haashemi/tgo/tg"
 )
 
-// FilterFunc tests the update with its own filters.
-type FilterFunc func(update *tg.Update) bool
-
-// Filter does nothing and just holds a FilterFunc.
-type Filter struct{ f FilterFunc }
-
-// Check calls the FilterFunc and returns the result.
-func (f Filter) Check(update *tg.Update) bool { return f.f(update) }
-
-// NewFilter returns a Filter from FilterFunc f.
-func NewFilter(f FilterFunc) *Filter { return &Filter{f: f} }
-
 // Text checks the update's text is equal to the text.
 //
 // Currently works with Message's caption and text, CallbackQuery's data, and InlineQuery's query.
 func Text(text string) tgo.Filter {
-	return NewFilter(func(update *tg.Update) bool {
+	return func(update *tg.Update) bool {
 		return extractUpdateText(update) == text
-	})
+	}
 }
 
-// Text checks the update's text is in the texts.
+// Texts checks the update's text is in the texts.
 //
 // Currently works with Message's caption and text, CallbackQuery's data, and InlineQuery's query.
 func Texts(texts ...string) tgo.Filter {
-	return NewFilter(func(update *tg.Update) bool {
+	return func(update *tg.Update) bool {
 		raw := extractUpdateText(update)
 
 		for _, text := range texts {
@@ -45,41 +33,41 @@ func Texts(texts ...string) tgo.Filter {
 		}
 
 		return false
-	})
+	}
 }
 
 // WithPrefix tests whether the update's text begins with prefix.
 //
 // Currently works with Message's caption and text, CallbackQuery's data, and InlineQuery's query.
 func WithPrefix(prefix string) tgo.Filter {
-	return NewFilter(func(update *tg.Update) bool {
+	return func(update *tg.Update) bool {
 		return strings.HasPrefix(extractUpdateText(update), prefix)
-	})
+	}
 }
 
 // WithSuffix tests whether the update's text ends with suffix.
 //
 // Currently works with Message's caption and text, CallbackQuery's data, and InlineQuery's query.
 func WithSuffix(suffix string) tgo.Filter {
-	return NewFilter(func(update *tg.Update) bool {
+	return func(update *tg.Update) bool {
 		return strings.HasSuffix(extractUpdateText(update), suffix)
-	})
+	}
 }
 
 // Regex matches the update's text with the reg.
 //
 // Currently works with Message's caption and text, CallbackQuery's data, and InlineQuery's query.
 func Regex(reg *regexp.Regexp) tgo.Filter {
-	return NewFilter(func(update *tg.Update) bool {
+	return func(update *tg.Update) bool {
 		return reg.MatchString(extractUpdateText(update))
-	})
+	}
 }
 
 // Whitelist checks if the update is from the whitelisted IDs.
 //
 // Currently works with Message and CallbackQuery, and InlineQuery.
 func Whitelist(IDs ...int64) tgo.Filter {
-	return NewFilter(func(update *tg.Update) bool {
+	return func(update *tg.Update) bool {
 		var senderID int64
 
 		if update.Message != nil {
@@ -97,5 +85,5 @@ func Whitelist(IDs ...int64) tgo.Filter {
 		}
 
 		return false
-	})
+	}
 }

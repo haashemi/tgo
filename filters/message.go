@@ -9,7 +9,7 @@ import (
 
 // IsPrivate checks if the message (and only message) is inside the private chat.
 func IsPrivate() tgo.Filter {
-	return NewFilter(func(update *tg.Update) bool {
+	return func(update *tg.Update) bool {
 		if msg := update.Message; msg != nil {
 			// if message sender's id is equal to the chat-id,
 			// then it's a private message.
@@ -17,7 +17,7 @@ func IsPrivate() tgo.Filter {
 		}
 
 		return false
-	})
+	}
 }
 
 // Commands tests if the message's (and only message) text or caption
@@ -39,7 +39,7 @@ func Commands(botUsername string, cmds ...string) tgo.Filter {
 		botUsername = "@" + botUsername
 	}
 
-	return NewFilter(func(update *tg.Update) bool {
+	return func(update *tg.Update) bool {
 		if msg := update.Message; msg != nil {
 			text := msg.Text
 			if text == "" {
@@ -63,5 +63,5 @@ func Commands(botUsername string, cmds ...string) tgo.Filter {
 		}
 
 		return false
-	})
+	}
 }
