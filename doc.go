@@ -1,4 +1,4 @@
-// TGO is a simple, flexible, and fully featured telegram-bot-api framework for Go developers.
+// Package tgo is a simple, flexible, and fully featured telegram-bot-api framework for Go developers.
 //
 // It gives you the ability to implement your own filters, middlewares, and even routers!
 //
