@@ -34,6 +34,24 @@ type Sendable interface {
 	Send(api *tg.API) (*tg.Message, error)
 }
 
+// Replyable is an interface that represents any object that can be replied to.
+type Replyable interface {
+	Sendable
+	SetReplyToMessageId(id int64)
+}
+
+// ParseModeSettable is an interface that represents any object that can have its ParseMode set
+// Or in other words, messages with captions.
+type ParseModeSettable interface {
+	Sendable
+
+	// GetParseMode returns the current set parse mode.
+	GetParseMode() tg.ParseMode
+
+	// SetParseMode updates the parse mode.
+	SetParseMode(mode tg.ParseMode)
+}
+
 func (x *SendAnimation) GetChatID() tg.ChatID { return x.ChatId }
 func (x *SendAudio) GetChatID() tg.ChatID     { return x.ChatId }
 func (x *SendContact) GetChatID() tg.ChatID   { return x.ChatId }
@@ -67,6 +85,102 @@ func (x *SendVenue) SetChatID(id int64)     { x.ChatId = tg.ID(id) }
 func (x *SendVideo) SetChatID(id int64)     { x.ChatId = tg.ID(id) }
 func (x *SendVideoNote) SetChatID(id int64) { x.ChatId = tg.ID(id) }
 func (x *SendVoice) SetChatID(id int64)     { x.ChatId = tg.ID(id) }
+
+func (x *SendAnimation) GetParseMode() tg.ParseMode { return x.ParseMode }
+func (x *SendAudio) GetParseMode() tg.ParseMode     { return x.ParseMode }
+func (x *SendDocument) GetParseMode() tg.ParseMode  { return x.ParseMode }
+func (x *SendMessage) GetParseMode() tg.ParseMode   { return x.ParseMode }
+func (x *SendPhoto) GetParseMode() tg.ParseMode     { return x.ParseMode }
+func (x *SendVideo) GetParseMode() tg.ParseMode     { return x.ParseMode }
+func (x *SendVoice) GetParseMode() tg.ParseMode     { return x.ParseMode }
+
+func (x *SendAnimation) SetParseMode(mode tg.ParseMode) { x.ParseMode = mode }
+func (x *SendAudio) SetParseMode(mode tg.ParseMode)     { x.ParseMode = mode }
+func (x *SendDocument) SetParseMode(mode tg.ParseMode)  { x.ParseMode = mode }
+func (x *SendMessage) SetParseMode(mode tg.ParseMode)   { x.ParseMode = mode }
+func (x *SendPhoto) SetParseMode(mode tg.ParseMode)     { x.ParseMode = mode }
+func (x *SendVideo) SetParseMode(mode tg.ParseMode)     { x.ParseMode = mode }
+func (x *SendVoice) SetParseMode(mode tg.ParseMode)     { x.ParseMode = mode }
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendAnimation) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendAudio) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendContact) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendDice) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendDocument) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendGame) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendInvoice) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendLocation) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendMessage) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendPhoto) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendPoll) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendSticker) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendVenue) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendVideo) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendVideoNote) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
+
+// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
+func (x *SendVoice) SetReplyToMessageId(id int64) {
+	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
+}
 
 func (x *SendAnimation) Send(api *tg.API) (*tg.Message, error) {
 	return api.SendAnimation((*tg.SendAnimation)(x))
