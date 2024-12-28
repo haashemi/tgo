@@ -37,7 +37,9 @@ type Sendable interface {
 // Replyable is an interface that represents any object that can be replied to.
 type Replyable interface {
 	Sendable
-	SetReplyToMessageId(id int64)
+
+	GetReplyParameters() *tg.ReplyParameters
+	SetReplyToMessageID(id int64)
 }
 
 // ParseModeSettable is an interface that represents any object that can have its ParseMode set
@@ -102,83 +104,131 @@ func (x *SendPhoto) SetParseMode(mode tg.ParseMode)     { x.ParseMode = mode }
 func (x *SendVideo) SetParseMode(mode tg.ParseMode)     { x.ParseMode = mode }
 func (x *SendVoice) SetParseMode(mode tg.ParseMode)     { x.ParseMode = mode }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendAnimation) SetReplyToMessageId(id int64) {
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendAnimation) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendAudio) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendContact) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendDice) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendDocument) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendGame) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendInvoice) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendLocation) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendMessage) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendPhoto) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendPoll) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendSticker) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendVenue) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendVideo) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendVideoNote) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// GetReplyParameters implements Replyable's GetReplyParameters method.
+func (x *SendVoice) GetReplyParameters() *tg.ReplyParameters { return x.ReplyParameters }
+
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendAnimation) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendAudio) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendAudio) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendContact) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendContact) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendDice) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendDice) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendDocument) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendDocument) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendGame) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendGame) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendInvoice) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendInvoice) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendLocation) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendLocation) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendMessage) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendMessage) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendPhoto) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendPhoto) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendPoll) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendPoll) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendSticker) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendSticker) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendVenue) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendVenue) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendVideo) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendVideo) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendVideoNote) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendVideoNote) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
-// SetReplyToMessageId implements Replyable's SetReplyToMessageId method.
-func (x *SendVoice) SetReplyToMessageId(id int64) {
+// SetReplyToMessageID implements Replyable's SetReplyToMessageID method.
+func (x *SendVoice) SetReplyToMessageID(id int64) {
 	x.ReplyParameters = &tg.ReplyParameters{MessageId: id, ChatId: x.GetChatID()}
 }
 
