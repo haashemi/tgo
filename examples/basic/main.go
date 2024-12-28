@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/haashemi/tgo"
 	"github.com/haashemi/tgo/filters"
-	"github.com/haashemi/tgo/routers/message"
 	"github.com/haashemi/tgo/tg"
+	"log"
 )
 
 const BotToken = "bot_token"
@@ -18,19 +16,14 @@ func main() {
 		DefaultParseMode: tg.ParseModeHTML,
 	})
 
-	// initialize a new router to handle messages
-	messageRouter := message.NewRouter()
 	// It will call the handler when a new message gets received with text/caption of "hi"
-	messageRouter.Handle(filters.And(filters.IsMessage(), filters.Text("hi")), Hi)
+	bot.Handle(filters.And(filters.IsMessage(), filters.Text("hi")), Hi)
 
 	// Handlers are called in order (at the least in DefaultRouter, other routers may work differently)
 	// so, if no handlers gets used and the update is a new message, Echo will be called.
-	messageRouter.Handle(filters.And(filters.IsMessage()), Echo)
+	bot.Handle(filters.And(filters.IsMessage()), Echo)
 
-	// add our message router to the bot routers; so it will be triggered on updates.
-	bot.AddRouter(messageRouter)
-
-	botInfo, err := bot.GetMe()
+	botInfo, err := bot.API().GetMe()
 	if err != nil {
 		log.Fatalln("Failed to fetch the bot info", err.Error())
 		return
@@ -47,21 +40,28 @@ func main() {
 }
 
 // Hi answers the hi message with a new hi!
-func Hi(ctx *message.Context) {
+func Hi(ctx tgo.Context) {
 	// Get sender's first name with getting the raw message
-	senderFirstName := ctx.Message.From.FirstName
+	senderFirstName := ctx.From().FirstName
 
 	// create the text using HTML Markups
 	text := fmt.Sprintf("Hi <i>%s</i>!", senderFirstName)
 
 	// HTML Parse mode will be automatically set
-	ctx.Reply(&tg.SendMessage{
-		Text: text,
-	})
+	_, _ = ctx.Reply(&tgo.SendMessage{Text: text})
 }
 
 // Echo just echoes with text
-func Echo(ctx *message.Context) {
+func Echo(ctx tgo.Context) {
+	msg := ctx.Message()
+
+	text := msg.Text
+	if text == "" {
+		text = msg.Caption
+	}
+
 	// get text or caption of the sent message and send it back!
-	ctx.Send(&tg.SendMessage{Text: ctx.String()})
+	if text != "" {
+		_, _ = ctx.Send(&tgo.SendMessage{Text: text})
+	}
 }
