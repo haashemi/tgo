@@ -20,18 +20,18 @@ func IsPrivate() tgo.Filter {
 	}
 }
 
-// Commands tests if the message's (and only message) text or caption
+// Command tests if the message's (and only message) text or caption
 // matches the cmd.
 func Command(cmd, botUsername string) tgo.Filter {
 	return Commands(botUsername, cmd)
 }
 
 // Commands tests if the message's (and only message) text or caption
-// matches any of the cmds.
-func Commands(botUsername string, cmds ...string) tgo.Filter {
+// matches any of the commands.
+func Commands(botUsername string, commands ...string) tgo.Filter {
 	// make sure they are all lower-cased
-	for index, command := range cmds {
-		cmds[index] = strings.ToLower("/" + command)
+	for index, command := range commands {
+		commands[index] = strings.ToLower("/" + command)
 	}
 
 	// add a '@' prefix if not set already
@@ -50,7 +50,7 @@ func Commands(botUsername string, cmds ...string) tgo.Filter {
 			// the text itself should get lowercased too.
 			text = strings.ToLower(text)
 
-			for _, cmd := range cmds {
+			for _, cmd := range commands {
 				// valid cases are:
 				// /command
 				// /command@username
