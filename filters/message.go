@@ -35,7 +35,7 @@ func Commands(botUsername string, cmds ...string) tgo.Filter {
 
 	// add a '@' prefix if not set already
 	if !strings.HasPrefix(botUsername, "@") {
-		botUsername = "@" + botUsername
+		botUsername = "@" + strings.ToLower(botUsername)
 	}
 
 	return NewFilter(func(update *tgo.Update) bool {
